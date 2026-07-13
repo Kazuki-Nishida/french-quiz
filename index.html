@@ -159,6 +159,13 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 .expl{background:#F4F1FB;border-radius:16px;padding:12px 16px;margin-top:12px;text-align:left;}
 .expl-h{font-size:12.5px;font-weight:800;color:var(--purple);margin-bottom:4px;}
 #expltext{font-size:13.5px;line-height:1.9;color:#4A4560;font-weight:600;}
+/* かいせつの ひょう (ぶんぽう1) */
+.ntbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px;background:#fff;}
+.ntbl th{background:#E9E2F8;padding:6px 7px;font-size:12px;border:1px solid #DDD3F0;color:#4A4560;}
+.ntbl td{padding:6px 7px;border:1px solid #E4DEF3;font-weight:600;line-height:1.6;color:#4A4560;}
+.ntbl tr.hirow td{background:#FFF3C9;font-weight:800;color:#5A4A00;}
+.ntbl-t{font-size:12.5px;font-weight:800;color:var(--purple);margin-top:10px;}
+.ntbl-f{font-size:11.5px;font-weight:600;color:var(--sub);margin-top:5px;line-height:1.7;}
 /* こたえたあとは がめんの どこを タップしても つぎへ。ボタンは みぎしたに ひかえめに */
 #nextwrap{display:none;position:fixed;right:16px;bottom:18px;z-index:30;}
 #nextwrap .btn{width:auto;border-radius:99px;padding:13px 28px;font-size:18px;white-space:nowrap;box-shadow:0 5px 0 rgba(20,130,120,.4),0 12px 30px rgba(30,20,60,.35);}
@@ -378,6 +385,7 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
     <div class="expl" id="expl" style="display:none">
       <div class="expl-h">📖 かいせつ (おとなの ひと むけ)</div>
       <div id="expltext"></div>
+      <div id="expltbl"></div>
     </div>
     <div id="nextwrap"><button class="btn teal" id="btnnext">つぎへ ▶</button></div>
   </section>
@@ -861,7 +869,7 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 <script src="words.js"></script>
 <script>
 "use strict";
-const APP_VER = "v34"; // こうしんしたら ばんごうを あげる
+const APP_VER = "v35"; // こうしんしたら ばんごうを あげる
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
@@ -1185,6 +1193,18 @@ function totalAnswered(p){
   return Object.values(p.daily).reduce((a,d) => a + d.q, 0);
 }
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+// かいせつ用の表 (w.tbl: {t,h,r,f,hi}) を HTML に (おとな向けなので漢字OK)
+function tblHTML(tb){
+  let s = "";
+  if(tb.t) s += '<div class="ntbl-t">📊 ' + esc(tb.t) + '</div>';
+  s += '<table class="ntbl"><thead><tr>' + tb.h.map(c => "<th>" + esc(c) + "</th>").join("") + '</tr></thead><tbody>';
+  tb.r.forEach((row, i) => {
+    s += '<tr' + (i === tb.hi ? ' class="hirow"' : '') + '>' + row.map(c => "<td>" + esc(c) + "</td>").join("") + '</tr>';
+  });
+  s += '</tbody></table>';
+  if(tb.f) s += '<div class="ntbl-f">💡 ' + esc(tb.f) + '</div>';
+  return s;
+}
 
 /* ================= ホーム ================= */
 function renderHome(){
@@ -1547,6 +1567,7 @@ function answer(idx){
   // おとな向けかいせつ (かいわ文など note があるとき)
   if(q.w.note){
     document.getElementById("expltext").textContent = q.w.note;
+    document.getElementById("expltbl").innerHTML = q.w.tbl ? tblHTML(q.w.tbl) : "";
     document.getElementById("expl").style.display = "block";
   }
   bigMark(ok);
