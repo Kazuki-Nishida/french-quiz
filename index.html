@@ -289,8 +289,9 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
   .opt .ofr{font-size:19px;} .scorebig{font-size:46px;}
 }
 </style>
-<link rel="stylesheet" href="adventure.css?v=39.2">
-<link rel="stylesheet" href="learning-ui.css?v=39.2">
+<link rel="stylesheet" href="adventure.css?v=40.2">
+<link rel="stylesheet" href="learning-ui.css?v=40.2">
+<link rel="stylesheet" href="play-feedback.css?v=40.2">
 </head>
 <body>
 <div id="app">
@@ -354,6 +355,10 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 
   <!-- クイズせってい -->
   <section class="screen" id="scr-setup">
+    <div class="setup-launch">
+      <div class="setup-launch-copy"><span class="setup-eyebrow">PRÊT POUR L’AVENTURE</span><div id="setup-selection"></div><p id="question-limit-note" class="study-context"></p></div>
+      <button class="btn" id="btnstart">スタート! 🚀</button>
+    </div>
     <div class="title">どんな クイズに する?</div>
     <div id="setup-journey" class="study-context"></div>
     <p class="study-freedom">どの教材も、初めから自由に選べます。</p>
@@ -386,12 +391,11 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
       </div>
     </div>
     <div class="card" id="grammar-guide" hidden></div>
-    <p id="question-limit-note" class="study-context"></p>
-    <button class="btn" id="btnstart">スタート! 🚀</button>
   </section>
 
   <!-- クイズ -->
   <section class="screen" id="scr-quiz">
+    <div id="correct-celebration" class="correct-celebration" aria-hidden="true" hidden></div>
     <div class="quiz-context" data-no-next><div id="quiz-subject"></div><label><ruby>演出<rt>えんしゅつ</rt></ruby><select id="quiz-effects"><option value="rich">たっぷり</option><option value="calm">ひかえめ</option></select></label></div>
     <div id="adventure-scene" data-no-next></div>
     <div id="qprog"></div>
@@ -749,7 +753,7 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
       <div class="tuttitle">🎈 ことばあつめの だいぼうけん!</div>
       <div class="tuttext">
         フランスごの ことばに せいかいすると ⭐<b>おぼえた!</b>に なるよ。<br>
-        気球でパリへ到着。ここから、好きな道を歩いていこう。<br>
+        <ruby>借<rt>か</rt></ruby>りた<ruby>気球<rt>ききゅう</rt></ruby>でパリへ<ruby>到着<rt>とうちゃく</rt></ruby>。ここから<ruby>自分<rt>じぶん</rt></ruby>の<ruby>旅<rt>たび</rt></ruby>を<ruby>始<rt>はじ</rt></ruby>めよう。<br>
         🔊を おして、ほんものの フランスごも きいてみよう!
       </div>
       </div>
@@ -838,8 +842,8 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
       <div class="tutscrim"></div>
       </div>
       <div class="tutoverlay">
-      <div class="tuttitle">🏅 バッジを あつめて 👑を めざそう!</div>
-      <div class="tutgo">さあ、ぼうけんに<br>しゅっぱつだ!! 🎈✨</div>
+      <div class="tuttitle">👑 <ruby>仲間<rt>なかま</rt></ruby>と<ruby>乗<rt>の</rt></ruby>り<ruby>物<rt>もの</rt></ruby>を<ruby>集<rt>あつ</rt></ruby>め、<ruby>空<rt>そら</rt></ruby>の<ruby>城<rt>しろ</rt></ruby>の<ruby>宝探<rt>たからさが</rt></ruby>しへ！</div>
+      <div class="tutgo">5<ruby>人<rt>にん</rt></ruby>のキャラと4つの<ruby>乗<rt>の</rt></ruby>り<ruby>物<rt>もの</rt></ruby>が、<ruby>最後<rt>さいご</rt></ruby>の<ruby>扉<rt>とびら</rt></ruby>を<ruby>開<rt>ひら</rt></ruby>く。<br>さあ、フランスの<ruby>旅<rt>たび</rt></ruby>へ！ 🎈✨</div>
       </div>
     </div>
     <div class="tutfoot">
@@ -888,12 +892,12 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 <div id="toast"></div>
 
 <script src="words.js"></script>
-<script src="world-data.js?v=39.2"></script>
-<script src="adventure.js?v=39.2"></script>
-<script src="study-guide.js?v=39.2"></script>
-<script src="ui-ja.js?v=39.2"></script>
-<script src="profile-store.js?v=39.2"></script>
-<script src="adventure-view.js?v=39.2"></script>
-<script src="app.js?v=39.2"></script>
+<script src="world-data.js?v=40.2"></script>
+<script src="adventure.js?v=40.2"></script>
+<script src="study-guide.js?v=40.2"></script>
+<script src="ui-ja.js?v=40.2"></script>
+<script src="profile-store.js?v=40.2"></script>
+<script src="adventure-view.js?v=40.2"></script>
+<script src="app.js?v=40.2"></script>
 </body>
 </html>

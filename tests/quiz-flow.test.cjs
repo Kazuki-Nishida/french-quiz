@@ -339,3 +339,81 @@ test("place recommendations never leak into a review's heading or question pool"
   assert.ok(h.inspect("quiz.qs.every(q=>q.w.lv==='C2')"));
   assert.equal(h.document.getElementById('quiz-subject').innerHTML.includes('数の言葉'),false);
 });
+
+test("rich correct feedback is immediate, cancellable, and never delays the next question", () => {
+  const h=harness();
+  h.run("startQuiz(false)"); h.answer();
+  const panel=h.document.getElementById('correct-celebration');
+  assert.equal(panel.hidden,false);
+  assert.match(panel.innerHTML,/BRAVO/);
+  assert.equal(h.document.body.querySelectorAll('.confetti').length,18);
+  const saved=h.storage.raw;
+  h.run("setEffects('calm')");
+  assert.equal(panel.hidden,true);
+  assert.equal(h.document.body.querySelectorAll('.confetti').length,0);
+  assert.equal(h.inspect('quiz.results.length'),1);
+  assert.equal(JSON.parse(saved).profiles[0].adventure.earnedUnits,h.inspect('prof().adventure.earnedUnits'));
+  h.run("setEffects('rich'); nextQ()");
+  assert.equal(h.inspect('quiz.i'),1,"the next button has no animation wait");
+  assert.equal(panel.hidden,true);
+  h.answer(); assert.equal(panel.hidden,false);
+  h.run("go('scr-home')");
+  assert.equal(panel.hidden,true); h.flushTimers(); assert.equal(panel.hidden,true);
+});
+
+test("calm and reduced-motion settings suppress the richer correct effect without changing scoring", () => {
+  for(const mode of ['calm','reduced']){
+    const h=harness();
+    h.run(mode==='calm' ? "Adventure.ensure(prof()).effectsMode='calm'" : "window.matchMedia=()=>({matches:true})");
+    h.run("startQuiz(false)"); h.answer();
+    assert.equal(h.document.getElementById('correct-celebration').hidden,true,mode);
+    assert.equal(h.document.body.querySelectorAll('.confetti').length,0,mode);
+    assert.equal(h.inspect('prof().adventure.earnedUnits'),1,mode);
+  }
+});
+
+test("the third real correct answer unlocks a bicycle once and its selection survives reload", () => {
+  const h=harness(); h.run('startQuiz(false)'); h.finish();
+  assert.deepEqual(h.inspect('quiz.vehicleUnlocks'),['bicycle']);
+  assert.equal(h.inspect("Adventure.getVehicles(prof()).find(v=>v.id==='bicycle').unlocked"),true);
+  h.run("Adventure.setVehicle(prof(),'bicycle'); save()");
+  const fresh=harness(h.storage.raw);
+  assert.equal(fresh.inspect('prof().adventure.vehicleId'),'bicycle');
+  fresh.run('startQuiz(false)'); fresh.answer();
+  assert.deepEqual(fresh.inspect('quiz.vehicleUnlocks'),[]);
+});
+
+function readyForTreasure(h){
+  h.run(`{
+    const p=prof(); Adventure.ensure(p); p.adventure.introCompleted=true;
+    let event=0;
+    for(const target of ['eiffel','mont-saint-michel','chambord','marseille','versailles']){
+      Adventure.selectPath(p,p.adventure.currentNodeId+'--'+target);
+      while(p.adventure.activeLeg) Adventure.addCorrect(p,'prepare-'+(++event));
+    }
+    save();
+  }`);
+}
+
+test("the final treasure counts new real answers, preserves mistakes and resumes across reload", () => {
+  const h=harness(); readyForTreasure(h);
+  assert.equal(h.inspect('Adventure.getFinaleStatus(prof()).unlocked'),true);
+  h.run('Adventure.startFinale(prof()); startQuiz(false)');
+  assert.equal(h.inspect('quiz.qs.length'),10);
+  h.finish(i=>i!==4);
+  assert.equal(h.inspect('prof().adventure.finale.correctCount'),9);
+  assert.equal(h.inspect('prof().adventure.finale.completedAt'),null);
+  assert.equal(h.inspect('prof().stock.length'),1);
+  const fresh=harness(h.storage.raw);
+  fresh.run('startQuiz(true)'); fresh.answer();
+  assert.equal(fresh.inspect('prof().adventure.finale.correctCount'),10);
+  assert.equal(fresh.inspect('quiz.finaleCompleted'),true);
+  assert.equal(fresh.inspect('prof().adventure.finale.active'),false);
+  assert.equal(fresh.inspect('prof().stock.length'),0);
+  const saved=fresh.storage.raw;
+  fresh.answer(); fresh.run('nextQ(); showResult(); showResult()');
+  assert.equal(fresh.storage.raw,saved,'duplicate answer/result cannot award treasure again');
+  fresh.run('startQuiz(false)'); fresh.answer();
+  assert.equal(fresh.inspect('prof().adventure.finale.correctCount'),10);
+  assert.equal(fresh.inspect('quiz.finaleCompleted'),false);
+});

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="220" viewBox="0 0 320 220">
+  <title>ことばの王冠。開いた宝箱の上で光る、旅を振り返るための空想の宝物</title>
+  <defs><radialGradient id="light"><stop stop-color="#f2df9f" stop-opacity=".8"/><stop offset="1" stop-color="#f2df9f" stop-opacity="0"/></radialGradient><linearGradient id="wood" x2="0" y2="1"><stop stop-color="#c49e70"/><stop offset="1" stop-color="#967c5c"/></linearGradient><linearGradient id="gold" x2=".7" y2="1"><stop stop-color="#f1daa0"/><stop offset=".55" stop-color="#d7b97d"/><stop offset="1" stop-color="#b49967"/></linearGradient></defs>
+  <ellipse cx="159" cy="209" rx="98" ry="6" fill="#486f611a"/>
+  <circle cx="159" cy="106" r="99" fill="url(#light)"/>
+  <path d="M82 143V119c0-25 22-43 77-43 52 0 77 18 77 43v24Z" fill="url(#wood)" stroke="#8e7859" stroke-width="3"/>
+  <path d="M94 135v-15c0-19 19-31 66-31 44 0 64 14 64 31v15Z" fill="#68897b" stroke="#b8a276" stroke-width="2"/>
+  <path d="M80 142h159l-7 60H87Z" fill="url(#wood)" stroke="#877356" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M88 153h144m-142 18h140m-138 17h136" stroke="#a68b63" stroke-width="2"/>
+  <path d="M78 137h163v17H78Z" fill="#d5b67d" stroke="#987f58" stroke-width="2"/>
+  <path d="M92 139v61h16v-47m103-14v61h16v-47" fill="#d0b37a" stroke="#a18a5e" stroke-width="1.5"/>
+  <path d="M91 195h138v9H91Z" fill="#c2a36e" stroke="#987f58" stroke-width="1.5"/>
+  <path d="M145 142h29v33h-29Z" fill="#e0c38b" stroke="#987f58" stroke-width="2"/><circle cx="159" cy="155" r="4" fill="#718471"/><path d="m157 157-1 9h6l-1-9" fill="#718471"/>
+  <path d="m111 55 22 18 27-35 25 35 24-18-11 61h-75Z" fill="url(#gold)" stroke="#ae9464" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="m120 64 14 17 26-34 25 33 16-17" fill="none" stroke="#f2e2b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M123 101h76v16h-76Z" fill="#d8ba7d" stroke="#ad925f" stroke-width="2"/><path d="M128 108h64" stroke="#f5e3ac" stroke-width="3"/>
+  <circle cx="111" cy="54" r="5" fill="#e4cd96" stroke="#b89b68" stroke-width="1.5"/><circle cx="160" cy="36" r="6" fill="#ead39c" stroke="#b89b68" stroke-width="1.5"/><circle cx="210" cy="53" r="5" fill="#e4cd96" stroke="#b89b68" stroke-width="1.5"/>
+  <path d="m159 79 8 8-8 8-8-8Z" fill="#76a69b" stroke="#648878" stroke-width="1.5"/><circle cx="136" cy="92" r="4" fill="#bc8d69"/><circle cx="184" cy="92" r="4" fill="#9daa81"/>
+  <path d="M69 60v14m-7-7h14m165 11v15m-7-8h14M96 30v9m-4-5h9m117-9v10m-5-5h10" stroke="#d3bb82" stroke-width="2" stroke-linecap="round"/>
+  <path d="m65 113 21 9m148-2 21-10m-95-87V12" stroke="#e3cd92" stroke-width="3" stroke-linecap="round"/>
+</svg>

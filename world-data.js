@@ -163,8 +163,31 @@
       descriptionReading: "ちいさなてちょうをもった、ていえんのたびなかま。かがみのひかりやにわのかたちをかんさつするのがすきな、くうそうのオリジナルキャラクター。" }
   ]);
 
+  // Prototype thresholds use cumulative learning units, not level, speed, or currency.
+  // Artwork is 320 × 220 with no rider. rider is a percentage anchor for the companion's bottom center.
+  const vehicles = freeze([
+    { id: "bicycle", name: "自転車", reading: "じてんしゃ", requiredUnits: 3, asset: "img/adventure/vehicle-bicycle.svg", rider: { x: 42, y: 69 } },
+    { id: "car", name: "車", reading: "くるま", requiredUnits: 24, asset: "img/adventure/vehicle-car.svg", rider: { x: 52, y: 56 } },
+    { id: "balloon", name: "気球", reading: "ききゅう", requiredUnits: 72, asset: "img/adventure/vehicle-balloon.svg", rider: { x: 50, y: 81 } },
+    { id: "dragon", name: "ドラゴン", reading: "ドラゴン", requiredUnits: 120, asset: "img/adventure/vehicle-dragon.svg", fictional: true, rider: { x: 50, y: 61 } }
+  ]);
+
+  // An imaginary closing adventure, separate from every real place and geographic coordinate.
+  // Its ten new correct answers are counted by the finale engine, never paid from travel carryover.
+  const finale = freeze({
+    id: "sky-castle", name: "星あかりの城", reading: "ほしあかりのしろ", fictional: true, scene: "sky",
+    illustration: "img/adventure/sky-castle.svg",
+    description: "旅で出会った仲間たちと向かう、空想の城。星あかりの下で、ことばの王冠を探そう。",
+    descriptionReading: "たびでであったなかまたちとむかう、くうそうのしろ。ほしあかりのしたで、ことばのおうかんをさがそう。",
+    requiredCharacterIds: ["lumie", "mare", "plume", "sol", "miro"],
+    requiredVehicleIds: ["bicycle", "car", "balloon", "dragon"],
+    requiredCorrect: 10, treasureName: "ことばの王冠", treasureReading: "ことばのおうかん",
+    treasureAsset: "img/adventure/treasure-crown.svg"
+  });
+
   function getNode(id) { return nodes.find(function (node) { return node.id === id; }) || null; }
   function getCharacter(id) { return characters.find(function (character) { return character.id === id; }) || null; }
+  function getVehicle(id) { return vehicles.find(function (vehicle) { return vehicle.id === id; }) || null; }
   function recommendationsFor(id) {
     const node = getNode(id);
     return node ? node.recommendations : [];
@@ -177,6 +200,6 @@
     return null;
   }
 
-  return freeze({ nodes: nodes, regions: regions, characters: characters, mapBounds: mapBounds,
-    getNode: getNode, getCharacter: getCharacter, recommendationsFor: recommendationsFor, getRecommendation: getRecommendation });
+  return freeze({ nodes: nodes, regions: regions, characters: characters, vehicles: vehicles, finale: finale, mapBounds: mapBounds,
+    getNode: getNode, getCharacter: getCharacter, getVehicle: getVehicle, recommendationsFor: recommendationsFor, getRecommendation: getRecommendation });
 });

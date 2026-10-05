@@ -81,6 +81,15 @@ function bucketTotals(value) {
   return totals;
 }
 
+function readyForFinale(id = 1) {
+  const p = profile(id);
+  for (const [from, to, cost] of [["trocadero", "eiffel", 8], ["eiffel", "versailles", 16], ["versailles", "chambord", 24], ["chambord", "mont-saint-michel", 48], ["mont-saint-michel", "marseille", 48]]) {
+    Adventure.selectPath(p, from + "--" + to, NOW);
+    correct(p, cost, "prepare-" + to, { level: "A1", review: false, wordKey: to });
+  }
+  return p;
+}
+
 test("old learning-only profiles initialize at Trocadero without converting old scores", () => {
   const p = { id: 7, words: { "bonjour::こんにちは": { c: 30, w: 2 } }, daily: { "2026-10-04": { q: 32, c: 30 } }, stock: ["other"], extra: { retained: true } };
   const before = clone(p);
@@ -558,5 +567,188 @@ test("an already migrated version-one archive is not credited a second time afte
   Adventure.selectPath(p, "seine--versailles", NOW);
   assert.equal(p.adventure.activeLeg.progressUnits, 4);
   assert.deepEqual(p.adventure.legacyJourney, archived);
+  check(p);
+});
+
+test("vehicle availability is derived at exact thresholds and never rewrites old records", () => {
+  for (const amount of [0, 2, 3, 23, 24, 71, 72, 119, 120]) {
+    const p = profile(); correct(p, amount);
+    const before = JSON.stringify(p);
+    const vehicles = Adventure.getVehicles(p);
+    for (const [id, threshold] of [["bicycle", 3], ["car", 24], ["balloon", 72], ["dragon", 120]]) {
+      const vehicle = vehicles.find(item => item.id === id);
+      assert.equal(vehicle.unlocked, amount >= threshold);
+      assert.equal(vehicle.remainingUnits, Math.max(0, threshold - amount));
+      assert.equal(vehicle.selected, false, "missing optional vehicleId means walking");
+      assert.ok(vehicle.rider && Number.isFinite(vehicle.rider.x), "catalog rendering metadata survives projection");
+    }
+    Adventure.getFinaleStatus(p);
+    assert.equal(JSON.stringify(p), before);
+    assert.equal(Object.hasOwn(p.adventure, "vehicleId"), false);
+    assert.equal(Object.hasOwn(p.adventure, "finale"), false);
+  }
+  const old = { adventure: legacyV38ActiveJourney() };
+  const before = JSON.stringify(old);
+  Adventure.getVehicles(old); Adventure.getFinaleStatus(old); Adventure.ensure(old, NOW);
+  assert.equal(JSON.stringify(old), before);
+});
+
+test("locked or unknown vehicle selection never mutates and every unlocked vehicle still earns exactly one", () => {
+  const p = profile();
+  const before = JSON.stringify(p);
+  for (const id of ["bicycle", "dragon", "unknown", "__proto__", null]) assert.deepEqual(Adventure.setVehicle(p, id), { changed: false });
+  assert.equal(JSON.stringify(p), before);
+  correct(p, 120, "unlock");
+  let earned = 120;
+  for (const id of ["bicycle", "car", "balloon", "dragon"]) {
+    assert.deepEqual(Adventure.setVehicle(p, id), { changed: true });
+    assert.deepEqual(Adventure.setVehicle(p, id), { changed: false });
+    assert.deepEqual(Adventure.getVehicles(p).filter(v => v.selected).map(v => v.id), [id]);
+    Adventure.addCorrect(p, "ride-" + id, NOW, { level: "C2", review: true, wordKey: "same-unit" });
+    assert.equal(p.adventure.earnedUnits, ++earned);
+    assert.equal(p.adventure.pendingUnits, earned);
+    check(p);
+  }
+  assert.deepEqual(Adventure.setVehicle(p, "walk"), { changed: true });
+  assert.equal(Object.hasOwn(p.adventure, "vehicleId"), false);
+  assert.deepEqual(Adventure.setVehicle(p, "walk"), { changed: false });
+});
+
+test("finale lists missing resources and never locks ordinary destinations", () => {
+  const p = profile();
+  const before = JSON.stringify(p);
+  const missing = Adventure.getFinaleStatus(p);
+  assert.equal(missing.unlocked, false); assert.equal(missing.active, false); assert.equal(missing.completed, false);
+  assert.equal(missing.progress, 0); assert.equal(missing.requiredCorrect, 10);
+  assert.deepEqual(missing.missingCharacters.map(c => c.id), ["lumie", "mare", "plume", "sol", "miro"]);
+  assert.deepEqual(missing.missingVehicles.map(v => v.remainingUnits), [3, 24, 72, 120]);
+  assert.deepEqual(Adventure.startFinale(p, NOW), { changed: false });
+  assert.equal(JSON.stringify(p), before);
+  assert.equal(Adventure.selectPath(p, "trocadero--marseille", NOW).changed, true);
+  assert.equal(Adventure.selectPath(p, "trocadero--versailles", NOW).changed, true);
+  assert.equal(Adventure.nodes.length, 8); assert.equal(Adventure.edges.length, 54);
+});
+
+test("each of the five character requirements is enforced even when all vehicles are available", () => {
+  const destinations = [["eiffel", "lumie", 8], ["versailles", "miro", 16], ["chambord", "plume", 24], ["mont-saint-michel", "mare", 48], ["marseille", "sol", 48]];
+  for (const omitted of destinations) {
+    const p = profile();
+    for (const [place, id, cost] of destinations) {
+      if (id === omitted[1]) continue;
+      Adventure.returnTo(p, "trocadero"); Adventure.selectPath(p, "trocadero--" + place, NOW); correct(p, cost, id);
+    }
+    correct(p, Math.max(0, 150 - p.adventure.earnedUnits), "surplus");
+    const state = Adventure.getFinaleStatus(p), before = JSON.stringify(p);
+    assert.deepEqual(state.missingCharacters.map(c => c.id), [omitted[1]]);
+    assert.deepEqual(state.missingVehicles, []);
+    assert.equal(Adventure.startFinale(p, NOW).changed, false);
+    assert.equal(JSON.stringify(p), before);
+  }
+});
+
+test("starting the finale refunds an unfinished route but cannot spend carryover to win", () => {
+  const p = readyForFinale();
+  Adventure.selectPath(p, "marseille--seine", NOW);
+  correct(p, 7, "unfinished", { level: "B1", review: true, wordKey: "refund" });
+  const before = bucketTotals(p), earned = p.adventure.earnedUnits, spent = p.adventure.spentUnits;
+  assert.equal(Adventure.getFinaleStatus(p).unlocked, true);
+  assert.deepEqual(Adventure.startFinale(p, NOW + 100), { changed: true });
+  assert.equal(p.adventure.currentNodeId, "marseille");
+  assert.equal(p.adventure.activeLeg, null);
+  assert.equal(p.adventure.pendingUnits, 7);
+  assert.equal(p.adventure.earnedUnits, earned); assert.equal(p.adventure.spentUnits, spent);
+  assert.deepEqual(bucketTotals(p), before);
+  assert.deepEqual(p.adventure.finale, { active: true, correctCount: 0, startedAt: new Date(NOW + 100).toISOString(), completedAt: null });
+  const started = JSON.stringify(p);
+  assert.deepEqual(Adventure.startFinale(p, NOW + 200), { changed: false });
+  assert.equal(JSON.stringify(p), started);
+  check(p);
+});
+
+test("finale interruption, reload and resume preserve progress; only the tenth new correct event completes once", () => {
+  let p = readyForFinale();
+  correct(p, 30, "bank");
+  const bank = p.adventure.pendingUnits, earned = p.adventure.earnedUnits;
+  Adventure.startFinale(p, NOW);
+  correct(p, 4, "final-first");
+  Adventure.pauseFinale(p);
+  const startedAt = p.adventure.finale.startedAt;
+  correct(p, 3, "ordinary");
+  assert.equal(p.adventure.finale.correctCount, 4);
+  p = clone(p); assert.ok(Adventure.ensure(p, NOW));
+  assert.deepEqual(Adventure.startFinale(p, NOW + 100), { changed: true });
+  assert.equal(p.adventure.finale.startedAt, startedAt);
+  correct(p, 5, "final-next");
+  assert.equal(p.adventure.finale.correctCount, 9);
+  const final = Adventure.addCorrect(p, "final-tenth", NOW + 200);
+  assert.deepEqual(final, { added: true, arrived: null, finaleCompleted: true });
+  assert.equal(p.adventure.finale.active, false);
+  assert.equal(p.adventure.finale.completedAt, new Date(NOW + 200).toISOString());
+  assert.equal(p.adventure.earnedUnits, earned + 13);
+  assert.equal(p.adventure.pendingUnits, bank + 13);
+  const completed = JSON.stringify(p);
+  assert.deepEqual(Adventure.addCorrect(p, "final-tenth", NOW + 300), { added: false, arrived: null });
+  assert.equal(Adventure.startFinale(p, NOW).changed, false);
+  assert.equal(Adventure.pauseFinale(p).changed, false);
+  assert.equal(JSON.stringify(p), completed);
+  p = clone(p); assert.equal(Adventure.getFinaleStatus(p).completed, true);
+  assert.deepEqual(Adventure.addCorrect(p, "after-finale", NOW + 400), { added: true, arrived: null });
+  assert.equal(p.adventure.finale.correctCount, 10);
+  assert.equal(Adventure.getFinaleStatus(p).completed, true);
+  check(p);
+});
+
+test("only an effective ordinary route or free return pauses an active finale", () => {
+  const p = readyForFinale(); Adventure.startFinale(p, NOW); correct(p, 2, "treasure");
+  const before = JSON.stringify(p);
+  assert.equal(Adventure.selectPath(p, "unknown", NOW).changed, false);
+  assert.equal(Adventure.selectPath(p, "marseille--eiffel", NOW).changed, false, "a visited destination uses free return");
+  assert.equal(Adventure.returnTo(p, "marseille").changed, false);
+  assert.equal(JSON.stringify(p), before);
+  assert.equal(Adventure.selectPath(p, "marseille--seine", NOW).changed, true);
+  assert.equal(p.adventure.finale.active, false);
+  assert.equal(p.adventure.finale.correctCount, 2);
+  assert.equal(p.adventure.activeLeg.progressUnits, 2);
+  Adventure.startFinale(p, NOW);
+  assert.equal(p.adventure.activeLeg, null); assert.equal(p.adventure.pendingUnits, 2);
+  assert.equal(Adventure.returnTo(p, "trocadero").changed, true);
+  assert.equal(p.adventure.finale.active, false); assert.equal(p.adventure.finale.correctCount, 2);
+  check(p);
+});
+
+test("invalid vehicle and finale records are preserved and rejected without partial mutation", () => {
+  const good = readyForFinale(); Adventure.startFinale(good, NOW);
+  const mutations = [
+    s => { s.vehicleId = "future-vehicle"; }, s => { s.vehicleId = null; },
+    s => { s.finale = null; }, s => { s.finale.correctCount = -1; }, s => { s.finale.correctCount = 1.5; }, s => { s.finale.correctCount = 11; },
+    s => { s.finale.startedAt = "bad-date"; }, s => { s.finale.completedAt = "bad-date"; },
+    s => { s.finale.active = "yes"; }, s => { s.finale.correctCount = 10; },
+    s => { s.finale.completedAt = iso; },
+    s => { s.finale.correctCount = 10; s.finale.completedAt = iso; },
+    s => { s.activeLeg = { edgeId: "marseille--seine", from: "marseille", to: "seine", requiredUnits: 48, progressUnits: 0, learning: empty() }; }
+  ];
+  for (const mutate of mutations) {
+    const p = clone(good); mutate(p.adventure); const before = JSON.stringify(p);
+    assert.equal(Adventure.status(p).ok, false, String(mutate));
+    assert.equal(Adventure.ensure(p, NOW), null);
+    assert.equal(Adventure.startFinale(p, NOW).changed, false);
+    assert.equal(Adventure.pauseFinale(p).changed, false);
+    assert.equal(Adventure.setVehicle(p, "walk").changed, false);
+    assert.equal(Adventure.addCorrect(p, "invalid", NOW).added, false);
+    assert.equal(JSON.stringify(p), before);
+  }
+  const locked = profile(); locked.adventure.vehicleId = "bicycle";
+  assert.equal(Adventure.status(locked).ok, false, "an unearned vehicle selection cannot be imported");
+  const unready = profile(); unready.adventure.finale = clone(good.adventure.finale);
+  assert.equal(Adventure.status(unready).ok, false, "unearned finale progress cannot be imported");
+});
+
+test("schema-one fields with newly reserved names survive in the archive without becoming awarded progress", () => {
+  const old = legacyV1({ vehicleId: "old-unknown", finale: { oldField: "keep" } });
+  const p = { adventure: clone(old) }; Adventure.ensure(p, NOW);
+  assert.deepEqual(p.adventure.legacyJourney, old);
+  assert.equal(Object.hasOwn(p.adventure, "vehicleId"), false);
+  assert.equal(Object.hasOwn(p.adventure, "finale"), false);
+  assert.equal(Adventure.getFinaleStatus(p).progress, 0);
   check(p);
 });

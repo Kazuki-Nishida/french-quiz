@@ -90,6 +90,13 @@ function legacyV38Journeys() {
   }];
 }
 
+function collectFinaleRequirements(p) {
+  for (const [from, to, cost] of [["trocadero", "eiffel", 8], ["eiffel", "versailles", 16], ["versailles", "chambord", 24], ["chambord", "mont-saint-michel", 48], ["mont-saint-michel", "marseille", 48]]) {
+    Adventure.selectPath(p, from + "--" + to, NOW);
+    for (let i = 0; i < cost; i++) Adventure.addCorrect(p, p.id + ":prepare:" + to + ":" + i, NOW + i, { level: "A1", review: false, wordKey: to });
+  }
+}
+
 test("old profiles preserve every existing field while adding defaults without changing input", () => {
   const raw = legacyData();
   const before = clone(raw);
@@ -412,4 +419,67 @@ test("new Versailles and Marseille discoveries, carryover, and learning remain i
   Adventure.selectPath(restored.profiles[0], "trocadero--marseille", NOW);
   assert.equal(restored.profiles[0].adventure.activeLeg.progressUnits, 2);
   assert.equal(JSON.stringify(restored.profiles[1]), bBefore);
+});
+
+test("selected vehicles and active or paused finale progress round trip independently for two profiles", () => {
+  const db = ProfileStore.prepare(legacyData(), Adventure);
+  const second = clone(legacyData().profiles[0]); second.id = 102;
+  Adventure.ensure(second, NOW); second.studyGuide = { schemaVersion: 1, lastGrammarUnitId: null };
+  db.profiles.push(second);
+  db.profiles.forEach(collectFinaleRequirements);
+  const a = db.profiles[0], b = db.profiles[1];
+  Adventure.setVehicle(a, "dragon"); Adventure.setVehicle(b, "bicycle");
+  Adventure.startFinale(a, NOW); Adventure.startFinale(b, NOW);
+  for (let i = 0; i < 4; i++) Adventure.addCorrect(a, "a-finale:" + i, NOW + i, { level: "C2", review: true, wordKey: "couronne::王冠" });
+  for (let i = 0; i < 3; i++) Adventure.addCorrect(b, "b-finale:" + i, NOW + i, { level: "B1", review: false, wordKey: "trésor::宝物" });
+  Adventure.pauseFinale(b);
+  a.adventure.finale.extraFinale = { retain: "unknown field" };
+  const storage = memoryStorage();
+  const restored = ProfileStore.importData(JSON.stringify(db), storage, LS_KEY, Adventure);
+  assert.deepEqual(restored, db);
+  assert.deepEqual(ProfileStore.prepare(JSON.parse(storage.getItem(LS_KEY)), Adventure), db);
+  assert.equal(restored.profiles[0].adventure.finale.active, true);
+  assert.equal(restored.profiles[1].adventure.finale.active, false);
+  assert.equal(restored.profiles[0].adventure.finale.correctCount, 4);
+  assert.equal(restored.profiles[1].adventure.finale.correctCount, 3);
+  const beforeB = JSON.stringify(restored.profiles[1]);
+  for (let i = 4; i < 10; i++) Adventure.addCorrect(restored.profiles[0], "a-finale:" + i, NOW + i);
+  assert.equal(Adventure.getFinaleStatus(restored.profiles[0]).completed, true);
+  assert.equal(JSON.stringify(restored.profiles[1]), beforeB);
+  assert.deepEqual(restored.profiles[0].adventure.finale.extraFinale, { retain: "unknown field" });
+  const completed = ProfileStore.importData(JSON.stringify(restored), storage, LS_KEY, Adventure);
+  assert.deepEqual(completed, restored);
+  const beforeRepeat = JSON.stringify(completed);
+  assert.equal(Adventure.addCorrect(completed.profiles[0], "a-finale:9", NOW + 100).added, false);
+  assert.equal(JSON.stringify(completed), beforeRepeat);
+});
+
+test("invalid optional vehicle and finale imports preserve current storage and the entire candidate", () => {
+  const good = ProfileStore.prepare(legacyData(), Adventure);
+  collectFinaleRequirements(good.profiles[0]); Adventure.startFinale(good.profiles[0], NOW);
+  const goodText = JSON.stringify(good);
+  for (const mutate of [
+    state => { state.vehicleId = "unknown-plane"; },
+    state => { state.finale.correctCount = 11; },
+    state => { state.finale.completedAt = new Date(NOW).toISOString(); },
+    state => { state.finale = { active: true, correctCount: 1, startedAt: "bad", completedAt: null }; }
+  ]) {
+    const candidate = clone(good); mutate(candidate.profiles[0].adventure);
+    const before = JSON.stringify(candidate), storage = memoryStorage({ [LS_KEY]: goodText });
+    const loaded = ProfileStore.prepare(candidate, Adventure);
+    assert.equal(JSON.stringify(loaded.profiles[0].adventure), JSON.stringify(candidate.profiles[0].adventure));
+    assert.throws(() => ProfileStore.importData(before, storage, LS_KEY, Adventure), /対応していない旅/);
+    assert.equal(storage.writes, 0); assert.equal(storage.getItem(LS_KEY), goodText);
+    assert.equal(JSON.stringify(candidate), before);
+  }
+});
+
+test("a storage failure while importing completed treasure data leaves both live and stored records unchanged", () => {
+  const db = ProfileStore.prepare(legacyData(), Adventure);
+  collectFinaleRequirements(db.profiles[0]); Adventure.startFinale(db.profiles[0], NOW);
+  for (let i = 0; i < 10; i++) Adventure.addCorrect(db.profiles[0], "treasure:" + i, NOW + i);
+  const original = JSON.stringify(legacyData());
+  const storage = memoryStorage({ [LS_KEY]: original }, true), before = JSON.stringify(db);
+  assert.throws(() => ProfileStore.importData(before, storage, LS_KEY, Adventure), /QuotaExceededError/);
+  assert.equal(storage.getItem(LS_KEY), original); assert.equal(JSON.stringify(db), before);
 });

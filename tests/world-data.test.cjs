@@ -116,6 +116,7 @@ test("unknown identifiers cannot select another place or curriculum implicitly",
   for (const id of [undefined, null, "", "missing", "__proto__", "constructor"]) {
     assert.equal(World.getNode(id), null);
     assert.equal(World.getCharacter(id), null);
+    assert.equal(World.getVehicle(id), null);
     assert.equal(World.getRecommendation(id), null);
     assert.deepEqual(World.recommendationsFor(id), []);
   }
@@ -123,7 +124,7 @@ test("unknown identifiers cannot select another place or curriculum implicitly",
 
 test("catalog and nested recommendations remain immutable across lookups", () => {
   assert.ok(Object.isFrozen(World));
-  for (const list of [World.nodes, World.regions, World.characters]) {
+  for (const list of [World.nodes, World.regions, World.characters, World.vehicles]) {
     assert.ok(Object.isFrozen(list));
     assert.ok(list.every(Object.isFrozen));
   }
@@ -132,6 +133,12 @@ test("catalog and nested recommendations remain immutable across lookups", () =>
   assert.throws(() => { World.nodes[0].lat = 0; }, TypeError);
   assert.throws(() => { World.nodes[0].recommendations[0].lv = "C2"; }, TypeError);
   assert.throws(() => { World.mapBounds.paris.north = 0; }, TypeError);
+  assert.ok(World.vehicles.every(vehicle => Object.isFrozen(vehicle.rider)));
+  assert.ok(Object.isFrozen(World.finale));
+  assert.ok(Object.isFrozen(World.finale.requiredCharacterIds));
+  assert.ok(Object.isFrozen(World.finale.requiredVehicleIds));
+  assert.throws(() => { World.vehicles[0].rider.x = 0; }, TypeError);
+  assert.throws(() => { World.finale.requiredVehicleIds.push("missing"); }, TypeError);
 });
 
 test("plain browser script exposes the same catalog without a module loader", () => {
@@ -141,6 +148,47 @@ test("plain browser script exposes the same catalog without a module loader", ()
   assert.equal(browser.WorldData.nodes.length, 8);
   assert.equal(browser.WorldData.getCharacter("lumie").placeId, "eiffel");
   assert.equal(browser.WorldData.getRecommendation("trocadero-aller").cat, "アレ");
+  assert.equal(browser.WorldData.getVehicle("dragon").requiredUnits, 120);
+  assert.equal(browser.WorldData.finale.requiredCorrect, 10);
+  assert.equal(browser.WorldData.getNode(browser.WorldData.finale.id), null);
+});
+
+test("four vehicles have stable acquisition milestones and valid independent artwork", () => {
+  assert.deepEqual(World.vehicles.map(vehicle => [vehicle.id, vehicle.requiredUnits]), [
+    ["bicycle", 3], ["car", 24], ["balloon", 72], ["dragon", 120]
+  ]);
+  assert.equal(new Set(World.vehicles.map(vehicle => vehicle.id)).size, World.vehicles.length);
+  for (const vehicle of World.vehicles) {
+    assert.equal(World.getVehicle(vehicle.id), vehicle);
+    assert.ok(vehicle.name && vehicle.reading);
+    assert.equal(vehicle.asset, "img/adventure/vehicle-" + vehicle.id + ".svg");
+    assert.ok(fs.existsSync(path.join(__dirname, "..", vehicle.asset)));
+    for (const axis of ["x", "y"]) assert.ok(Number.isFinite(vehicle.rider[axis]) && vehicle.rider[axis] >= 0 && vehicle.rider[axis] <= 100);
+    for (const field of ["requiredLevel", "timeLimit", "cost", "placeId"]) assert.equal(Object.hasOwn(vehicle, field), false);
+  }
+  assert.equal(World.getVehicle("dragon").fictional, true);
+});
+
+test("the fictional finale requires all existing companions and vehicles without joining the real map", () => {
+  const finale = World.finale;
+  assert.equal(finale.id, "sky-castle");
+  assert.equal(finale.fictional, true);
+  assert.equal(finale.scene, "sky");
+  assert.match(finale.description, /空想の城/);
+  for (const field of ["name", "reading", "descriptionReading", "treasureName", "treasureReading"]) assert.ok(finale[field]);
+  assert.equal(finale.requiredCorrect, 10);
+  assert.deepEqual([...finale.requiredCharacterIds].sort(), World.characters.map(character => character.id).sort());
+  assert.deepEqual([...finale.requiredVehicleIds].sort(), World.vehicles.map(vehicle => vehicle.id).sort());
+  assert.equal(new Set(finale.requiredCharacterIds).size, finale.requiredCharacterIds.length);
+  assert.equal(new Set(finale.requiredVehicleIds).size, finale.requiredVehicleIds.length);
+  assert.equal(World.getNode(finale.id), null);
+  assert.equal(World.regions.some(region => region.id === finale.id), false);
+  assert.deepEqual(World.recommendationsFor(finale.id), []);
+  for (const field of ["cost", "lat", "lon", "x", "y", "regionId", "source", "requiredLevel"]) assert.equal(Object.hasOwn(finale, field), false);
+  for (const file of [finale.illustration, finale.treasureAsset]) {
+    assert.ok(file.startsWith("img/adventure/"));
+    assert.ok(fs.existsSync(path.join(__dirname, "..", file)), file);
+  }
 });
 
 test("the extension preserves the old map coordinates and keeps Versailles outside the Paris close-up", () => {

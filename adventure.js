@@ -29,6 +29,7 @@
   ]));
   const nodeById = new Map(nodes.map(node => [node.id, node]));
   const edgeById = new Map(edges.map(edge => [edge.id, edge]));
+  const vehicleById = new Map(WorldData.vehicles.map(vehicle => [vehicle.id, vehicle]));
   const legacyNodeIds = new Set(["paris-start", "riverside", "park"]);
   const legacyEdges = new Map([
     ["paris-riverside", { from: "paris-start", to: "riverside", cost: 3 }],
@@ -162,6 +163,16 @@
     return baseStatus(state, legacyNodeIds, legacyEdges, "paris-start");
   }
 
+  function vehicleUnlocked(state, id) {
+    const vehicle = vehicleById.get(id);
+    return !!(state && vehicle && state.earnedUnits >= vehicle.requiredUnits);
+  }
+
+  function finaleUnlocked(state) {
+    return !!(state && WorldData.finale.requiredCharacterIds.every(id => owns(state.characters, id)) &&
+      WorldData.finale.requiredVehicleIds.every(id => vehicleUnlocked(state, id)));
+  }
+
   function status(profile) {
     if (!isRecord(profile)) return invalid("プロフィールを読み取れません。");
     if (!owns(profile, "adventure")) return valid();
@@ -186,6 +197,14 @@
     }
     for (const character of WorldData.characters) {
       if (owns(state.visited, character.placeId) && !owns(state.characters, character.id)) return invalid("訪問した場所の仲間の記録がありません。");
+    }
+    if (owns(state, "vehicleId") && state.vehicleId !== "walk" && !vehicleUnlocked(state, state.vehicleId)) return invalid("選んだ乗り物の記録を確認できません。");
+    if (owns(state, "finale")) {
+      const finale = state.finale, required = WorldData.finale.requiredCorrect;
+      if (!isRecord(finale) || typeof finale.active !== "boolean" || !isCount(finale.correctCount) || finale.correctCount > required ||
+          !isDate(finale.startedAt) || (finale.completedAt !== null && !isDate(finale.completedAt))) return invalid("最後の宝探しの記録を確認できません。");
+      if (!finaleUnlocked(state) || (finale.completedAt !== null) !== (finale.correctCount === required) ||
+          (finale.active && (finale.completedAt !== null || state.activeLeg !== null))) return invalid("最後の宝探しの進みが一致しません。");
     }
     if (owns(state, "legacyJourney") && !legacyStatus(state.legacyJourney).ok) return invalid("以前の旅の保管記録を確認できません。");
     return valid();
@@ -215,6 +234,10 @@
         legacyJourney: legacy
       };
       if (legacy.earnedUnits) migrated.pendingLearning.buckets.unknown = legacy.earnedUnits;
+      // These names had no meaning in schema one. Keep any old values in the
+      // complete legacy archive, without treating them as new game progress.
+      delete migrated.vehicleId;
+      delete migrated.finale;
       profile.adventure = migrated;
     }
     return profile.adventure;
@@ -259,8 +282,17 @@
     state.pendingUnits += 1;
     addLearning(state.pendingLearning, context);
     const arrived = allocatePending(state, at);
+    let finaleCompleted = false;
+    if (state.finale && state.finale.active) {
+      state.finale.correctCount += 1;
+      if (state.finale.correctCount === WorldData.finale.requiredCorrect) {
+        state.finale.completedAt = at;
+        state.finale.active = false;
+        finaleCompleted = true;
+      }
+    }
     state.lastProgressEventId = eventId;
-    return { added: true, arrived };
+    return finaleCompleted ? { added: true, arrived, finaleCompleted: true } : { added: true, arrived };
   }
 
   function selectPath(profile, edgeId, now = Date.now()) {
@@ -271,6 +303,7 @@
     const state = ensure(profile, now);
     if (!state || state.currentNodeId !== edge.from || owns(state.visited, edge.to)) return unchanged;
     if (state.activeLeg && state.activeLeg.edgeId === edge.id) return unchanged;
+    if (state.finale) state.finale.active = false;
     releaseActiveLeg(state);
     state.activeLeg = { edgeId: edge.id, from: edge.from, to: edge.to, requiredUnits: edge.cost, progressUnits: 0, learning: emptyLearning() };
     return { changed: true, arrived: allocatePending(state, at) };
@@ -280,10 +313,67 @@
     if (!nodeById.has(nodeId)) return { changed: false };
     const state = ensure(profile);
     if (!state || !owns(state.visited, nodeId) || state.currentNodeId === nodeId) return { changed: false };
+    if (state.finale) state.finale.active = false;
     releaseActiveLeg(state);
     state.currentNodeId = nodeId;
     return { changed: true };
   }
 
-  return Object.freeze({ nodes, edges, ensure, status, addCorrect, selectPath, returnTo, summarizeLearning });
+  // Availability is derived, never awarded again or saved as another counter.
+  // Reading these views leaves old schema-two records byte-for-byte intact.
+  function readableState(profile) {
+    return profile && profile.adventure && profile.adventure.schemaVersion === 2 && status(profile).ok ? profile.adventure : null;
+  }
+
+  function getVehicles(profile) {
+    const state = readableState(profile);
+    return WorldData.vehicles.map(vehicle => ({ ...vehicle,
+      unlocked: vehicleUnlocked(state, vehicle.id),
+      remainingUnits: Math.max(0, vehicle.requiredUnits - (state ? state.earnedUnits : 0)),
+      selected: !!(state && state.vehicleId === vehicle.id)
+    }));
+  }
+
+  function setVehicle(profile, id) {
+    const state = readableState(profile);
+    if (!state || (id !== "walk" && !vehicleUnlocked(state, id))) return { changed: false };
+    if (id === "walk") {
+      if (!owns(state, "vehicleId")) return { changed: false };
+      delete state.vehicleId;
+    } else {
+      if (state.vehicleId === id) return { changed: false };
+      state.vehicleId = id;
+    }
+    return { changed: true };
+  }
+
+  function getFinaleStatus(profile) {
+    const state = readableState(profile), finale = state && state.finale;
+    return {
+      unlocked: finaleUnlocked(state), active: !!(finale && finale.active),
+      completed: !!(finale && finale.completedAt !== null), progress: finale ? finale.correctCount : 0,
+      requiredCorrect: WorldData.finale.requiredCorrect,
+      missingCharacters: WorldData.finale.requiredCharacterIds.filter(id => !state || !owns(state.characters, id)).map(id => WorldData.characters.find(character => character.id === id)),
+      missingVehicles: getVehicles(profile).filter(vehicle => WorldData.finale.requiredVehicleIds.includes(vehicle.id) && !vehicle.unlocked)
+    };
+  }
+
+  function startFinale(profile, now = Date.now()) {
+    const state = readableState(profile), at = timestamp(now);
+    if (!state || at === null || !finaleUnlocked(state) || (state.finale && (state.finale.active || state.finale.completedAt !== null))) return { changed: false };
+    releaseActiveLeg(state);
+    if (!state.finale) state.finale = { active: true, correctCount: 0, startedAt: at, completedAt: null };
+    else state.finale.active = true;
+    return { changed: true };
+  }
+
+  function pauseFinale(profile) {
+    const state = readableState(profile);
+    if (!state || !state.finale || !state.finale.active) return { changed: false };
+    state.finale.active = false;
+    return { changed: true };
+  }
+
+  return Object.freeze({ nodes, edges, ensure, status, addCorrect, selectPath, returnTo, summarizeLearning,
+    getVehicles, setVehicle, getFinaleStatus, startFinale, pauseFinale });
 });

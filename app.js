@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v39 · Marseille & Versailles";
+const APP_VER = "v40 · Treasure in the sky";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
@@ -49,12 +49,33 @@ function clearTransientEffects(){
   pendingSpeak = null;
   try { if('speechSynthesis' in window) speechSynthesis.cancel(); } catch(e) {}
   document.querySelectorAll('.confetti').forEach(el => el.remove());
+  clearCorrectCelebration();
   document.getElementById('bigmark').style.display = 'none';
   document.getElementById('badgepop').style.display = 'none';
 }
 function richEffects(){
   return !!prof() && Adventure.status(prof()).ok && prof().adventure?.effectsMode !== 'calm' &&
     !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+let correctCelebrationTimer = null;
+function clearCorrectCelebration(){
+  if(correctCelebrationTimer !== null){
+    clearTimeout(correctCelebrationTimer); effectTimers.delete(correctCelebrationTimer);
+    correctCelebrationTimer = null;
+  }
+  const panel = document.getElementById('correct-celebration');
+  if(panel){ panel.hidden = true; panel.innerHTML = ''; }
+}
+function celebrateCorrect(treasure=false){
+  clearCorrectCelebration();
+  if(!richEffects()) return;
+  const panel = document.getElementById('correct-celebration');
+  if(!panel) return;
+  const sparks = Array.from({length:16},(_,i)=>'<i style="--angle:'+(i*22.5)+'deg;--reach:'+(i%2 ? 134 : 104)+'px;--tone:'+(i%3 ? '#ffcc5f' : '#73c9ba')+'">'+(i%2 ? '✦' : '●')+'</i>').join('');
+  panel.innerHTML='<div class="correct-burst"><span class="correct-ring"></span><span class="correct-ring second"></span>'+sparks+'<div class="correct-word"><span>'+(treasure?'👑':'★')+'</span><strong>'+(treasure?'TRÉSOR !':'BRAVO !')+'</strong><small>'+(treasure?UIJa.ruby('宝','たから')+'を'+UIJa.ruby('発見','はっけん')+'！':UIJa.ruby('正解','せいかい')+'！')+'</small></div></div>';
+  panel.hidden=false;
+  confetti();
+  correctCelebrationTimer=scheduleEffect(()=>{ panel.hidden=true; panel.innerHTML=''; correctCelebrationTimer=null; },1100);
 }
 function prof(){ return DB.profiles.find(p => p.id === DB.active) || null; }
 function todayKey(){
@@ -394,7 +415,7 @@ function renderHome(){
   document.getElementById('home-journey-status').innerHTML = a ? journeyText(p) : '旅の記録はそのまま保管中です。教材は引き続き使えます。';
   const places=a ? WorldData.nodes.filter(n=>a.visited[n.id]).length : 0;
   const characters=a ? WorldData.characters.filter(c=>a.characters?.[c.id]).length : 0;
-  document.getElementById('journal-count').innerHTML=UIJa.ruby('名所','めいしょ')+' '+places+'/'+WorldData.nodes.length+' · キャラ '+characters+'/'+WorldData.characters.length;
+  document.getElementById('journal-count').innerHTML=UIJa.ruby('名所','めいしょ')+' '+places+'/'+WorldData.nodes.length+' · キャラ '+characters+'/'+WorldData.characters.length+' · '+UIJa.ruby('乗り物','のりもの')+' '+Adventure.getVehicles(p).filter(v=>v.unlocked).length+'/'+WorldData.vehicles.length;
   document.getElementById('journey-migration').hidden=!(a?.legacyJourney && !a.migrationAcknowledged);
   if(a?.legacyJourney && !a.migrationAcknowledged){
     const r=UIJa.ruby;
@@ -582,7 +603,7 @@ function startQuiz(review){
   const p = prof(); if(!p) return;
   clearTransientEffects();
   const adventure = Adventure.ensure(p);
-  const intro = !review && !!adventure && !adventure.introCompleted;
+  const intro = !review && !!adventure && !adventure.introCompleted && !Adventure.getFinaleStatus(p).active;
   const unit = !review && StudyGuide.getUnit(setup.unitId);
   const recommendation = !review && WorldData.getRecommendation(setup.recommendationId);
   let pool;
@@ -607,7 +628,7 @@ function startQuiz(review){
   quiz = {
     review, intro, questionLimit, profileId:p.id,
     roundId:typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random(),
-    settings:{...setup}, earned:0, arrivals:[], resultEffectsPlayed:false, finished:false,
+    settings:{...setup}, earned:0, arrivals:[], vehicleUnlocks:[], finaleCompleted:false, resultEffectsPlayed:false, finished:false,
     qs: words.map(w => {
       if(w.pos === "gram"){ // ぶんぽう: あなうめ4たく (せんたくしは もんだいに ついてくる)
         const opts = shuffle([w, ...w.d.map(t => ({ fr: t, pos: "gram", e: w.e, ja: "" }))]);
@@ -728,9 +749,12 @@ function answer(idx){
   }
   quiz.results.push({ w:q.w, ok, stocked, unstocked });
   if(ok) quiz.correct++;
+  const vehiclesBefore = new Set(Adventure.getVehicles(p).filter(v=>v.unlocked).map(v=>v.id));
   const move = ok ? Adventure.addCorrect(p, quiz.roundId+':'+quiz.i, Date.now(), {level:q.w.lv,wordKey:key,review:quiz.review}) : {added:false,arrived:null};
   if(move.added) quiz.earned++;
   if(move.arrived) quiz.arrivals.push(move.arrived);
+  if(move.finaleCompleted) quiz.finaleCompleted = true;
+  if(ok) Adventure.getVehicles(p).filter(v=>v.unlocked&&!vehiclesBefore.has(v.id)).forEach(v=>quiz.vehicleUnlocks.push(v.id));
   if(quiz.intro && quiz.results.length === quiz.qs.length){
     const a = Adventure.ensure(p); if(a) a.introCompleted = true;
   }
@@ -777,10 +801,12 @@ function answer(idx){
   }
   const n = quiz.qs.length, answered = quiz.results.length;
   let message = ok ? ['すごい！','いいね！','その調子！'][quiz.i % 3] : '答えと解説を見てみよう。';
-  if(ok && move.arrived) message = '到着！ 続きも自分のペースで。';
+  if(move.finaleCompleted) message = '宝を発見！ ことばの王冠を手に入れた！';
+  else if(ok && move.arrived) message = '到着！ 続きも自分のペースで。';
   else if(ok && n === 10 && answered === 5) message = 'すごい！ 半分まで来たよ。';
   else if(ok && n > 1 && answered === n-1) message = 'あと1問！ ゆっくりで大丈夫。';
-  renderJourneyScene(move.arrived ? 'arrival' : ok ? 'correct' : 'wrong', message);
+  renderJourneyScene(move.arrived || move.finaleCompleted ? 'arrival' : ok ? 'correct' : 'wrong', message);
+  if(ok) celebrateCorrect(!!move.finaleCompleted);
   renderQuizContext();
   ok ? sndOK() : sndNG();
   scheduleEffect(() => speak(q.w), 650);
@@ -877,10 +903,10 @@ function showResult(){
     rb.innerHTML = "🏅 <b>バッジ ゲット!</b> " +
       badgeQueue.map(b => BADGE[b.lv] + (b.m > 10 ? "✨" : "") + " " + b.lv + " " + (b.m * 10) + "%").join(" ／ ");
   } else rb.style.display = "none";
-  AdventureView.renderResult(document.getElementById('adventure-result'), prof(), {earned:quiz.earned,arrivals:quiz.arrivals,onMap:id=>showMap(id),onJournal:()=>showJournal('characters')});
+  AdventureView.renderResult(document.getElementById('adventure-result'), prof(), {earned:quiz.earned,arrivals:quiz.arrivals,vehicleUnlocks:quiz.vehicleUnlocks,finaleCompleted:quiz.finaleCompleted,onMap:id=>showMap(id),onJournal:tab=>showJournal(tab || 'characters')});
   renderResultGuide();
   document.getElementById('btnresultreview').hidden = prof().stock.length === 0;
-  if(firstShow && (pct >= 80 || badgeQueue.length)){ sndTada(); if(richEffects()) confetti(); }
+  if(firstShow && (pct >= 80 || badgeQueue.length || quiz.finaleCompleted || quiz.vehicleUnlocks.length)){ sndTada(); if(richEffects()) confetti(); }
   quiz.resultEffectsPlayed = true;
   UIJa.apply(document.getElementById('scr-result'));
 }
@@ -1053,6 +1079,8 @@ function resetSetupForProfile(p){
 function journeyText(p){
   const a = Adventure.ensure(p);
   if(!a) return '旅の記録を保管しています。教材は自由に選べます。';
+  const finale = Adventure.getFinaleStatus(p);
+  if(finale.active) return UIJa.ruby('最後','さいご')+'の'+UIJa.ruby('宝探し','たからさがし')+' · あと '+(finale.requiredCorrect-finale.progress)+UIJa.ruby('問','もん')+UIJa.ruby('正解','せいかい');
   const node = Adventure.nodes.find(n => n.id === a.currentNodeId);
   const label = n => UIJa.ruby(n.name,n.reading);
   if(a.activeLeg){
@@ -1078,7 +1106,10 @@ function renderMap(){
     },
     onReturn(nodeId){ Adventure.returnTo(p,nodeId); save(); renderMap(); },
     onStudy(){ go('scr-setup'); },
-    onJournal(){ showJournal(); },
+    onJournal(tab){ showJournal(tab); },
+    onVehicle(id){ Adventure.setVehicle(p,id); save(); renderMap(); },
+    onFinale(){ const change=Adventure.startFinale(p); if(change.changed || Adventure.getFinaleStatus(p).active){ save(); go('scr-setup'); } },
+    onPauseFinale(){ Adventure.pauseFinale(p); save(); renderMap(); },
     onRecommend(id){ selectRecommendation(id); },
     onEffects(mode){ setEffects(mode); renderMap(); }
   });
@@ -1086,7 +1117,7 @@ function renderMap(){
 }
 function showJournal(tab='places'){
   if(!prof()) return;
-  journalTab=['places','characters'].includes(tab) ? tab : 'places';
+  journalTab=['places','characters','vehicles'].includes(tab) ? tab : 'places';
   renderJournal(); go('scr-journal');
 }
 function renderJournal(){
@@ -1095,6 +1126,7 @@ function renderJournal(){
     tab:journalTab,
     onTab(tab){ journalTab=tab; renderJournal(); },
     onMap(placeId){ showMap(placeId); },
+    onVehicle(id){ Adventure.setVehicle(p,id); save(); renderJournal(); },
     wordLabel(key){ const w=findWord(key); return w ? frDisplay(w)+' — '+w.ja : ''; }
   });
 }
@@ -1137,6 +1169,7 @@ function setEffects(mode){
   if(current === 'scr-quiz'){
     // Presentation changes do not redraw a question or score an answer.
     document.querySelectorAll('.confetti').forEach(el => el.remove());
+    clearCorrectCelebration();
     renderQuizContext();
     renderJourneyScene(quiz.answered ? (quiz.results.at(-1).ok ? 'correct' : 'wrong') : 'idle', quiz.sceneMessage || '自分のペースで進もう。', false);
   }
@@ -1165,7 +1198,10 @@ function renderSetup(){
   document.querySelectorAll('#dirchoices .choice').forEach(b => b.classList.toggle('sel',b.dataset.dir === setup.dir));
   document.getElementById('setup-journey').innerHTML = journeyText(p);
   renderRecommendations(p);
-  document.getElementById('question-limit-note').innerHTML = a && !a.introCompleted
+  const unitLabel = StudyGuide.getUnit(setup.unitId);
+  const recLabel = WorldData.getRecommendation(setup.recommendationId);
+  document.getElementById('setup-selection').innerHTML = UIJa.level(setup.lv)+(unitLabel?' · '+UIJa.ruby(unitLabel.title,unitLabel.reading):recLabel?' · '+UIJa.ruby(recLabel.label,recLabel.labelReading):'');
+  document.getElementById('question-limit-note').innerHTML = a && !a.introCompleted && !Adventure.getFinaleStatus(p).active
     ? 'はじめの'+UIJa.ruby('旅','たび')+'は <b>3'+UIJa.ruby('問','もん')+'</b>。'+UIJa.ruby('次','つぎ')+'からは10'+UIJa.ruby('問','もん')+'です。'
     : UIJa.ruby('今回','こんかい')+'は <b>10'+UIJa.ruby('問','もん')+'</b>。'+UIJa.ruby('時間制限','じかんせいげん')+'はありません。';
   const panel = document.getElementById('grammar-guide');
@@ -1204,7 +1240,7 @@ function renderQuizContext(){
   const q=quiz.qs[quiz.i];
   const unit=!quiz.review && StudyGuide.getUnit(quiz.settings.unitId);
   const recommendation=!quiz.review && WorldData.getRecommendation(quiz.settings.recommendationId);
-  document.getElementById('quiz-subject').innerHTML=(quiz.review?UIJa.ruby('復習','ふくしゅう')+' · ':'')+UIJa.level(q.w.lv)+(unit?' · '+UIJa.ruby(unit.title,unit.reading):'')+(recommendation?' · '+UIJa.ruby(recommendation.label,recommendation.labelReading):'')+' <span>'+(quiz.i+1)+' / '+quiz.qs.length+'</span>';
+  document.getElementById('quiz-subject').innerHTML=(Adventure.getFinaleStatus(prof()).active ? '👑 '+UIJa.ruby('宝探し','たからさがし')+' · ' : '')+(quiz.review?UIJa.ruby('復習','ふくしゅう')+' · ':'')+UIJa.level(q.w.lv)+(unit?' · '+UIJa.ruby(unit.title,unit.reading):'')+(recommendation?' · '+UIJa.ruby(recommendation.label,recommendation.labelReading):'')+' <span>'+(quiz.i+1)+' / '+quiz.qs.length+'</span>';
   document.getElementById('quiz-effects').value=Adventure.status(prof()).ok ? (prof().adventure?.effectsMode || 'rich') : 'calm';
   document.getElementById('scr-quiz').dataset.effects=richEffects() ? 'rich' : 'calm';
   document.getElementById('quiz-effects').disabled=!Adventure.status(prof()).ok;
@@ -1212,7 +1248,7 @@ function renderQuizContext(){
 function renderJourneyScene(reaction,message,animate=true){
   if(!quiz) return;
   quiz.sceneMessage=message;
-  AdventureView.renderScene(document.getElementById('adventure-scene'),prof(),{reaction,message,animate,subject:'',questionIndex:quiz.i+1,questionCount:quiz.qs.length});
+  AdventureView.renderScene(document.getElementById('adventure-scene'),prof(),{reaction,message,animate,finaleCompleted:quiz.finaleCompleted,subject:'',questionIndex:quiz.i+1,questionCount:quiz.qs.length});
 }
 function renderResultGuide(){
   const panel=document.getElementById('result-guide'); panel.innerHTML='';

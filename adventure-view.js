@@ -41,7 +41,12 @@
     '宮殿': 'きゅうでん', '西': 'にし', '市内': 'しない', '旧港': 'きゅうこう', '地中海': 'ちちゅうかい',
     '船': 'ふね', '並': 'なら', '水辺': 'みずべ', '入口': 'いりぐち', '砦': 'とりで', '見守': 'みまも',
     '鏡': 'かがみ', '回廊': 'かいろう', '窓': 'まど', '向': 'む', '帆': 'ほ', '港': 'みなと',
-    '旅仲間': 'たびなかま', '風': 'かぜ', '小': 'ちい', '光': 'ひかり', '形': 'かたち', '観察': 'かんさつ'
+    '旅仲間': 'たびなかま', '風': 'かぜ', '小': 'ちい', '光': 'ひかり', '形': 'かたち', '観察': 'かんさつ',
+    '最後': 'さいご', '宝探し': 'たからさがし', '宝箱': 'たからばこ', '王冠': 'おうかん', '達成': 'たっせい',
+    '自転車': 'じてんしゃ', '車': 'くるま', '気球': 'ききゅう', '徒歩': 'とほ', '乗': 'の',
+    '手に入': 'てにい', '準備': 'じゅんび', '全部': 'ぜんぶ', '必要': 'ひつよう', '中断': 'ちゅうだん',
+    '再開': 'さいかい', '始': 'はじ', '開け': 'あけ', '空': 'そら', '集め': 'あつめ', '選択中': 'せんたくちゅう',
+    '積み上げ': 'つみあげ', '残': 'のこ', '楽': 'たの', '一緒': 'いっしょ'
   };
   const readingPattern = new RegExp(Object.keys(readings).sort((a, b) => b.length - a.length).join('|'), 'g');
   const sceneMemory = new WeakMap();
@@ -61,7 +66,7 @@
   function edges() { return window.Adventure && window.Adventure.edges || fallbackEdges; }
   function regions() { return catalog().regions || []; }
   function characters() { return catalog().characters || []; }
-  function node(id) { return nodes().find(item => item.id === id) || nodes()[0] || fallbackNodes[0]; }
+  function node(id) { return nodes().find(item => item.id === id) || (catalog().finale && catalog().finale.id === id ? catalog().finale : null) || nodes()[0] || fallbackNodes[0]; }
   function nodeName(id) { return node(id).name; }
   function nodeLabel(item) { return item.reading ? ruby(item.name, item.reading) : ja(item.name); }
   function region(id) { return regions().find(item => item.id === id) || { id: 'paris', name: 'パリ', status: 'ready' }; }
@@ -71,9 +76,21 @@
   function visited(state, id) { return !!(state && state.visited && state.visited[id]); }
   function art(place) { return place.illustration || ASSETS + place.id + '.svg'; }
   function safePlace(state) { return node(state && state.activeLeg ? state.activeLeg.to : state && state.currentNodeId); }
+  function vehicleList(profile) { return window.Adventure && typeof window.Adventure.getVehicles === 'function' ? window.Adventure.getVehicles(profile) : []; }
+  function selectedVehicle(profile) { return vehicleList(profile).find(vehicle => vehicle.selected && vehicle.unlocked) || null; }
+  function finaleStatus(profile) {
+    return window.Adventure && typeof window.Adventure.getFinaleStatus === 'function' ? window.Adventure.getFinaleStatus(profile) : { unlocked: false, active: false, completed: false, progress: 0, requiredCorrect: 10, missingCharacters: [], missingVehicles: [] };
+  }
   function companion(reaction, extraClass) {
     const variant = ['idle', 'correct', 'wrong', 'arrival'].includes(reaction) ? reaction : 'idle';
     return '<img class="av-companion ' + (extraClass || '') + '" src="' + ASSETS + 'companion-' + variant + '.svg" alt="" width="128" height="144" draggable="false">';
+  }
+  function ride(profile, reaction, extraClass) {
+    const vehicle = selectedVehicle(profile);
+    if (!vehicle) return companion(reaction, extraClass);
+    const definition = (catalog().vehicles || []).find(item => item.id === vehicle.id) || vehicle;
+    const rider = vehicle.rider || definition.rider || { x: 50, y: 65 };
+    return '<span class="av-mounted av-vehicle-' + escape(vehicle.id) + ' ' + (extraClass || '') + '" role="img" aria-label="' + escape(vehicle.name + 'に乗った相棒') + '"><span class="av-rider" style="left:' + count(rider.x) + '%;top:' + count(rider.y) + '%">' + companion(reaction) + '</span><img class="av-vehicle-art" src="' + escape(vehicle.asset || definition.asset) + '" alt="" width="320" height="220" draggable="false"></span>';
   }
   function remainingText(state) {
     if (state && state.activeLeg) return 'あと' + Math.max(0, count(state.activeLeg.requiredUnits) - count(state.activeLeg.progressUnits)) + '問正解で到着';
@@ -83,6 +100,14 @@
     if (!state || !state.activeLeg) return '';
     const leg = state.activeLeg, done = count(leg.progressUnits), total = Math.max(1, count(leg.requiredUnits));
     return '<div class="av-progress-line"><div class="av-progress-track" role="progressbar" aria-label="旅の進み" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + Math.min(done, total) + '"><span style="width:' + Math.min(100, done / total * 100).toFixed(3) + '%"></span></div><span>' + done + ' / ' + total + '</span></div>';
+  }
+  function journeyRemaining(profile) {
+    const finale = finaleStatus(profile);
+    return finale.active ? 'あと' + Math.max(0, finale.requiredCorrect - finale.progress) + '問正解で宝箱へ' : remainingText(stateOf(profile));
+  }
+  function journeyProgress(profile) {
+    const finale = finaleStatus(profile);
+    return progressBar(finale.active ? { activeLeg: { progressUnits: finale.progress, requiredUnits: finale.requiredCorrect } } : stateOf(profile));
   }
   function pendingText(state) { return state && count(state.pendingUnits) ? '<p class="av-pending">' + ja('次の道へ ' + count(state.pendingUnits) + ' 正解分を持ち越し') + '</p>' : ''; }
   function glyph(id) {
@@ -124,13 +149,14 @@
       return '<path class="av-path-shadow" d="' + pathData(pointsFor(edge, scope)) + '"/><path class="av-path' + (active ? ' is-selected' : '') + (visited(state, edge.to) ? ' is-visited' : '') + '" d="' + pathData(pointsFor(edge, scope)) + '"/>';
     }).join('');
   }
-  function traveler(state, scope) {
-    if (!state || !state.activeLeg) return '';
+  function traveler(profile, scope) {
+    const state = stateOf(profile);
+    if (!state || !state.activeLeg || finaleStatus(profile).active) return '';
     const leg = state.activeLeg, edge = edges().find(item => item.id === leg.edgeId);
     if (!edge || !routeMatches(edge, scope)) return '';
     const t = Math.min(1, count(leg.progressUnits) / Math.max(1, count(leg.requiredUnits))), points = pointsFor(edge, scope);
     const cubic = axis => Math.pow(1 - t, 3) * points[0][axis] + 3 * Math.pow(1 - t, 2) * t * points[1][axis] + 3 * (1 - t) * t * t * points[2][axis] + t * t * t * points[3][axis];
-    return '<div class="av-traveler" style="left:' + cubic(0).toFixed(3) + '%;top:' + cubic(1).toFixed(3) + '%" role="img" aria-label="' + escape('現在地：' + nodeName(leg.from) + 'から' + nodeName(leg.to) + 'への道、' + count(leg.progressUnits) + ' / ' + count(leg.requiredUnits)) + '"><img src="' + ASSETS + 'companion-idle.svg" width="34" height="39" alt=""><span class="av-traveler-dot"></span><span class="av-traveler-label">' + ja('現在地') + '</span></div>';
+    return '<div class="av-traveler" style="left:' + cubic(0).toFixed(3) + '%;top:' + cubic(1).toFixed(3) + '%" role="img" aria-label="' + escape('現在地：' + nodeName(leg.from) + 'から' + nodeName(leg.to) + 'への道、' + count(leg.progressUnits) + ' / ' + count(leg.requiredUnits)) + '">' + ride(profile, 'idle', 'av-marker-ride') + '<span class="av-traveler-dot"></span><span class="av-traveler-label">' + ja('現在地') + '</span></div>';
   }
   function learningCard(learning, wordLabel) {
     if (!learning || !window.Adventure || !window.Adventure.summarizeLearning) return '';
@@ -183,6 +209,27 @@
   function sourceLink(source) {
     return typeof source === 'string' && /^https:\/\//.test(source) ? '<a class="av-source-link" href="' + escape(source) + '" target="_blank" rel="noopener noreferrer">' + ja('場所の紹介を読む') + ' ↗</a>' : '';
   }
+  function vehicleCard(vehicle, profile, reward) {
+    const unlocked = !!vehicle.unlocked, selected = !!vehicle.selected;
+    return '<article class="av-vehicle-card' + (unlocked ? ' is-owned' : ' is-unowned') + (selected ? ' is-selected' : '') + '"><div class="av-vehicle-picture"><img class="' + (unlocked ? '' : 'av-silhouette') + '" src="' + escape(vehicle.asset) + '" width="320" height="220" alt="' + escape(vehicle.name) + '"></div><div class="av-vehicle-copy"><p class="av-eyebrow">' + ja(reward ? '新しい乗り物' : unlocked ? '手に入れた乗り物' : 'これからの乗り物') + '</p><h3>' + ruby(vehicle.name, vehicle.reading) + '</h3><p>' + ja(unlocked ? vehicle.description || 'この乗り物で旅をしよう。' : 'あと' + count(vehicle.remainingUnits) + '問正解で手に入る') + '</p>' + (reward ? '' : '<button type="button" class="av-vehicle-select" data-vehicle="' + escape(vehicle.id) + '" data-av-focus="vehicle-' + escape(vehicle.id) + '" aria-pressed="' + selected + '"' + (unlocked && health(profile).ok ? '' : ' disabled') + '>' + ja(selected ? 'この乗り物で旅をしているよ' : unlocked ? 'この乗り物に乗る' : '正解を積み上げよう') + '</button>') + '</div></article>';
+  }
+  function finaleCard(profile) {
+    const definition = catalog().finale;
+    if (!definition) return '';
+    const status = finaleStatus(profile), progress = Math.min(count(status.progress), count(status.requiredCorrect));
+    const progressState = { activeLeg: { progressUnits: progress, requiredUnits: status.requiredCorrect } };
+    const missingCharacters = (status.missingCharacters || []).map(person => '<li><button type="button" data-finale-place="' + escape(person.placeId) + '" data-av-focus="finale-place-' + escape(person.placeId) + '">' + nodeLabel(node(person.placeId)) + '<span>' + escape(person.name) + ja('に出会う') + ' →</span></button></li>').join('');
+    const missingVehicles = (status.missingVehicles || []).map(vehicle => '<li><span>' + ruby(vehicle.name, vehicle.reading) + '</span><small>' + ja('あと' + count(vehicle.remainingUnits) + '問正解') + '</small></li>').join('');
+    let body;
+    if (status.completed) {
+      body = '<div class="av-treasure-display"><img src="' + escape(definition.treasureAsset || ASSETS + 'treasure-crown.svg') + '" alt="' + escape(definition.treasureName || 'ことばの王冠') + '" width="320" height="220"><div><p class="av-eyebrow">' + ja('宝探しを達成！') + '</p><h4>' + ruby(definition.treasureName || 'ことばの王冠', definition.treasureReading) + '</h4><p>' + ja('集めた言葉が、宝箱を開けたよ。これからも好きな場所へ旅をしよう。') + '</p></div></div>';
+    } else if (!status.unlocked) {
+      body = '<p class="av-finale-intro">' + ja('旅で出会うキャラと乗り物を集めて、空の城へ。') + '</p><div class="av-finale-requirements">' + (missingCharacters ? '<div><h4>' + ja('次に出会うキャラ') + '</h4><ul>' + missingCharacters + '</ul></div>' : '') + (missingVehicles ? '<div><h4>' + ja('これから手に入れる乗り物') + '</h4><ul>' + missingVehicles + '</ul></div>' : '') + '</div><button type="button" class="av-inline-button" data-journal="vehicles">' + ja('乗り物の図鑑を見る') + ' →</button>';
+    } else {
+      body = '<p class="av-finale-intro">' + ja(status.active ? '宝箱へ向かって、言葉をひとつずつ。' : progress ? '前の続きから、宝箱へ向かおう。' : '準備がそろった！ここから' + status.requiredCorrect + '問正解で、宝箱を開けよう。') + '</p>' + (status.active || progress ? progressBar(progressState) : '') + '<div class="av-finale-actions"><button type="button" class="av-detail-primary" data-action="' + (status.active ? 'study' : 'finale') + '">' + ja(status.active ? '宝探しの続きを学習する' : progress ? '宝探しを再開する' : '宝探しに出発する') + ' →</button>' + (status.active ? '<button type="button" class="av-inline-button" data-action="pause-finale">' + ja('宝探しをいったん中断する') + '</button>' : '') + '</div>';
+    }
+    return '<section class="av-finale-card' + (status.completed ? ' is-complete' : status.active ? ' is-active' : '') + '" aria-label="最後の宝探し"><div class="av-finale-landscape"><img src="' + escape(definition.illustration) + '" alt="' + escape(definition.name + 'のイラスト') + '" width="960" height="300"><span>' + ja('空想の物語') + '</span></div><div class="av-finale-copy"><p class="av-eyebrow">' + ja('最後の宝探し') + '</p><h3>' + ruby(definition.name, definition.reading) + '</h3>' + body + '</div></section>';
+  }
   function detailCard(place, profile) {
     const state = stateOf(profile), status = health(profile), isVisited = visited(state, place.id), here = state && state.currentNodeId === place.id;
     const active = state && state.activeLeg && state.activeLeg.to === place.id;
@@ -214,11 +261,14 @@
     const regionDescription = ui.scope === 'france' ? '<div class="av-region-summary"><p class="av-eyebrow">FRANCE · ' + escape(selectedRegion.id || '').toUpperCase() + '</p><h3>' + nodeLabel(selectedRegion) + '</h3><p>' + ja(selectedRegion.description || '') + '</p>' + (selectedRegion.id === 'paris' ? '<button type="button" class="av-inline-button" data-scope="paris">' + ja('パリ周辺の地図を見る') + ' →</button>' : '') + '</div>' : '';
     const header = '<header class="av-map-heading"><div><p class="av-eyebrow">LES CHEMINS DES MOTS</p><h2>' + ja('言葉と旅するフランス') + '</h2><p>' + ja('名所を訪ね、旅のキャラに出会おう。') + '</p></div><button type="button" class="av-journal-shortcut" data-journal data-av-focus="journal">' + glyph('chambord') + '<span>' + ja('旅の図鑑') + '</span></button></header>';
     const tabs = '<div class="av-map-switch" role="group" aria-label="地図の範囲"><button type="button" data-scope="france" data-av-focus="scope-france" aria-pressed="' + (ui.scope === 'france') + '">' + ja('フランス全国') + '</button><button type="button" data-scope="paris" data-av-focus="scope-paris" aria-pressed="' + (ui.scope === 'paris') + '">' + ja('パリ周辺') + '</button></div>';
-    const canvas = '<div class="av-map-canvas av-geographic-map av-map-' + ui.scope + '"><img class="av-map-art" src="' + ASSETS + (ui.scope === 'france' ? 'france-map.svg?v=39' : 'paris-landmarks-map.svg?v=39') + '" alt="' + (ui.scope === 'france' ? 'フランス本土とコルシカ島。北が上の略図' : 'トロカデロとエッフェル塔の間をセーヌ川が流れる、北が上のパリ周辺の略図') + '" width="800" height="650"><svg class="av-map-routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + routeLines(state, ui.scope) + (ui.scope === 'france' ? regionLeaders() : '') + '</svg>' + mapNodes(state, ui.scope, ui.scope === 'france' ? ui.regionId : ui.placeId) + traveler(state, ui.scope) + '<span class="av-map-caption">' + (ui.scope === 'france' ? 'FRANCE · N ↑' : 'PARIS · N ↑') + '</span></div>';
+    const canvas = '<div class="av-map-canvas av-geographic-map av-map-' + ui.scope + '"><img class="av-map-art" src="' + ASSETS + (ui.scope === 'france' ? 'france-map.svg?v=39' : 'paris-landmarks-map.svg?v=39') + '" alt="' + (ui.scope === 'france' ? 'フランス本土とコルシカ島。北が上の略図' : 'トロカデロとエッフェル塔の間をセーヌ川が流れる、北が上のパリ周辺の略図') + '" width="800" height="650"><svg class="av-map-routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + routeLines(state, ui.scope) + (ui.scope === 'france' ? regionLeaders() : '') + '</svg>' + mapNodes(state, ui.scope, ui.scope === 'france' ? ui.regionId : ui.placeId) + traveler(profile, ui.scope) + '<span class="av-map-caption">' + (ui.scope === 'france' ? 'FRANCE · N ↑' : 'PARIS · N ↑') + '</span></div>';
     const outskirts = ui.scope === 'paris' && nodes().some(place => place.id === 'versailles') ? '<button type="button" class="av-map-outskirts" data-outside-place="versailles" data-av-focus="outside-versailles"><span aria-hidden="true">←</span><span><strong>' + ja('西へ：ヴェルサイユ宮殿') + '</strong><small>' + ja('パリ市内の外へ。全国の地図で場所を見る') + '</small></span></button>' : '';
-    const travel = '<div class="av-travel-summary"><div><span class="av-small-label">' + ja(state && state.activeLeg ? '移動中' : '現在地') + '</span><strong>' + ja(state && state.activeLeg ? nodeName(state.activeLeg.from) + ' → ' + nodeName(state.activeLeg.to) : current.name) + '</strong><p>' + ja(remainingText(state)) + '</p>' + progressBar(state) + pendingText(state) + '</div>' + companion('idle', 'av-summary-buddy') + '</div>';
+    const finale = finaleStatus(profile), transport = selectedVehicle(profile);
+    const travel = '<div class="av-travel-summary"><div><span class="av-small-label">' + ja(finale.active ? '最後の宝探し' : state && state.activeLeg ? '移動中' : '現在地') + '</span><strong>' + ja(finale.active ? catalog().finale.name + 'へ' : state && state.activeLeg ? nodeName(state.activeLeg.from) + ' → ' + nodeName(state.activeLeg.to) : current.name) + '</strong><p>' + ja(journeyRemaining(profile)) + '</p>' + journeyProgress(profile) + (finale.active ? '' : pendingText(state)) + '</div>' + ride(profile, 'idle', 'av-summary-buddy') + '</div>';
+    const transportSummary = '<div class="av-transport-summary"><div><span>' + ja('旅の乗り物') + '</span><strong>' + (transport ? ruby(transport.name, transport.reading) : ja('徒歩')) + '</strong></div><button type="button" class="av-inline-button" data-journal="vehicles" data-av-focus="change-vehicle">' + ja('乗りかえる') + ' →</button></div>';
+    const startButton = '<button type="button" class="av-study-button av-map-start" data-action="study" data-av-focus="study-top">' + ja('学習して旅を進める') + '<span aria-hidden="true">→</span></button>';
     const modes = ['rich', 'calm'].map(value => '<button type="button" class="av-effect-button" data-mode="' + value + '" data-av-focus="effects-' + value + '" aria-pressed="' + (mode === value) + '">' + (value === 'rich' ? 'たっぷり' : 'ひかえめ') + '</button>').join('');
-    paint(container, '<div class="av-map-panel av-mode-' + mode + '">' + header + tabs + canvas + outskirts + '<p class="av-map-instruction">' + ja(ui.scope === 'france' ? '地域の名前を選ぶと、旅先の紹介が開きます。' : '地点を選ぶと、名所の紹介と進む道が見られます。') + '</p>' + travel + (!status.ok ? '<p class="av-unavailable" role="status">' + escape(status.reason || '旅の記録を確認してください。') + '</p>' : '') + regionDescription + (planned ? '<div class="av-planned-card"><span>À BIENTÔT</span><h3>' + ja('この旅先は制作中') + '</h3><p>' + ja('次に訪ねる場所を、少しずつ増やしていきます。') + '</p></div>' : detailCard(selected, profile)) + '<button type="button" class="av-study-button" data-action="study" data-av-focus="study">' + ja('好きな教材で学習する') + '<span aria-hidden="true">→</span></button><fieldset class="av-effects"><legend>' + ja('応援の多さ') + '</legend><div>' + modes + '</div></fieldset></div>');
+    paint(container, '<div class="av-map-panel av-mode-' + mode + '">' + header + startButton + tabs + canvas + outskirts + '<p class="av-map-instruction">' + ja(ui.scope === 'france' ? '地域の名前を選ぶと、旅先の紹介が開きます。' : '地点を選ぶと、名所の紹介と進む道が見られます。') + '</p>' + travel + transportSummary + (!status.ok ? '<p class="av-unavailable" role="status">' + escape(status.reason || '旅の記録を確認してください。') + '</p>' : '') + regionDescription + (planned ? '<div class="av-planned-card"><span>À BIENTÔT</span><h3>' + ja('この旅先は制作中') + '</h3><p>' + ja('次に訪ねる場所を、少しずつ増やしていきます。') + '</p></div>' : detailCard(selected, profile)) + finaleCard(profile) + '<button type="button" class="av-study-button" data-action="study" data-av-focus="study">' + ja('好きな教材で学習する') + '<span aria-hidden="true">→</span></button><fieldset class="av-effects"><legend>' + ja('応援の多さ') + '</legend><div>' + modes + '</div></fieldset></div>');
     const redraw = () => renderMap(container, profile, Object.assign({}, handlers, { focusPlaceId: null }));
     connect(container, '[data-scope]', data => { ui.scope = data.scope; if (data.scope === 'paris') { ui.regionId = 'paris'; if (node(ui.placeId).regionId !== 'paris') ui.placeId = 'eiffel'; } redraw(); });
     connect(container, '[data-region]', data => { ui.regionId = data.region; const first = nodes().find(item => item.regionId === data.region); if (first) ui.placeId = first.id; redraw(); });
@@ -231,22 +281,25 @@
       const regionButton = container.querySelector('[data-region="' + destination.regionId + '"]');
       if (regionButton) regionButton.focus({ preventScroll: true });
     });
-    connect(container, '[data-action]', data => { if (data.action === 'choose' && handlers.onChoose) handlers.onChoose(data.edge); else if (data.action === 'return' && handlers.onReturn) handlers.onReturn(data.node); else if (data.action === 'study' && handlers.onStudy) handlers.onStudy(); });
+    connect(container, '[data-action]', data => { if (data.action === 'choose' && handlers.onChoose) handlers.onChoose(data.edge); else if (data.action === 'return' && handlers.onReturn) handlers.onReturn(data.node); else if (data.action === 'study' && handlers.onStudy) handlers.onStudy(); else if (data.action === 'finale' && handlers.onFinale) handlers.onFinale(); else if (data.action === 'pause-finale' && handlers.onPauseFinale) handlers.onPauseFinale(); });
     connect(container, '[data-mode]', data => { if (handlers.onEffects) handlers.onEffects(data.mode); });
-    connect(container, '[data-journal]', () => { if (handlers.onJournal) handlers.onJournal(); });
+    connect(container, '[data-journal]', data => { if (handlers.onJournal) handlers.onJournal(data.journal || 'places'); });
     connect(container, '[data-recommendation]', data => { if (handlers.onRecommend) handlers.onRecommend(data.recommendation); });
+    connect(container, '[data-finale-place]', data => { const place = node(data.finalePlace); ui.placeId = place.id; ui.regionId = place.regionId; ui.scope = place.regionId === 'paris' ? 'paris' : 'france'; redraw(); });
   }
   function renderScene(container, profile, options) {
     if (!container) return;
     options = options || {};
     const state = stateOf(profile), mode = modeOf(state), reaction = ['correct', 'wrong', 'arrival'].includes(options.reaction) ? options.reaction : 'idle';
-    const previous = sceneMemory.get(container), desired = safePlace(state);
+    const finale = finaleStatus(profile), definition = catalog().finale;
+    const previous = sceneMemory.get(container), desired = definition && (finale.active || options.finaleCompleted) ? definition : safePlace(state);
     const place = reaction === 'idle' || !previous ? desired : node(previous.placeId);
     const changed = !!(previous && previous.placeId !== place.id);
     sceneMemory.set(container, { placeId: place.id });
-    const preview = !!(state && state.activeLeg), label = (preview ? 'この先の景色 · ' : '現在地 · ') + place.name;
+    const inStory = !!(definition && place.id === definition.id), preview = !!(state && state.activeLeg);
+    const label = (inStory ? '空想の物語 · ' : preview ? 'この先の景色 · ' : '現在地 · ') + place.name;
     const message = options.message || (reaction === 'correct' ? 'いいね！' : reaction === 'wrong' ? '答えを見てみよう' : reaction === 'arrival' ? '到着！' : '一歩ずつ、旅をしよう');
-    paint(container, '<div class="av-scene-panel av-mode-' + mode + ' av-reaction-' + reaction + (options.animate === false ? ' av-static-render' : '') + '">' + (options.showHeading ? '<div class="av-study-heading"><span class="av-subject">' + ja(options.subject || 'フランス語') + '</span><span class="av-question-count"><b>' + count(options.questionIndex) + '</b> / ' + count(options.questionCount) + '</span></div>' : '') + '<div class="av-scene av-landmark-scene' + (changed ? ' av-scenery-change' : '') + '"><img class="av-scene-art" src="' + escape(art(place)) + '" alt="" width="960" height="300"><span class="av-scene-location">' + ja(label) + '</span><div class="av-speech" role="status" aria-live="polite">' + ja(message) + '</div>' + companion(reaction) + '<span class="av-spark av-spark-one" aria-hidden="true">✦</span><span class="av-spark av-spark-two" aria-hidden="true">✧</span></div><div class="av-scene-footer"><span>' + ja(remainingText(state)) + '</span>' + (state && count(state.pendingUnits) ? '<span>' + ja('持ち越し ' + count(state.pendingUnits)) + '</span>' : '') + '</div></div>');
+    paint(container, '<div class="av-scene-panel av-mode-' + mode + ' av-reaction-' + reaction + (options.animate === false ? ' av-static-render' : '') + '">' + (options.showHeading ? '<div class="av-study-heading"><span class="av-subject">' + ja(options.subject || 'フランス語') + '</span><span class="av-question-count"><b>' + count(options.questionIndex) + '</b> / ' + count(options.questionCount) + '</span></div>' : '') + '<div class="av-scene av-landmark-scene' + (selectedVehicle(profile) ? ' av-mounted-scene' : '') + (changed ? ' av-scenery-change' : '') + '"><img class="av-scene-art" src="' + escape(art(place)) + '" alt="" width="960" height="300"><span class="av-scene-location">' + ja(label) + '</span><div class="av-speech" role="status" aria-live="polite">' + ja(message) + '</div>' + ride(profile, reaction) + '<span class="av-spark av-spark-one" aria-hidden="true">✦</span><span class="av-spark av-spark-two" aria-hidden="true">✧</span></div><div class="av-scene-footer"><span>' + ja(inStory && finale.completed ? '宝箱を開けたよ！' : journeyRemaining(profile)) + '</span>' + (!finale.active && state && count(state.pendingUnits) ? '<span>' + ja('持ち越し ' + count(state.pendingUnits)) + '</span>' : '') + '</div></div>');
   }
   function characterCard(person, state, result, wordLabel) {
     const registration = state && state.characters && state.characters[person.id], met = !!registration, place = node(person.placeId);
@@ -255,28 +308,39 @@
   function renderJournal(container, profile, handlers) {
     if (!container) return;
     handlers = handlers || {};
-    const state = stateOf(profile), tab = handlers.tab === 'characters' ? 'characters' : 'places';
+    const state = stateOf(profile), tabsOrder = ['places', 'characters', 'vehicles'], tab = tabsOrder.includes(handlers.tab) ? handlers.tab : 'places';
+    const vehicles = vehicleList(profile);
     const placeCount = nodes().filter(item => visited(state, item.id)).length;
     const charCount = characters().filter(item => state && state.characters && state.characters[item.id]).length;
-    const tabs = '<div class="av-journal-tabs" role="tablist" aria-label="図鑑の種類"><button type="button" role="tab" id="av-tab-places" aria-controls="av-journal-content" aria-selected="' + (tab === 'places') + '" tabindex="' + (tab === 'places' ? 0 : -1) + '" data-tab="places" data-av-focus="tab-places">' + ja('名所') + '<span>' + placeCount + ' / ' + nodes().length + '</span></button><button type="button" role="tab" id="av-tab-characters" aria-controls="av-journal-content" aria-selected="' + (tab === 'characters') + '" tabindex="' + (tab === 'characters' ? 0 : -1) + '" data-tab="characters" data-av-focus="tab-characters">キャラ<span>' + charCount + ' / ' + characters().length + '</span></button></div>';
-    const cards = tab === 'characters' ? characters().map(person => characterCard(person, state, false, handlers.wordLabel)).join('') : nodes().map(place => {
+    const tabDefinitions = [{ id: 'places', name: '名所', count: placeCount, total: nodes().length }, { id: 'characters', name: 'キャラ', count: charCount, total: characters().length }, { id: 'vehicles', name: '乗り物', count: vehicles.filter(item => item.unlocked).length, total: vehicles.length }];
+    const tabs = '<div class="av-journal-tabs" role="tablist" aria-label="図鑑の種類">' + tabDefinitions.map(item => '<button type="button" role="tab" id="av-tab-' + item.id + '" aria-controls="av-journal-content" aria-selected="' + (tab === item.id) + '" tabindex="' + (tab === item.id ? 0 : -1) + '" data-tab="' + item.id + '" data-av-focus="tab-' + item.id + '">' + ja(item.name) + '<span>' + item.count + ' / ' + item.total + '</span></button>').join('') + '</div>';
+    const walking = '<article class="av-walking-card">' + companion('idle') + '<div><h3>' + ja('徒歩の旅') + '</h3><p>' + ja('歩いて、景色を楽しもう。') + '</p></div><button type="button" class="av-vehicle-select" data-vehicle="walk" data-av-focus="vehicle-walk" aria-pressed="' + !selectedVehicle(profile) + '">' + ja(selectedVehicle(profile) ? '歩いて旅をする' : '選択中') + '</button></article>';
+    const cards = tab === 'vehicles' ? walking + vehicles.map(vehicle => vehicleCard(vehicle, profile, false)).join('') : tab === 'characters' ? characters().map(person => characterCard(person, state, false, handlers.wordLabel)).join('') : nodes().map(place => {
       const found = visited(state, place.id), record = found && state.visited[place.id];
       return '<article class="av-postcard' + (found ? ' is-found' : ' is-unfound') + '"><div class="av-postcard-art">' + (found ? '<img src="' + escape(art(place)) + '" width="960" height="300" alt="' + escape(place.name) + '">' : '<div class="av-landmark-silhouette">' + glyph(place.id) + '</div>') + '<span>' + ja(found ? '訪問済み' : '未訪問') + '</span></div><div class="av-postcard-copy"><p class="av-eyebrow">' + escape(place.french || '') + '</p><h3>' + nodeLabel(place) + '</h3><p>' + ja(found ? place.description || '' : region(place.regionId).name + 'で出会う景色。') + '</p>' + (found ? learningCard(record.learning, handlers.wordLabel) + sourceLink(place.source) : '') + '<button type="button" class="av-inline-button" data-open-place="' + escape(place.id) + '">' + ja('地図で場所を見る') + ' →</button></div></article>';
     }).join('');
-    paint(container, '<section class="av-journal av-mode-' + modeOf(state) + '"><header><p class="av-eyebrow">CARNET DE VOYAGE</p><h2>' + ja('わたしの旅の図鑑') + '</h2><p>' + ja(tab === 'characters' ? '各地で出会ったキャラが、この図鑑に集まります。' : '訪ねた景色と、ここまでの学習の足跡。') + '</p></header>' + tabs + '<div class="av-journal-cards" id="av-journal-content" role="tabpanel" aria-labelledby="av-tab-' + tab + '">' + cards + '</div></section>');
+    paint(container, '<section class="av-journal av-mode-' + modeOf(state) + '"><header><p class="av-eyebrow">CARNET DE VOYAGE</p><h2>' + ja('わたしの旅の図鑑') + '</h2><p>' + ja(tab === 'vehicles' ? '手に入れた乗り物を選んで、次の景色へ。' : tab === 'characters' ? '各地で出会ったキャラが、この図鑑に集まります。' : '訪ねた景色と、ここまでの学習の足跡。') + '</p></header>' + tabs + '<div class="av-journal-cards" id="av-journal-content" role="tabpanel" aria-labelledby="av-tab-' + tab + '">' + cards + '</div></section>');
     const changeTab = next => { if (handlers.onTab) handlers.onTab(next); else renderJournal(container, profile, Object.assign({}, handlers, { tab: next })); };
     connect(container, '[data-tab]', data => changeTab(data.tab));
-    container.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('keydown', event => { if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return; event.preventDefault(); const next = event.key === 'Home' ? 'places' : event.key === 'End' ? 'characters' : button.dataset.tab === 'places' ? 'characters' : 'places'; changeTab(next); const target = container.querySelector('[data-tab="' + next + '"]'); if (target) target.focus(); }));
+    container.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('keydown', event => { if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return; event.preventDefault(); const next = event.key === 'Home' ? tabsOrder[0] : event.key === 'End' ? tabsOrder[tabsOrder.length - 1] : tabsOrder[(tabsOrder.indexOf(button.dataset.tab) + (event.key === 'ArrowLeft' ? -1 : 1) + tabsOrder.length) % tabsOrder.length]; changeTab(next); const target = container.querySelector('[data-tab="' + next + '"]'); if (target) target.focus(); }));
     connect(container, '[data-open-place]', data => { if (handlers.onMap) handlers.onMap(data.openPlace); });
+    connect(container, '[data-vehicle]', data => { if (handlers.onVehicle) handlers.onVehicle(data.vehicle); });
   }
   function renderResult(container, profile, options) {
     if (!container) return;
     options = options || {};
     const state = stateOf(profile), mode = modeOf(state), earned = count(options.earned), arrivals = Array.isArray(options.arrivals) ? Array.from(new Set(options.arrivals)) : [];
-    const arrived = arrivals.length > 0, place = arrived ? node(arrivals[arrivals.length - 1]) : safePlace(state);
+    const finale = finaleStatus(profile), definition = catalog().finale, finaleCompleted = !!(options.finaleCompleted && definition);
+    const arrived = arrivals.length > 0, place = (finaleCompleted || finale.active) && definition ? definition : arrived ? node(arrivals[arrivals.length - 1]) : safePlace(state);
     const encounters = characters().filter(person => arrivals.includes(person.placeId) && state && state.characters && state.characters[person.id]);
-    paint(container, '<section class="av-result av-mode-' + mode + (arrived ? ' av-reaction-arrival' : '') + '" aria-label="旅の記録"><div class="av-result-landscape"><img class="av-scene-art" src="' + escape(art(place)) + '" alt="' + escape(place.name) + '" width="960" height="300">' + companion(arrived ? 'arrival' : 'idle') + '<span class="av-result-tag">' + (arrived ? 'NOUVELLE ESCALE' : 'EN CHEMIN') + '</span></div><div class="av-result-copy"><p class="av-eyebrow">' + ja('今回の旅') + '</p><h3>' + ja(arrived ? nodeName(place.id) + 'に到着！' : '一歩ずつ、続いていく') + '</h3><p>' + ja(arrived ? place.description || '' : earned > 0 ? '旅の進みを記録したよ' : '答えを確かめて、また次へ') + '</p><div class="av-earned"><strong>+' + earned + '</strong><span>' + ja('正解分の進み') + '</span></div><p class="av-result-next">' + ja(remainingText(state)) + '</p>' + progressBar(state) + pendingText(state) + (arrived && state && state.visited[place.id] ? learningCard(state.visited[place.id].learning) : '') + '</div></section>' + (encounters.length ? '<section class="av-result-encounters"><h3>' + ja('旅先で、新しい出会い') + '</h3>' + encounters.map(person => characterCard(person, state, true)).join('') + '</section>' : ''));
+    const newVehicles = vehicleList(profile).filter(vehicle => vehicle.unlocked && Array.isArray(options.vehicleUnlocks) && options.vehicleUnlocks.includes(vehicle.id));
+    const heading = finaleCompleted ? '宝箱を開けた！' : arrived ? nodeName(place.id) + 'に到着！' : finale.active ? '空の城へ、一歩ずつ' : '一歩ずつ、続いていく';
+    const treasure = finaleCompleted ? '<div class="av-treasure-display av-result-treasure"><img src="' + escape(definition.treasureAsset || ASSETS + 'treasure-crown.svg') + '" alt="' + escape(definition.treasureName || 'ことばの王冠') + '" width="320" height="220"><div><p class="av-eyebrow">' + ja('最後の宝探しを達成') + '</p><h3>' + ruby(definition.treasureName || 'ことばの王冠', definition.treasureReading) + '</h3><p>' + ja('出会った仲間、乗り物、集めた言葉。全部がこの宝箱につながったよ。') + '</p></div></div>' : '';
+    const vehicleRewards = newVehicles.length ? '<section class="av-vehicle-rewards"><h3>' + ja('新しい乗り物を手に入れた！') + '</h3><div>' + newVehicles.map(vehicle => vehicleCard(vehicle, profile, true)).join('') + '</div><button type="button" class="av-detail-primary" data-result-vehicles>' + ja('乗り物を選ぶ') + ' →</button></section>' : '';
+    const summary = finaleCompleted ? '宝探しの記録は、地図にいつでも残っているよ。' : arrived ? place.description || '' : earned > 0 ? '旅の進みを記録したよ' : '答えを確かめて、また次へ';
+    paint(container, '<section class="av-result av-mode-' + mode + (arrived || finaleCompleted ? ' av-reaction-arrival' : '') + '" aria-label="旅の記録"><div class="av-result-landscape"><img class="av-scene-art" src="' + escape(art(place)) + '" alt="' + escape(place.name) + '" width="960" height="300">' + ride(profile, arrived || finaleCompleted ? 'arrival' : 'idle') + '<span class="av-result-tag">' + (finaleCompleted ? 'TRÉSOR DÉCOUVERT' : finale.active ? 'LE DERNIER TRÉSOR' : arrived ? 'NOUVELLE ESCALE' : 'EN CHEMIN') + '</span></div><div class="av-result-copy"><p class="av-eyebrow">' + ja(finaleCompleted ? '空想の物語' : '今回の旅') + '</p><h3>' + ja(heading) + '</h3><p>' + ja(summary) + '</p>' + treasure + '<div class="av-earned"><strong>+' + earned + '</strong><span>' + ja('正解分の進み') + '</span></div>' + (finaleCompleted ? '' : '<p class="av-result-next">' + ja(journeyRemaining(profile)) + '</p>' + journeyProgress(profile)) + (finale.active ? '' : pendingText(state)) + (arrived && !finaleCompleted && state && state.visited[place.id] ? learningCard(state.visited[place.id].learning) : '') + '</div></section>' + (encounters.length ? '<section class="av-result-encounters"><h3>' + ja('旅先で、新しい出会い') + '</h3>' + encounters.map(person => characterCard(person, state, true)).join('') + '</section>' : '') + vehicleRewards);
     connect(container, '[data-open-place]', data => { if (options.onMap) options.onMap(data.openPlace); });
+    connect(container, '[data-result-vehicles]', () => { if (options.onJournal) options.onJournal('vehicles'); });
   }
   window.AdventureView = Object.freeze({ renderMap: renderMap, renderScene: renderScene, renderResult: renderResult, renderJournal: renderJournal });
 }());
