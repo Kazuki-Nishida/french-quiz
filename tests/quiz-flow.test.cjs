@@ -55,12 +55,13 @@ function legacyProfile(id = 1) {
   return { id, name: `テスト${id}`, avatar: "🦊", daily: {}, words: {}, stock: [], tut: 1 };
 }
 
-function harness(initial = null) {
-  const elements = new Map();
+function harness(initial) {
+  const elements = new Map(), createdElements = [], downloads = [], alerts = [], windowListeners = {};
   const document = {
     body: new Element("body"), listeners: {},
     getElementById(id) { if (!elements.has(id)) elements.set(id, new Element()); return elements.get(id); },
-    createElement(tag) { return new Element(tag); },
+    createElement(tag) { const element = new Element(tag); createdElements.push(element); return element; },
+    querySelector(selector) { return this.getElementById('selector:' + selector); },
     querySelectorAll(selector) {
       if (selector === "#opts .opt") return this.getElementById("opts").children;
       if (selector === ".confetti") return this.body.querySelectorAll(selector);
@@ -68,9 +69,9 @@ function harness(initial = null) {
     },
     addEventListener(type, callback) { (this.listeners[type] ||= []).push(callback); }
   };
-  const storage = { raw: initial === null ? JSON.stringify({ profiles: [legacyProfile()], active: 1, settings: {} }) : initial, fail: false, writes: 0 };
+  const storage = { raw: initial === undefined ? JSON.stringify({ profiles: [legacyProfile()], active: 1, settings: {} }) : initial, fail: false, readFail: false, writes: 0 };
   const localStorage = {
-    getItem(key) { assert.equal(key, KEY); return storage.raw; },
+    getItem(key) { assert.equal(key, KEY); if (storage.readFail) throw new Error('simulated read failure'); return storage.raw; },
     setItem(key, value) {
       assert.equal(key, KEY);
       if (storage.fail) throw new Error("simulated storage failure");
@@ -83,10 +84,13 @@ function harness(initial = null) {
   const context = vm.createContext({
     ...curriculum, Adventure, WorldData, ProfileStore, StudyGuide, document, localStorage,
     UIJa: { apply() {}, ruby: (base, reading) => `<ruby>${base}<rt>${reading}</rt></ruby>`, level: value => value },
-    AdventureView: { renderMap() {}, renderScene() {}, renderResult() {}, renderJournal() {} },
+    AdventureView: { renderMap() {}, renderScene() {}, renderResult() {}, renderJournal() {}, renderHomePreview() {}, renderNextStep() {} },
     crypto: { randomUUID: () => `harness-${id}-round-${++round}` },
-    console, Date, Set, Map, URL, Blob,
-    alert() {}, confirm: () => true,
+    console, Date, Set, Map, Blob,
+    URL: { createObjectURL(blob) { downloads.push(blob); return 'blob:test-' + downloads.length; }, revokeObjectURL() {} },
+    FileReader: class { readAsText(file) { this.result = file.text; this.onload(); } },
+    alert(message) { alerts.push(message); }, confirm: () => true,
+    addEventListener(type, callback) { (windowListeners[type] ||= []).push(callback); },
     setTimeout(callback) { const timer = ++nextTimer; timers.set(timer, callback); return timer; },
     clearTimeout(timer) { timers.delete(timer); },
     SpeechSynthesisUtterance: class { constructor(text) { this.text = text; } },
@@ -113,7 +117,14 @@ function harness(initial = null) {
     const pending = [...timers.values()]; timers.clear();
     for (const callback of pending) callback();
   }
-  return { context, document, storage, speech, run, inspect, state, answer, finish, flushTimers };
+  function dispatchStorage(event = {}) {
+    for (const listener of windowListeners.storage || []) listener({ key: KEY, storageArea: localStorage, ...event });
+  }
+  function importText(text) {
+    const target = { files: [{ text }], value: 'selected.json' };
+    for (const listener of document.getElementById('importfile').listeners.change || []) listener({ target });
+  }
+  return { context, document, storage, speech, run, inspect, state, answer, finish, flushTimers, dispatchStorage, importText, downloads, createdElements, alerts };
 }
 
 test("actual quiz starts with three questions, saves intro completion before results, then starts ten", () => {
@@ -416,4 +427,192 @@ test("the final treasure counts new real answers, preserves mistakes and resumes
   fresh.run('startQuiz(false)'); fresh.answer();
   assert.equal(fresh.inspect('prof().adventure.finale.correctCount'),10);
   assert.equal(fresh.inspect('quiz.finaleCompleted'),false);
+});
+
+test('a stale tab cannot erase another profile’s saved answers when selecting a profile', () => {
+  const initial = JSON.stringify({ profiles: [legacyProfile(1), legacyProfile(2)], active: 1, settings: {} });
+  const first = harness(initial), stale = harness(initial);
+  let shared = initial;
+  for (const h of [first, stale]) Object.defineProperty(h.storage, 'raw', { get: () => shared, set: value => { shared = value; } });
+  first.run('startQuiz(false)'); first.finish();
+  const saved = shared;
+  stale.run('renderProfiles()'); stale.document.getElementById('pgrid').children[1].click();
+  assert.equal(shared, saved, 'profile selection must not overwrite the other tab’s completed round');
+  assert.equal(stale.inspect('storageLocked'), true);
+  assert.equal(stale.inspect('unreadableBackup'), saved);
+  assert.equal(stale.inspect('prof().id'), 2, 'the local screen keeps its own chosen profile');
+  assert.equal(stale.inspect('DB.profiles[0].adventure.earnedUnits'), 0, 'no implicit merge or reload occurs');
+  stale.run('startQuiz(false)'); stale.answer();
+  assert.equal(stale.inspect('prof().adventure.earnedUnits'), 1, 'local learning remains available for export');
+  assert.equal(shared, saved);
+  assert.match(stale.inspect('storageProblem'), /未保存/);
+  assert.equal(JSON.parse(shared).profiles[0].adventure.earnedUnits, 3);
+});
+
+test('external removal is protected even before its storage event arrives', () => {
+  const h = harness(); h.run('startQuiz(false)'); h.answer();
+  h.storage.raw = null;
+  h.run('nextQ()'); h.answer();
+  assert.equal(h.storage.raw, null);
+  assert.equal(h.inspect('storageLocked'), true);
+  assert.equal(h.inspect('totalAnswered(prof())'), 2);
+  assert.equal(h.inspect('unreadableBackup'), null);
+  assert.equal(h.document.getElementById('retry-save').hidden, true);
+  assert.equal(h.document.getElementById('recover-original-export').hidden, true);
+  assert.equal(h.run('save()'), false, 'retry cannot recreate externally removed storage');
+});
+
+test('an initially empty tab cannot replace another tab’s first saved profile', () => {
+  const h = harness(null);
+  const other = harness(); other.run('save()');
+  h.storage.raw = other.storage.raw;
+  h.document.getElementById('nameinput').value = 'この画面';
+  h.document.getElementById('btnpcreate').click();
+  assert.equal(h.storage.raw, other.storage.raw);
+  assert.equal(h.inspect('storageLocked'), true);
+  assert.equal(h.inspect('DB.profiles.length'), 1);
+  assert.equal(h.inspect('prof().name'), 'この画面');
+  assert.notEqual(h.inspect('prof().id'), JSON.parse(h.storage.raw).profiles[0].id);
+});
+
+test('an identical saved value succeeds without a write; delayed events cannot lock a newer save', () => {
+  const h = harness();
+  h.run("DB.settings.kana=false");
+  h.storage.raw = h.run('JSON.stringify(DB)');
+  h.storage.fail = true;
+  assert.equal(h.run('save()'), true, 'identical data does not need a storage write');
+  assert.equal(h.storage.writes, 0);
+  assert.equal(h.inspect('storageBaseline'), h.storage.raw);
+  h.run('DB.settings.kana=true');
+  h.storage.raw = h.run('JSON.stringify(DB)');
+  h.dispatchStorage();
+  assert.equal(h.inspect('storageLocked'), false, 'an external identical value is not a conflict');
+  assert.equal(h.inspect('storageBaseline'), h.storage.raw);
+  assert.equal(h.storage.writes, 0);
+  h.dispatchStorage({ newValue: 'an older queued notification' });
+  assert.equal(h.inspect('storageLocked'), false);
+  h.storage.fail = false; h.run('startQuiz(false)'); h.answer();
+  h.dispatchStorage({ newValue: null });
+  assert.equal(h.inspect('storageLocked'), false);
+  assert.equal(h.inspect('storageBaseline'), h.storage.raw);
+});
+
+test('storage notifications protect a snapshot and never silently unlock a conflict', () => {
+  const h = harness();
+  const baseline = h.storage.raw;
+  const changed = JSON.parse(baseline); changed.profiles[0].name = '別の画面';
+  h.storage.raw = JSON.stringify(changed);
+  h.dispatchStorage({ key: 'another-key' });
+  h.dispatchStorage({ storageArea: {} });
+  assert.equal(h.inspect('storageLocked'), false);
+  h.dispatchStorage();
+  assert.equal(h.inspect('storageLocked'), true);
+  assert.equal(h.inspect('prof().name'), 'テスト1');
+  const protectedRaw = h.inspect('unreadableBackup');
+  h.storage.raw = baseline;
+  h.dispatchStorage();
+  assert.equal(h.run('save()'), false);
+  assert.equal(h.inspect('unreadableBackup'), protectedRaw, 'the protected snapshot is retained');
+  assert.equal(h.storage.raw, baseline);
+});
+
+test('a storage clear event protects the current screen without inventing an original file', () => {
+  const h = harness(); h.run('save()');
+  h.storage.raw = null; h.dispatchStorage({ key: null });
+  assert.equal(h.inspect('storageLocked'), true);
+  h.run('exportOriginalRecords()');
+  assert.equal(h.downloads.length, 0);
+  assert.equal(h.inspect('DB.profiles.length'), 1);
+});
+
+test('a failed write keeps its baseline and cannot overwrite an external update on retry', () => {
+  const h = harness(); h.run('save(); startQuiz(false)');
+  const baseline = h.storage.raw;
+  h.storage.fail = true; h.answer();
+  assert.equal(h.inspect('storageBaseline'), baseline);
+  assert.equal(h.inspect('storageLocked'), false);
+  const external = JSON.parse(baseline); external.profiles[0].name = '保存先';
+  const externalRaw = JSON.stringify(external);
+  h.storage.raw = externalRaw; h.storage.fail = false;
+  assert.equal(h.run('save()'), false);
+  assert.equal(h.storage.raw, externalRaw);
+  assert.equal(h.inspect('prof().adventure.earnedUnits'), 1);
+  assert.equal(h.inspect('unreadableBackup'), externalRaw);
+  assert.equal(h.inspect('storageLocked'), true);
+});
+
+test('a temporary read failure never writes blindly and can retry against the unchanged baseline', () => {
+  const h = harness(); h.run('save(); startQuiz(false)');
+  const baseline = h.storage.raw, writes = h.storage.writes;
+  h.storage.readFail = true; h.answer();
+  assert.equal(h.storage.writes, writes);
+  assert.equal(h.storage.raw, baseline);
+  assert.equal(h.inspect('storageBaseline'), baseline);
+  assert.equal(h.inspect('storageLocked'), false);
+  h.storage.readFail = false;
+  assert.equal(h.run('save()'), true);
+  assert.equal(JSON.parse(h.storage.raw).profiles[0].adventure.earnedUnits, 1);
+});
+
+test('a corrupted source and newly learned local records can both be exported independently', async () => {
+  const original = '{broken original';
+  const h = harness(original);
+  h.document.getElementById('nameinput').value = '救出用';
+  h.document.getElementById('btnpcreate').click();
+  h.run('startQuiz(false)'); h.answer();
+  h.document.getElementById('recover-export').click();
+  h.document.getElementById('recover-original-export').click();
+  assert.equal(h.downloads.length, 2);
+  const current = JSON.parse(await h.downloads[0].text());
+  assert.equal(current.profiles[0].name, '救出用');
+  assert.equal(current.profiles[0].adventure.earnedUnits, 1);
+  assert.equal(await h.downloads[1].text(), original);
+  assert.equal(h.storage.raw, original);
+  assert.equal(h.storage.writes, 0);
+  assert.equal(h.document.getElementById('retry-save').hidden, true);
+  assert.equal(h.document.getElementById('recover-original-export').hidden, false);
+  assert.match(h.inspect('storageProblem'), /未保存/);
+  assert.deepEqual(h.createdElements.filter(el => el.tagName === 'A').map(el => el.download), ['furansugo-quiz-kiroku.json', 'furansugo-quiz-original.json']);
+});
+
+test('conflicting valid storage and the current answered quiz export without merging or writes', async () => {
+  const h = harness(); h.run('startQuiz(false)');
+  const external = JSON.parse(h.storage.raw); external.profiles[0].name = '外部の記録';
+  const externalRaw = JSON.stringify(external);
+  h.storage.raw = externalRaw; h.answer();
+  h.run('exportRecords(); exportOriginalRecords()');
+  const current = JSON.parse(await h.downloads[0].text());
+  assert.equal(current.profiles[0].name, 'テスト1');
+  assert.equal(current.profiles[0].adventure.earnedUnits, 1);
+  assert.equal(await h.downloads[1].text(), externalRaw);
+  assert.equal(h.storage.raw, externalRaw);
+});
+
+test('an explicit successful import clears protection and sets the exact committed baseline', () => {
+  const h = harness('{broken');
+  const candidate = JSON.stringify({ profiles: [legacyProfile(9)], active: 9, settings: { kana: false } });
+  h.importText(candidate);
+  assert.equal(h.alerts.length, 0);
+  assert.equal(h.inspect('storageLocked'), false);
+  assert.equal(h.inspect('unreadableBackup'), null);
+  assert.equal(h.inspect('storageProblem'), null);
+  assert.equal(h.inspect('storageBaseline'), h.storage.raw);
+  assert.equal(h.inspect('DB.active'), 9);
+  assert.equal(h.inspect('current'), 'scr-profile');
+  h.run('startQuiz(false)'); h.answer();
+  assert.equal(JSON.parse(h.storage.raw).profiles[0].adventure.earnedUnits, 1);
+  assert.equal(h.document.getElementById('recover-original-export').hidden, true);
+});
+
+test('a failed import leaves the live quiz, protected source, and baseline unchanged', () => {
+  const h = harness(); h.run('save(); startQuiz(false)'); h.answer();
+  const external = JSON.parse(h.storage.raw); external.profiles[0].name = '外部';
+  h.storage.raw = JSON.stringify(external); h.dispatchStorage();
+  const before = h.inspect('({DB,quiz,storageBaseline,unreadableBackup,storageLocked})'), raw = h.storage.raw;
+  h.importText('{bad file');
+  h.storage.fail = true;
+  h.importText(JSON.stringify({ profiles: [legacyProfile(9)], active: 9, settings: {} }));
+  assert.equal(h.alerts.length, 2);
+  assert.deepEqual(h.inspect('({DB,quiz,storageBaseline,unreadableBackup,storageLocked})'), before);
+  assert.equal(h.storage.raw, raw);
 });

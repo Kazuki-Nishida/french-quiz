@@ -1,30 +1,48 @@
 "use strict";
-const APP_VER = "v40 · Treasure in the sky";
+const APP_VER = "v41 · Your next adventure";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
 let storageProblem = null, storageLocked = false, unreadableBackup = null;
+let storageBaseline = null;
 const effectTimers = new Set();
 let effectEpoch = 0;
 let DB = loadDB();
 function loadDB(){
   try{
     const raw = localStorage.getItem(LS_KEY);
+    storageBaseline = raw;
     if(raw === null) return ProfileStore.empty();
     unreadableBackup = raw;
     const data = ProfileStore.prepare(JSON.parse(raw), Adventure);
     unreadableBackup = null;
     return data;
   }catch(e){
-    storageProblem = "保存された記録を読み込めません。元の記録は上書きせず保管しています。";
+    storageProblem = unreadableBackup === null
+      ? "保存先の記録を確認できないため、上書きを止めています。この画面で続ける学習は未保存です。画面を閉じる前に、この画面の記録を書き出してください。"
+      : "保存された記録を読み込めないため、上書きを止めています。この画面で続ける学習は未保存です。画面を閉じる前に、この画面の記録と保護した原本をそれぞれ書き出してください。";
     storageLocked = true;
     return ProfileStore.empty();
   }
 }
+function protectStorage(raw){
+  unreadableBackup = raw;
+  storageLocked = true;
+  storageProblem = raw === null
+    ? "保存先の記録が別の画面で削除されたため、上書きを止めています。この画面の記録と、ここで続ける学習は未保存です。画面を閉じる前に、この画面の記録を書き出してください。"
+    : "保存先の記録が別の画面で変わったため、上書きを止めています。この画面の記録と、ここで続ける学習は未保存です。画面を閉じる前に、この画面の記録と保護した原本をそれぞれ書き出してください。";
+  showSaveState();
+}
 function save(){
   try{
     if(storageLocked) throw new Error('protected source');
-    localStorage.setItem(LS_KEY, JSON.stringify(DB));
+    const text = JSON.stringify(DB);
+    const raw = localStorage.getItem(LS_KEY);
+    // Compare with the last successful read/write before replacing the whole
+    // DB. This avoids stale-tab writes; localStorage is not a transaction.
+    if(raw !== storageBaseline && raw !== text){ protectStorage(raw); return false; }
+    if(raw !== text) localStorage.setItem(LS_KEY, text);
+    storageBaseline = text;
     storageProblem = null; showSaveState(); return true;
   }catch(e){
     if(!storageLocked) storageProblem = "まだ保存できていません。画面を閉じずに、保存を試すか記録を書き出してください。";
@@ -37,7 +55,24 @@ function showSaveState(){
   box.hidden = !storageProblem;
   document.getElementById('save-warning-text').textContent = storageProblem || '';
   document.getElementById('retry-save').hidden = storageLocked;
+  const original = document.getElementById('recover-original-export');
+  if(original) original.hidden = unreadableBackup === null;
 }
+window.addEventListener('storage', ev => {
+  if(storageLocked || (ev.key !== LS_KEY && ev.key !== null)) return;
+  try{
+    if(ev.storageArea && ev.storageArea !== localStorage) return;
+    // Read the current value: an event may be older than our own latest save.
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw === storageBaseline) return;
+    if(raw === JSON.stringify(DB)){
+      storageBaseline = raw; storageProblem = null; showSaveState();
+    }else protectStorage(raw);
+  }catch(e){
+    storageProblem = "保存先の記録を確認できません。まだ保存できていない学習がある場合は、画面を閉じる前にこの画面の記録を書き出してください。";
+    showSaveState();
+  }
+});
 function scheduleEffect(fn, delay){
   const epoch = effectEpoch;
   const timer = setTimeout(() => { effectTimers.delete(timer); if(epoch === effectEpoch) fn(); }, delay);
@@ -412,6 +447,11 @@ function tblHTML(tb){
 function renderHome(){
   const p = prof(); if(!p) return;
   const a = Adventure.ensure(p);
+  AdventureView.renderHomePreview(document.getElementById('home-journey-visual'), p, {
+    onFinaleDetails:showFinaleDetails,
+    onJournal:tab=>showJournal(tab),
+    onMap:id=>showMap(id)
+  });
   document.getElementById('home-journey-status').innerHTML = a ? journeyText(p) : '旅の記録はそのまま保管中です。教材は引き続き使えます。';
   const places=a ? WorldData.nodes.filter(n=>a.visited[n.id]).length : 0;
   const characters=a ? WorldData.characters.filter(c=>a.characters?.[c.id]).length : 0;
@@ -904,6 +944,11 @@ function showResult(){
       badgeQueue.map(b => BADGE[b.lv] + (b.m > 10 ? "✨" : "") + " " + b.lv + " " + (b.m * 10) + "%").join(" ／ ");
   } else rb.style.display = "none";
   AdventureView.renderResult(document.getElementById('adventure-result'), prof(), {earned:quiz.earned,arrivals:quiz.arrivals,vehicleUnlocks:quiz.vehicleUnlocks,finaleCompleted:quiz.finaleCompleted,onMap:id=>showMap(id),onJournal:tab=>showJournal(tab || 'characters')});
+  AdventureView.renderNextStep(document.getElementById('result-next-step'), prof(), {
+    arrivals:quiz.arrivals, finaleCompleted:quiz.finaleCompleted, earned:quiz.earned,
+    onStudy:()=>go('scr-setup'), onMap:()=>showMap(),
+    onJournal:tab=>showJournal(tab || 'characters'), onFinaleDetails:showFinaleDetails
+  });
   renderResultGuide();
   document.getElementById('btnresultreview').hidden = prof().stock.length === 0;
   if(firstShow && (pct >= 80 || badgeQueue.length || quiz.finaleCompleted || quiz.vehicleUnlocks.length)){ sndTada(); if(richEffects()) confetti(); }
@@ -1048,6 +1093,7 @@ document.getElementById("importfile").addEventListener("change", ev => {
       const candidate = ProfileStore.importData(r.result, localStorage, LS_KEY, Adventure);
       clearTransientEffects(); quiz = null;
       DB = candidate; storageLocked = false; storageProblem = null; unreadableBackup = null;
+      storageBaseline = JSON.stringify(candidate);
       lastVoiceListKey = ''; refreshVoices(); showSaveState();
       renderProfiles(); go("scr-profile");
       toast("記録を読み込みました。");
@@ -1059,16 +1105,22 @@ document.getElementById("importfile").addEventListener("change", ev => {
 
 /* ================= パリの旅と教材案内 ================= */
 function exportRecords(){
-  const text = unreadableBackup !== null ? unreadableBackup : JSON.stringify(DB, null, 1);
+  downloadRecords(JSON.stringify(DB, null, 1), 'furansugo-quiz-kiroku.json');
+}
+function exportOriginalRecords(){
+  if(unreadableBackup !== null) downloadRecords(unreadableBackup, 'furansugo-quiz-original.json');
+}
+function downloadRecords(text, filename){
   const blob = new Blob([text], {type:'application/json'});
   const a = document.createElement('a');
   const url = URL.createObjectURL(blob);
-  a.href = url; a.download = 'furansugo-quiz-kiroku.json';
+  a.href = url; a.download = filename;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 document.getElementById('retry-save').addEventListener('click', save);
 document.getElementById('recover-export').addEventListener('click', exportRecords);
+document.getElementById('recover-original-export')?.addEventListener('click', exportOriginalRecords);
 function resetSetupForProfile(p){
   setup = {dir:'jf',lv:'A1',unitId:null,recommendationId:null};
   if(ProfileStore.guideAvailable(p)){
@@ -1096,10 +1148,18 @@ function showMap(placeId){
   mapFocusPlaceId = typeof placeId === 'string' && WorldData.getNode(placeId) ? placeId : null;
   renderMap(); go('scr-map');
 }
-function renderMap(){
+function showFinaleDetails(){
+  if(!prof()) return;
+  mapFocusPlaceId = null;
+  go('scr-map');
+  renderMap(true);
+}
+function renderMap(focusFinale=false){
   const p = prof(); if(!p) return;
   AdventureView.renderMap(document.getElementById('adventure-map'), p, {
     focusPlaceId:mapFocusPlaceId,
+    focusFinale,
+    onFinaleDetails:showFinaleDetails,
     onChoose(edgeId){
       const move=Adventure.selectPath(p,edgeId); save(); renderMap();
       if(move.arrived) toast(WorldData.getNode(move.arrived).name+'に到着！ 図鑑に記録したよ。');

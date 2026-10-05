@@ -289,13 +289,13 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
   .opt .ofr{font-size:19px;} .scorebig{font-size:46px;}
 }
 </style>
-<link rel="stylesheet" href="adventure.css?v=40.2">
-<link rel="stylesheet" href="learning-ui.css?v=40.2">
-<link rel="stylesheet" href="play-feedback.css?v=40.2">
+<link rel="stylesheet" href="adventure.css?v=41">
+<link rel="stylesheet" href="learning-ui.css?v=41">
+<link rel="stylesheet" href="play-feedback.css?v=41">
 </head>
 <body>
 <div id="app">
-  <div id="save-warning" class="save-warning" role="status" hidden><span id="save-warning-text"></span><button id="retry-save" type="button">保存を試す</button><button id="recover-export" type="button">記録を書き出す</button></div>
+  <div id="save-warning" class="save-warning" role="status" hidden><span id="save-warning-text"></span><button id="retry-save" type="button">保存を試す</button><button id="recover-export" type="button">この画面の記録を書き出す</button><button id="recover-original-export" type="button" hidden>保護した原本を書き出す</button></div>
   <div id="topbar">
     <button class="backbtn" id="btnback" style="visibility:hidden">◀ もどる</button>
     <button class="who" id="whochip" style="visibility:hidden"><span class="av" id="whoav">🦊</span><span id="whoname"></span></button>
@@ -320,7 +320,14 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 
   <!-- ホーム -->
   <section class="screen" id="scr-home">
-    <div class="home-journey card"><div class="journey-eyebrow">BONJOUR, FRANCE</div><h1>ことばと歩く、フランス。</h1><p id="home-journey-status"></p><button class="btn teal" id="btnmap">地図から出発</button><button class="btn ghost mt14" id="btnjournal">旅の図鑑を見る <span id="journal-count"></span></button></div>
+    <div class="home-journey card">
+      <div class="journey-eyebrow">BONJOUR, FRANCE</div>
+      <h1>ことばと<ruby>歩<rt>ある</rt></ruby>く、フランス。</h1>
+      <button class="btn home-study-start" id="btnquiz">🎮 クイズで あそぶ</button>
+      <p id="home-journey-status"></p>
+      <div id="home-journey-visual"></div>
+      <div class="home-journey-actions"><button class="btn teal" id="btnmap">地図から出発</button><button class="btn ghost" id="btnjournal">旅の図鑑を見る <span id="journal-count"></span></button></div>
+    </div>
     <div class="journey-migration card" id="journey-migration" hidden><p id="journey-migration-text"></p><button class="btn ghost small" id="dismiss-migration">わかった</button></div>
     <div class="lvlcard">
       <div class="big" style="margin-bottom:8px">⭐ きみの レベル <span id="homebadges" style="float:right;font-size:18px"></span></div>
@@ -328,7 +335,6 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
       <div style="font-size:13px;margin-top:8px;opacity:.9" id="homelvlsub"></div>
     </div>
     <div class="menu">
-      <button class="btn" id="btnquiz">🎮 クイズで あそぶ</button>
       <button class="btn yellow" id="btnstock">📦 ふくしゅうボックス<span class="badge" id="stockbadge">0</span></button>
       <button class="btn purple" id="btnstats">📈 きろくを みる</button>
       <button class="btn ghost" id="btntut">▶️ おはなしを みる (あそびかた)</button>
@@ -412,6 +418,7 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 
   <!-- けっか -->
   <section class="screen" id="scr-result">
+    <div id="result-next-step"></div>
     <div id="adventure-result"></div>
     <div class="card">
       <div class="stars" id="rstars"></div>
@@ -892,12 +899,12 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 <div id="toast"></div>
 
 <script src="words.js"></script>
-<script src="world-data.js?v=40.2"></script>
-<script src="adventure.js?v=40.2"></script>
-<script src="study-guide.js?v=40.2"></script>
-<script src="ui-ja.js?v=40.2"></script>
-<script src="profile-store.js?v=40.2"></script>
-<script src="adventure-view.js?v=40.2"></script>
-<script src="app.js?v=40.2"></script>
+<script src="world-data.js?v=41"></script>
+<script src="adventure.js?v=41"></script>
+<script src="study-guide.js?v=41"></script>
+<script src="ui-ja.js?v=41"></script>
+<script src="profile-store.js?v=41"></script>
+<script src="adventure-view.js?v=41"></script>
+<script src="app.js?v=41"></script>
 </body>
 </html>
