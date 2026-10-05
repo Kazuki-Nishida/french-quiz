@@ -14,6 +14,15 @@
     pairs.push([from, "mont-saint-michel", 48], [from, "chambord", 24]);
   }
   pairs.push(["mont-saint-michel", "chambord", 48]);
+  // Pure catalog/route additions keep every version-two journey valid. Costs
+  // are prototype learning units, not conversions of geographic distance.
+  for (const from of ["trocadero", "seine", "eiffel", "champ-de-mars"]) {
+    pairs.push([from, "versailles", 16]);
+  }
+  pairs.push(["versailles", "chambord", 24], ["versailles", "mont-saint-michel", 48]);
+  for (const from of ["trocadero", "seine", "eiffel", "champ-de-mars", "mont-saint-michel", "chambord", "versailles"]) {
+    pairs.push([from, "marseille", 48]);
+  }
   const edges = Object.freeze(pairs.flatMap(([from, to, cost]) => [
     Object.freeze({ id: from + "--" + to, from, to, cost }),
     Object.freeze({ id: to + "--" + from, from: to, to: from, cost })

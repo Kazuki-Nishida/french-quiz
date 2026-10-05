@@ -8,10 +8,10 @@ const vm = require("node:vm");
 const World = require("../world-data.js");
 const { WORDS } = require("../words.js");
 
-const expectedPlaces = ["trocadero", "seine", "eiffel", "champ-de-mars", "mont-saint-michel", "chambord"];
-const hosts = new Set(["www.paris.fr", "www.toureiffel.paris", "www.abbaye-mont-saint-michel.fr", "www.chambord.org", "www.marseille-tourisme.com"]);
+const expectedPlaces = ["trocadero", "seine", "eiffel", "champ-de-mars", "mont-saint-michel", "chambord", "marseille", "versailles"];
+const hosts = new Set(["www.paris.fr", "www.toureiffel.paris", "www.abbaye-mont-saint-michel.fr", "www.chambord.org", "www.marseille-tourisme.com", "www.chateauversailles.fr", "www.versailles-tourisme.com"]);
 
-test("six real places have unique stable identities and complete display metadata", () => {
+test("eight real places have unique stable identities and complete display metadata", () => {
   assert.deepEqual(World.nodes.map(node => node.id), expectedPlaces);
   assert.equal(new Set(World.nodes.map(node => node.id)).size, World.nodes.length);
   for (const node of World.nodes) {
@@ -47,7 +47,7 @@ test("recommendations refer to real curriculum themes with at least ten question
       assert.equal(Object.hasOwn(item, "requiredScore"), false);
     }
   }
-  assert.equal(ids.size, 18);
+  assert.equal(ids.size, 24);
   assert.equal(JSON.stringify(WORDS), original, "recommendation lookup must leave curriculum text and keys unchanged");
 });
 
@@ -79,28 +79,29 @@ test("map positions preserve approximate geography and the shared projection", (
   }
 });
 
-test("real-place descriptions have official references and planned Marseille is only a marker", () => {
+test("real-place descriptions have official references and every region has a visitable place", () => {
   for (const entry of [...World.nodes, ...World.regions]) {
     const url = new URL(entry.source);
     assert.equal(url.protocol, "https:");
     assert.ok(hosts.has(url.hostname), entry.id + " must cite an official place source");
     assert.ok(url.pathname.length > 1);
+    if (entry.coordinateSource) assert.ok(hosts.has(new URL(entry.coordinateSource).hostname));
   }
   assert.equal(new Set(World.regions.map(region => region.id)).size, World.regions.length);
-  const planned = World.regions.filter(region => region.status === "planned");
-  assert.equal(planned.length, 1);
-  assert.equal(planned[0].id, "provence");
-  assert.equal(planned[0].markerName, "マルセイユ");
-  assert.match(planned[0].description, /制作中/);
-  assert.equal(World.nodes.some(node => node.regionId === planned[0].id), false);
-  assert.equal(World.getNode("marseille"), null);
+  assert.equal(World.regions.length, 5);
+  for (const region of World.regions) {
+    assert.equal(region.status, "ready");
+    assert.ok(World.nodes.some(node => node.regionId === region.id));
+  }
+  assert.equal(World.getNode("marseille").regionId, "provence");
+  assert.equal(World.getNode("versailles").regionId, "versailles");
 });
 
-test("three fictional characters are tied to existing places and unique assets", () => {
+test("five fictional characters are tied to existing places and unique assets", () => {
   assert.deepEqual(World.characters.map(character => [character.id, character.placeId]), [
-    ["lumie", "eiffel"], ["mare", "mont-saint-michel"], ["plume", "chambord"]
+    ["lumie", "eiffel"], ["mare", "mont-saint-michel"], ["plume", "chambord"], ["sol", "marseille"], ["miro", "versailles"]
   ]);
-  assert.equal(new Set(World.characters.map(character => character.id)).size, 3);
+  assert.equal(new Set(World.characters.map(character => character.id)).size, 5);
   for (const character of World.characters) {
     assert.equal(World.getCharacter(character.id), character);
     assert.ok(World.getNode(character.placeId));
@@ -137,7 +138,33 @@ test("plain browser script exposes the same catalog without a module loader", ()
   const browser = {};
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, "..", "world-data.js"), "utf8"), browser, { filename: "world-data.js" });
   assert.ok(browser.WorldData);
-  assert.equal(browser.WorldData.nodes.length, 6);
+  assert.equal(browser.WorldData.nodes.length, 8);
   assert.equal(browser.WorldData.getCharacter("lumie").placeId, "eiffel");
   assert.equal(browser.WorldData.getRecommendation("trocadero-aller").cat, "アレ");
+});
+
+test("the extension preserves the old map coordinates and keeps Versailles outside the Paris close-up", () => {
+  const oldPositions = [
+    ["trocadero", 48.86297, 2.287, 28, 21.64],
+    ["seine", 48.8609, 2.2934, 53.6, 36.43],
+    ["eiffel", 48.8584, 2.2945, 58, 54.29],
+    ["champ-de-mars", 48.8555, 2.2985, 74, 75],
+    ["mont-saint-michel", 48.6361, -1.5115, 50, 50],
+    ["chambord", 47.6161, 1.5163, 50, 50]
+  ];
+  for (const [id, lat, lon, x, y] of oldPositions) {
+    const node = World.getNode(id);
+    assert.deepEqual([node.lat, node.lon, node.x, node.y], [lat, lon, x, y], id);
+  }
+  assert.deepEqual(World.mapBounds.paris, { west: 2.280, east: 2.305, north: 48.866, south: 48.852 });
+  const paris = World.getNode("eiffel");
+  const versailles = World.getNode("versailles");
+  assert.equal(versailles.lat, 48.804328);
+  assert.equal(versailles.lon, 2.120936);
+  assert.ok(versailles.lat < paris.lat && versailles.lon < paris.lon);
+  assert.ok(versailles.lon < World.mapBounds.paris.west);
+  assert.notEqual(versailles.regionId, "paris");
+  const provence = World.regions.find(region => region.id === "provence");
+  assert.deepEqual([provence.lat, provence.lon], [43.2965, 5.3698]);
+  assert.ok(World.getNode("marseille").lat < World.getNode("chambord").lat);
 });

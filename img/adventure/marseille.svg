@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300">
+  <title>マルセイユ旧港の船と岸辺の街並み、遠くの丘に見えるノートルダム・ド・ラ・ガルド</title>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d2e5d7"/><stop offset="1" stop-color="#f2edce"/></linearGradient>
+    <linearGradient id="sea" x2="0" y2="1"><stop stop-color="#a7c9b9"/><stop offset="1" stop-color="#79a6ad"/></linearGradient>
+    <pattern id="paper" width="41" height="29" patternUnits="userSpaceOnUse"><path d="M4 7h5m22 17h6" stroke="#fff7dc" stroke-width="1" opacity=".28"/></pattern>
+    <g id="window"><path d="M0 0h7v13H0Z" fill="#82958a"/><path d="M-1 14h9" stroke="#b6ad8c" stroke-width="2"/></g>
+    <g id="boat"><path d="M-35 0h73L24 14h-43Z" fill="#f1e5c5" stroke="#6e9595" stroke-width="1.5"/><path d="M-34 3h69l-6 5h-57Z" fill="#c07857"/><path d="M0 0v-78" stroke="#6e887b" stroke-width="2"/><path d="M-4-70-26-11H-4Z" fill="#fbf0cd"/><path d="M5-61v50h27Z" fill="#e6dfbd"/><path d="M-26-11h58" stroke="#a5ad91" stroke-width="1.5"/><path d="M-12-8h28v8h-28Z" fill="#cdd7ba"/><path d="M-26 21h54" stroke="#c2d9c7" stroke-width="2" stroke-linecap="round"/></g>
+    <g id="moored"><path d="M-17 0h39L12 10H-5Z" fill="#eee3c1" stroke="#7f9e92"/><path d="M0 0v-44m9 44v-35" stroke="#7c9282" stroke-width="1.4"/><path d="M-7-6h20v6H-7Z" fill="#c38766"/></g>
+  </defs>
+  <path d="M0 0h960v300H0Z" fill="url(#sky)"/>
+  <circle cx="785" cy="56" r="28" fill="#f8edc0"/>
+  <path d="M73 62c9-15 30-18 38-4 13-21 40-12 45 3 20-4 32 5 32 17H73m343-35c6-12 23-15 32-5 12-15 32-7 32 7h-66" fill="#fff8df" opacity=".65"/>
+  <path d="M194 171c116-28 182-5 251-32s104-12 145-39c34-25 65-8 89 3 43 10 77 12 125 43s96-6 156 11v68H0v-47Z" fill="#b5c3a4"/>
+  <path d="M441 151c78-21 99-14 137-38 28-18 54-14 77-1l45 28 66 25" fill="none" stroke="#c9cbb0" stroke-width="7"/>
+  <!-- A small hilltop basilica places the port in its Marseille setting. -->
+  <g transform="translate(635 94)">
+    <path d="M-35 27h85v-9H-35Z" fill="#b8b79a"/><path d="M-21 9h62v19h-62Z" fill="#e5d7b6"/><path d="m-27 10 34-20 39 20Z" fill="#879989"/>
+    <path d="M-7-26h24v54H-7Z" fill="#eee2bf"/><path d="M-7-20h24m-24 12h24m-24 16h24m-24 12h24" stroke="#b9b397" stroke-width="3"/>
+    <path d="M-1-15v13h12v-13a6 6 0 0 0-12 0Z" fill="#879786"/><path d="m-10-27 15-9 15 9Z" fill="#c6b477"/>
+    <path d="M5-37v-14m-4 7h8" stroke="#b9a269" stroke-width="2.5" stroke-linecap="round"/><circle cx="5" cy="-54" r="3" fill="#cbb371"/>
+  </g>
+  <!-- Closely spaced façades surround the open water, with warm terracotta roofs. -->
+  <path d="M0 136h61v56H0m57-68h66v71H57m61-53h52v52h-52m48-78h67v78h-67m62-65h61v65h-61m56-54h55v54h-55m371-44h57v44h-57m53-63h57v63h-57m53-77h62v77h-62m58-54h66v54h-66m62-68h54v68h-54" fill="#e2cba8"/>
+  <path d="M-6 136 7 123h47l12 13m-14-12 15-15h45l15 15m-14 18 13-13h38l12 13m-15-26 16-14h47l15 14m-19 13 13-13h45l14 13m-19 11 13-12h39l12 12m344 10 12-12h38l14 12m-18-19 14-13h39l14 13m-15-14 13-14h45l14 14m-18 23 13-12h48l14 12m-19-14 12-13h40l14 13" fill="#c18f6c"/>
+  <g><use href="#window" x="14" y="151"/><use href="#window" x="38" y="151"/><use href="#window" x="72" y="140"/><use href="#window" x="97" y="140"/><use href="#window" x="72" y="164"/><use href="#window" x="97" y="164"/><use href="#window" x="133" y="154"/><use href="#window" x="183" y="129"/><use href="#window" x="207" y="129"/><use href="#window" x="183" y="155"/><use href="#window" x="207" y="155"/><use href="#window" x="246" y="141"/><use href="#window" x="270" y="141"/><use href="#window" x="300" y="155"/><use href="#window" x="320" y="155"/><use href="#window" x="696" y="160"/><use href="#window" x="751" y="143"/><use href="#window" x="775" y="143"/><use href="#window" x="808" y="131"/><use href="#window" x="831" y="131"/><use href="#window" x="808" y="158"/><use href="#window" x="831" y="158"/><use href="#window" x="866" y="153"/><use href="#window" x="893" y="153"/><use href="#window" x="928" y="143"/></g>
+  <path d="M0 184h353l44 12h242l41-12h280v116H0Z" fill="url(#sea)"/>
+  <path d="M0 186h331l-2 11H0m684-11h276v11H684" fill="#e9dab3"/><path d="M0 197h323m363 0h274" stroke="#b5b69b" stroke-width="4"/>
+  <path d="M0 216h196l-53 13H0m788-10h172v13H839" fill="#d5c8a6"/>
+  <use href="#moored" x="71" y="207"/><use href="#moored" x="125" y="207"/><use href="#moored" x="182" y="207"/><use href="#moored" x="240" y="207"/><use href="#moored" x="295" y="207"/>
+  <use href="#moored" x="719" y="207"/><use href="#moored" x="775" y="207"/><use href="#moored" x="831" y="207"/><use href="#moored" x="886" y="207"/>
+  <use href="#boat" x="485" y="243"/><use href="#boat" transform="translate(655 246) scale(.72)"/>
+  <path d="M58 251h78m58-9h71m61 25h77m80 20h114m131-12h92m21-32h75m-794 33h93m707 10h52" fill="none" stroke="#c8deca" stroke-width="3" stroke-linecap="round"/>
+  <path d="M0 292 169 269l-36 31H0m731 0 82-31 147 19v12" fill="#dcd0aa"/><path d="M16 284 150 270m692 2 111 16" stroke="#f0e3bc" stroke-width="4"/>
+  <path d="M77 285v-14m-6 0h12m778 20v-17m-6 0h12" stroke="#69877e" stroke-width="5" stroke-linecap="round"/>
+  <path d="M348 91q7-8 14 0m0 0q7-8 14 0m438 18q6-6 12 0m0 0q6-6 12 0" stroke="#8ba798" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path fill="url(#paper)" d="M0 0h960v300H0Z"/>
+</svg>

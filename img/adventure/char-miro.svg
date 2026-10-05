@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="230" height="270" viewBox="0 0 230 270">
+  <title>ミロ。小さな手帳と鏡を持ち、庭の形と光を観察する空想の旅キャラ</title>
+  <defs><linearGradient id="coat" x2=".8" y2="1"><stop stop-color="#a2b897"/><stop offset="1" stop-color="#648574"/></linearGradient><linearGradient id="mirror" x2=".7" y2="1"><stop stop-color="#eef2d5"/><stop offset=".5" stop-color="#b4d1bd"/><stop offset="1" stop-color="#7fa9a4"/></linearGradient></defs>
+  <ellipse cx="114" cy="254" rx="65" ry="8" fill="#486f6120"/>
+  <path d="m84 215 3 29 20-1 5-28m13 0 7 28 19-3-8-29" fill="#b4b8a0" stroke="#859482" stroke-width="1.5"/>
+  <path d="M87 239c-10 3-22 8-22 15 12 5 29 5 41 0l1-13m26-1 0 15c14 2 27 0 35-6-1-6-11-9-18-10" fill="#746c62" stroke="#5e6259" stroke-width="2"/>
+  <path d="M79 117c-14 21-16 42-21 66l17 6-6 34c24 14 68 14 90-1l-6-46 19-16-21-37Z" fill="url(#coat)" stroke="#63856f" stroke-width="2"/>
+  <path d="m101 124-9 98c14 6 26 7 39 1l-7-99" fill="#f1e3bf"/><path d="M107 155v66m16-65v67" stroke="#d1c8a2" stroke-width="2"/>
+  <path d="m79 121 26 20-17 10-4 61m61-88-22 18 16 11 8 58" stroke="#c4c8a5" stroke-width="3" fill="none" stroke-linejoin="round"/>
+  <path d="M76 211q15-9 26 1t25 0 29 0" stroke="#cfceaa" stroke-width="2" fill="none"/>
+  <path d="M103 99v27c6 7 16 8 23 0v-27" fill="#dec39a"/>
+  <path d="M72 83c-7-31 5-57 38-59 36-1 56 18 49 57l-1 33c-13 14-70 15-87 1Z" fill="#777271" stroke="#625f60" stroke-width="1.5"/>
+  <path d="M82 60c-8 13-7 37 4 47 13 14 43 17 58 0 11-11 12-34 3-50-11-16-51-15-65 3Z" fill="#eed9b3" stroke="#aaa486" stroke-width="1.4"/>
+  <path d="M75 65c1-31 35-47 60-33 15 4 24 16 22 31-25 0-35-18-35-21-7 21-27 19-28 17-4 7-8 10-19 12Z" fill="#777271"/>
+  <path d="M86 42c11-10 25-13 36-7m18 9q6 5 9 12" stroke="#aaa39a" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M76 53c20-22 51-29 77-10" stroke="#c5aa72" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="m144 33 8-9 9 8-8 10Z" fill="#c4d6bc" stroke="#9c956b" stroke-width="1.5"/><path d="m151 29 4 8" stroke="#f4efd1" stroke-width="2"/>
+  <g fill="none" stroke="#7d8976" stroke-width="2"><circle cx="95" cy="82" r="12"/><circle cx="132" cy="82" r="12"/><path d="M107 80q6-4 13 0m-37 0-6-1m67 0 7-1"/></g>
+  <ellipse cx="95" cy="84" rx="2.6" ry="3.5" fill="#375c53"/><ellipse cx="132" cy="84" rx="2.6" ry="3.5" fill="#375c53"/>
+  <path d="m112 88-2 8 5 1m-14 11q10 4 19-1" stroke="#b7a07a" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="m94 119 18 20-13 7-14-22m44-5-17 20 14 7 13-22" fill="#e6d9af" stroke="#c2b58a" stroke-width="1.4"/><path d="m109 138 7 0 4 18-11-1Z" fill="#b89c6b"/>
+  <path d="m80 148-16 28 17 11 22-30m43-9 11 13 17-14" fill="#94ae90" stroke="#63856f" stroke-width="2" stroke-linejoin="round"/>
+  <path d="m69 174 8-3 13 5 2 7-10 8-10-4m100-45 7-4 11 2 4 8-7 7-12-4" fill="#e8d1a7" stroke="#b5a682" stroke-width="1.5"/>
+  <g transform="translate(95 190) rotate(-12)"><path d="M-23-21h45v52h-45Z" fill="#5c8584" stroke="#486e6f" stroke-width="2"/><path d="M-18-17h35v44h-35Z" fill="#f0e3c0"/><path d="M-13-11h26m-26 7h19m-19 6h14" stroke="#bfbc9a" stroke-width="1.5"/><path d="M-10 13h18l4 10h-24Z" fill="#a4bb96"/><path d="M0 12v12m-7-6h14" stroke="#d7d9b5" stroke-width="1.5"/><path d="M-23-20v49" stroke="#aac0aa" stroke-width="3"/></g>
+  <g transform="translate(186 123) rotate(13)"><path d="M-3 4h7v24h-7Z" fill="#c6ab70" stroke="#9a8c62" stroke-width="1.3"/><ellipse cx="0" cy="-13" rx="18" ry="24" fill="#d7bf86" stroke="#9a8c62" stroke-width="2"/><ellipse cx="0" cy="-13" rx="13" ry="19" fill="url(#mirror)"/><path d="m-7-8 13-16m-8 26 9-11" stroke="#f6f1d1" stroke-width="2.5" stroke-linecap="round"/></g>
+  <path d="m207 73 0 12m-6-6h12m-170 58v10m-5-5h10" stroke="#c7b379" stroke-width="2" stroke-linecap="round"/>
+</svg>

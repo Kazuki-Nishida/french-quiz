@@ -2,6 +2,7 @@
   'use strict';
 
   const ASSETS = 'img/adventure/';
+  const REGION_LABEL_POSITIONS = { paris: [70, 14], normandy: [20, 18], versailles: [72, 35], loire: [23, 53], provence: [70, 80] };
   const fallbackNodes = [
     { id: 'trocadero', name: 'トロカデロ広場', reading: 'トロカデロひろば', regionId: 'paris', x: 28, y: 21.64, lat: 48.86297, lon: 2.287, illustration: ASSETS + 'trocadero.svg' }
   ];
@@ -36,7 +37,11 @@
     'エッフェル塔': 'エッフェルとう', 'セーヌ川': 'セーヌがわ', 'イエナ橋': 'イエナばし',
     '立': 'た', '流': 'なが', '歩': 'ある', '増': 'ふ', '開': 'ひら', '好': 'す', '行き先': 'いきさき',
     '文法': 'ぶんぽう', '単語': 'たんご', '会話': 'かいわ', '初級': 'しょきゅう',
-    '中級': 'ちゅうきゅう', '上級': 'じょうきゅう', '復習': 'ふくしゅう'
+    '中級': 'ちゅうきゅう', '上級': 'じょうきゅう', '復習': 'ふくしゅう',
+    '宮殿': 'きゅうでん', '西': 'にし', '市内': 'しない', '旧港': 'きゅうこう', '地中海': 'ちちゅうかい',
+    '船': 'ふね', '並': 'なら', '水辺': 'みずべ', '入口': 'いりぐち', '砦': 'とりで', '見守': 'みまも',
+    '鏡': 'かがみ', '回廊': 'かいろう', '窓': 'まど', '向': 'む', '帆': 'ほ', '港': 'みなと',
+    '旅仲間': 'たびなかま', '風': 'かぜ', '小': 'ちい', '光': 'ひかり', '形': 'かたち', '観察': 'かんさつ'
   };
   const readingPattern = new RegExp(Object.keys(readings).sort((a, b) => b.length - a.length).join('|'), 'g');
   const sceneMemory = new WeakMap();
@@ -45,7 +50,7 @@
     return String(value == null ? '' : value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
   function ruby(text, reading) {
-    return '<ruby>' + escape(text) + '<rp>（</rp><rt>' + escape(reading) + '</rt><rp>）</rp></ruby>';
+    return window.UIJa && typeof window.UIJa.ruby === 'function' ? window.UIJa.ruby(text, reading) : escape(text);
   }
   function ja(text) {
     return escape(text).replace(readingPattern, word => ruby(word, readings[word]));
@@ -85,6 +90,8 @@
       eiffel: '<path d="M24 4h2l3 19 5 17H16l5-17Z M17 34h16M21 22h9M22 13h6 M20 40q5-11 10 0"/>',
       'mont-saint-michel': '<path d="m4 40 8-12 7-4 1-9h5V5l3 10h5v10l6 3 7 12ZM17 30h20M11 35h29M23 23h6"/>',
       chambord: '<path d="M8 40V23h8V13h6v11h7V12h7v12h8v16ZM6 23l6-9 6 9M28 12l5-8 5 8M21 40V29h8v11M36 25v15M15 25v15"/>',
+      marseille: '<path d="M5 40q5-4 10 0t10 0t10 0t10 0M8 29h34l-5 7H14ZM25 8v21m-3-16L11 26h11m6-14 10 14H28M5 24V13h8v8m29 3V13h-7v8"/>',
+      versailles: '<path d="M5 37V21h12V13h16v8h12v16ZM15 13l10-7 10 7M21 37V25h8v12M10 26v6m5-6v6m20-6v6m5-6v6M4 42h42M20 17h10"/>',
       seine: '<path d="M5 33q5-4 10 0t10 0t10 0t10 0M5 41q5-4 10 0t10 0t10 0t10 0M6 24h38M8 24V13m34 11V13M8 13q17 17 34 0"/>',
       'champ-de-mars': '<path d="M25 43V26M16 32H9a7 7 0 0 1 0-14 9 9 0 0 1 16-8 8 8 0 1 1 12 13 8 8 0 0 1-6 9M18 44h14M25 28l-6-5"/>',
       trocadero: '<path d="M5 40h40M8 38V22h12V12h10v10h12v16M5 22h17M28 22h17M12 26v10m5-10v10m16-10v10m5-10v10M20 12l5-7 5 7"/>'
@@ -152,10 +159,12 @@
 
   function mapNodes(state, scope, selected) {
     if (scope === 'france') {
-      const layouts = { paris: [69, 14], normandy: [19, 18], loire: [24, 47], provence: [72, 80] };
       return regions().map(item => {
-        const target = project(item), label = layouts[item.id] || target;
-        return '<button type="button" class="av-region-marker' + (item.status === 'planned' ? ' is-planned' : '') + (selected === item.id ? ' is-selected' : '') + '" style="left:' + label[0] + '%;top:' + label[1] + '%" data-region="' + escape(item.id) + '" data-av-focus="region-' + escape(item.id) + '" aria-pressed="' + (selected === item.id) + '"><span>' + (item.reading ? ruby(item.name, item.reading) : ja(item.name)) + '</span><small>' + ja(item.status === 'planned' ? '制作中' : item.markerName || '') + '</small></button>';
+        const target = project(item), label = REGION_LABEL_POSITIONS[item.id] || target;
+        const mainName = item.id === 'provence' ? item.markerName || 'マルセイユ' : item.name;
+        const mainReading = item.id === 'provence' ? item.markerReading : item.reading;
+        const caption = item.status === 'planned' ? '制作中' : item.id === 'provence' ? item.name : item.markerName || '';
+        return '<button type="button" class="av-region-marker' + (item.status === 'planned' ? ' is-planned' : '') + (selected === item.id ? ' is-selected' : '') + '" style="left:' + label[0] + '%;top:' + label[1] + '%" data-region="' + escape(item.id) + '" data-av-focus="region-' + escape(item.id) + '" aria-pressed="' + (selected === item.id) + '"><span>' + (mainReading ? ruby(mainName, mainReading) : ja(mainName)) + '</span><small>' + ja(caption) + '</small></button>';
       }).join('');
     }
     const shortNames = { trocadero: 'トロカデロ広場', seine: 'セーヌ川', eiffel: 'エッフェル塔', 'champ-de-mars': 'シャン・ド・マルス' };
@@ -166,9 +175,8 @@
     }).join('');
   }
   function regionLeaders() {
-    const layouts = { paris: [69, 14], normandy: [19, 18], loire: [24, 47], provence: [72, 80] };
     return regions().map(item => {
-      const p = project(item), label = layouts[item.id] || p;
+      const p = project(item), label = REGION_LABEL_POSITIONS[item.id] || p;
       return '<path d="M' + p.join(' ') + ' L' + label.join(' ') + '" stroke="#74937d" stroke-width=".25" fill="none"/><circle cx="' + p[0] + '" cy="' + p[1] + '" r=".85" fill="' + (item.status === 'planned' ? '#afa58b' : '#a75c43') + '" stroke="#fff9e9" stroke-width=".45"/>';
     }).join('');
   }
@@ -186,7 +194,7 @@
     else if (isVisited) action = '<button type="button" class="av-detail-primary" data-action="return" data-node="' + escape(place.id) + '"' + (status.ok ? '' : ' disabled') + '>' + ja('この場所へ戻る') + '</button>';
     else if (edge) action = '<button type="button" class="av-detail-primary" data-action="choose" data-edge="' + escape(edge.id) + '"' + (status.ok ? '' : ' disabled') + '>' + ja('この道へ進む') + '<span>' + count(edge.cost) + ja(' 正解分') + '</span></button>';
     else action = '<p class="av-connected-note">' + ja('地図でつながる場所から、この道へ進めます。') + '</p>';
-    const recommendations = (place.recommendations || []).map(item => '<button type="button" class="av-recommendation" data-recommendation="' + escape(item.id) + '">' + ja(item.label) + ' <span aria-hidden="true">↗</span></button>').join('');
+    const recommendations = (place.recommendations || []).map(item => '<button type="button" class="av-recommendation" data-recommendation="' + escape(item.id) + '">' + (item.labelReading ? ruby(item.label, item.labelReading) : ja(item.label)) + ' <span aria-hidden="true">↗</span></button>').join('');
     return '<article class="av-place-detail"><div class="av-detail-picture"><img src="' + escape(art(place)) + '" width="960" height="300" alt="' + escape(place.name + 'を描いたイラスト') + '"><span class="av-discovery-status">' + ja(isVisited ? '訪問済み' : 'この先の景色 · 予告') + '</span></div><div class="av-detail-copy"><p class="av-eyebrow">' + escape(place.french || '') + '</p><h3>' + nodeLabel(place) + '</h3><p class="av-geography">' + ja(place.description || '') + '</p>' + sourceLink(place.source) + action + (person ? '<div class="av-meeting-teaser"><img class="' + (met ? '' : 'av-silhouette') + '" src="' + escape(person.asset) + '" alt="" width="70" height="82"><div><small>' + ja(met ? '出会ったキャラ' : 'ここで出会うキャラ') + '</small><strong>' + (met ? escape(person.name) : '？？？') + '</strong><p>' + ja('旅先で出会う、空想の旅キャラ。') + '</p></div></div>' : '') + (recommendations ? '<div class="av-recommendations"><h4>' + ja('旅のおともに、おすすめの教材') + '</h4><p>' + ja('どの教材でも、この旅を進められます。') + '</p>' + recommendations + '</div>' : '') + (isVisited ? learningCard(state.visited[place.id].learning) : '') + '</div></article>';
   }
   function renderMap(container, profile, handlers) {
@@ -194,7 +202,10 @@
     handlers = handlers || {};
     const state = stateOf(profile), status = health(profile), mode = modeOf(state), current = node(state && state.currentNodeId);
     let ui = mapMemory.get(container);
-    if (!ui || ui.profileId !== (profile && profile.id)) ui = { profileId: profile && profile.id, scope: current.regionId === 'paris' ? 'paris' : 'france', placeId: state && state.activeLeg ? state.activeLeg.to : current.id, regionId: current.regionId };
+    if (!ui || ui.profileId !== (profile && profile.id)) {
+      const initialPlace = safePlace(state);
+      ui = { profileId: profile && profile.id, scope: initialPlace.regionId === 'paris' ? 'paris' : 'france', placeId: initialPlace.id, regionId: initialPlace.regionId };
+    }
     if (handlers.focusPlaceId) {
       const focus = node(handlers.focusPlaceId); ui.placeId = focus.id; ui.regionId = focus.regionId; ui.scope = focus.regionId === 'paris' ? 'paris' : 'france';
     }
@@ -203,14 +214,23 @@
     const regionDescription = ui.scope === 'france' ? '<div class="av-region-summary"><p class="av-eyebrow">FRANCE · ' + escape(selectedRegion.id || '').toUpperCase() + '</p><h3>' + nodeLabel(selectedRegion) + '</h3><p>' + ja(selectedRegion.description || '') + '</p>' + (selectedRegion.id === 'paris' ? '<button type="button" class="av-inline-button" data-scope="paris">' + ja('パリ周辺の地図を見る') + ' →</button>' : '') + '</div>' : '';
     const header = '<header class="av-map-heading"><div><p class="av-eyebrow">LES CHEMINS DES MOTS</p><h2>' + ja('言葉と旅するフランス') + '</h2><p>' + ja('名所を訪ね、旅のキャラに出会おう。') + '</p></div><button type="button" class="av-journal-shortcut" data-journal data-av-focus="journal">' + glyph('chambord') + '<span>' + ja('旅の図鑑') + '</span></button></header>';
     const tabs = '<div class="av-map-switch" role="group" aria-label="地図の範囲"><button type="button" data-scope="france" data-av-focus="scope-france" aria-pressed="' + (ui.scope === 'france') + '">' + ja('フランス全国') + '</button><button type="button" data-scope="paris" data-av-focus="scope-paris" aria-pressed="' + (ui.scope === 'paris') + '">' + ja('パリ周辺') + '</button></div>';
-    const canvas = '<div class="av-map-canvas av-geographic-map av-map-' + ui.scope + '"><img class="av-map-art" src="' + ASSETS + (ui.scope === 'france' ? 'france-map.svg?v=38' : 'paris-landmarks-map.svg?v=38') + '" alt="' + (ui.scope === 'france' ? 'フランス本土とコルシカ島。北が上の略図' : 'トロカデロとエッフェル塔の間をセーヌ川が流れる、北が上のパリ周辺の略図') + '" width="800" height="650"><svg class="av-map-routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + routeLines(state, ui.scope) + (ui.scope === 'france' ? regionLeaders() : '') + '</svg>' + mapNodes(state, ui.scope, ui.scope === 'france' ? ui.regionId : ui.placeId) + traveler(state, ui.scope) + '<span class="av-map-caption">' + (ui.scope === 'france' ? 'FRANCE · N ↑' : 'PARIS · N ↑') + '</span></div>';
+    const canvas = '<div class="av-map-canvas av-geographic-map av-map-' + ui.scope + '"><img class="av-map-art" src="' + ASSETS + (ui.scope === 'france' ? 'france-map.svg?v=39' : 'paris-landmarks-map.svg?v=39') + '" alt="' + (ui.scope === 'france' ? 'フランス本土とコルシカ島。北が上の略図' : 'トロカデロとエッフェル塔の間をセーヌ川が流れる、北が上のパリ周辺の略図') + '" width="800" height="650"><svg class="av-map-routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + routeLines(state, ui.scope) + (ui.scope === 'france' ? regionLeaders() : '') + '</svg>' + mapNodes(state, ui.scope, ui.scope === 'france' ? ui.regionId : ui.placeId) + traveler(state, ui.scope) + '<span class="av-map-caption">' + (ui.scope === 'france' ? 'FRANCE · N ↑' : 'PARIS · N ↑') + '</span></div>';
+    const outskirts = ui.scope === 'paris' && nodes().some(place => place.id === 'versailles') ? '<button type="button" class="av-map-outskirts" data-outside-place="versailles" data-av-focus="outside-versailles"><span aria-hidden="true">←</span><span><strong>' + ja('西へ：ヴェルサイユ宮殿') + '</strong><small>' + ja('パリ市内の外へ。全国の地図で場所を見る') + '</small></span></button>' : '';
     const travel = '<div class="av-travel-summary"><div><span class="av-small-label">' + ja(state && state.activeLeg ? '移動中' : '現在地') + '</span><strong>' + ja(state && state.activeLeg ? nodeName(state.activeLeg.from) + ' → ' + nodeName(state.activeLeg.to) : current.name) + '</strong><p>' + ja(remainingText(state)) + '</p>' + progressBar(state) + pendingText(state) + '</div>' + companion('idle', 'av-summary-buddy') + '</div>';
     const modes = ['rich', 'calm'].map(value => '<button type="button" class="av-effect-button" data-mode="' + value + '" data-av-focus="effects-' + value + '" aria-pressed="' + (mode === value) + '">' + (value === 'rich' ? 'たっぷり' : 'ひかえめ') + '</button>').join('');
-    paint(container, '<div class="av-map-panel av-mode-' + mode + '">' + header + tabs + canvas + '<p class="av-map-instruction">' + ja(ui.scope === 'france' ? '地域の名前を選ぶと、旅先の紹介が開きます。' : '地点を選ぶと、名所の紹介と進む道が見られます。') + '</p>' + travel + (!status.ok ? '<p class="av-unavailable" role="status">' + escape(status.reason || '旅の記録を確認してください。') + '</p>' : '') + regionDescription + (planned ? '<div class="av-planned-card"><span>À BIENTÔT</span><h3>' + ja('この旅先は制作中') + '</h3><p>' + ja('次に訪ねる場所を、少しずつ増やしていきます。') + '</p></div>' : detailCard(selected, profile)) + '<button type="button" class="av-study-button" data-action="study" data-av-focus="study">' + ja('好きな教材で学習する') + '<span aria-hidden="true">→</span></button><fieldset class="av-effects"><legend>' + ja('応援の多さ') + '</legend><div>' + modes + '</div></fieldset></div>');
+    paint(container, '<div class="av-map-panel av-mode-' + mode + '">' + header + tabs + canvas + outskirts + '<p class="av-map-instruction">' + ja(ui.scope === 'france' ? '地域の名前を選ぶと、旅先の紹介が開きます。' : '地点を選ぶと、名所の紹介と進む道が見られます。') + '</p>' + travel + (!status.ok ? '<p class="av-unavailable" role="status">' + escape(status.reason || '旅の記録を確認してください。') + '</p>' : '') + regionDescription + (planned ? '<div class="av-planned-card"><span>À BIENTÔT</span><h3>' + ja('この旅先は制作中') + '</h3><p>' + ja('次に訪ねる場所を、少しずつ増やしていきます。') + '</p></div>' : detailCard(selected, profile)) + '<button type="button" class="av-study-button" data-action="study" data-av-focus="study">' + ja('好きな教材で学習する') + '<span aria-hidden="true">→</span></button><fieldset class="av-effects"><legend>' + ja('応援の多さ') + '</legend><div>' + modes + '</div></fieldset></div>');
     const redraw = () => renderMap(container, profile, Object.assign({}, handlers, { focusPlaceId: null }));
     connect(container, '[data-scope]', data => { ui.scope = data.scope; if (data.scope === 'paris') { ui.regionId = 'paris'; if (node(ui.placeId).regionId !== 'paris') ui.placeId = 'eiffel'; } redraw(); });
     connect(container, '[data-region]', data => { ui.regionId = data.region; const first = nodes().find(item => item.regionId === data.region); if (first) ui.placeId = first.id; redraw(); });
     connect(container, '[data-place]', data => { ui.placeId = data.place; redraw(); });
+    connect(container, '[data-outside-place]', data => {
+      const destination = nodes().find(place => place.id === data.outsidePlace);
+      if (!destination) return;
+      ui.scope = 'france'; ui.regionId = destination.regionId; ui.placeId = destination.id;
+      redraw();
+      const regionButton = container.querySelector('[data-region="' + destination.regionId + '"]');
+      if (regionButton) regionButton.focus({ preventScroll: true });
+    });
     connect(container, '[data-action]', data => { if (data.action === 'choose' && handlers.onChoose) handlers.onChoose(data.edge); else if (data.action === 'return' && handlers.onReturn) handlers.onReturn(data.node); else if (data.action === 'study' && handlers.onStudy) handlers.onStudy(); });
     connect(container, '[data-mode]', data => { if (handlers.onEffects) handlers.onEffects(data.mode); });
     connect(container, '[data-journal]', () => { if (handlers.onJournal) handlers.onJournal(); });

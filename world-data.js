@@ -27,10 +27,12 @@
     champ: "https://www.paris.fr/lieux/parc-du-champ-de-mars-1807",
     mont: "https://www.abbaye-mont-saint-michel.fr/visiter/informations-pratiques",
     chambord: "https://www.chambord.org/fr/histoire/le-chateau/architecture/",
-    marseille: "https://www.marseille-tourisme.com/decouvrez-marseille/autour-de-marseille/la-provence/"
+    marseille: "https://www.marseille-tourisme.com/decouvrez-marseille/culture-et-patrimoine/sites-et-monuments/le-vieux-port/",
+    versailles: "https://www.chateauversailles.fr/decouvrir/domaine/chateau/galerie-glaces",
+    versaillesCoordinates: "https://www.versailles-tourisme.com/chateau-de-versailles.html"
   };
 
-  // Regions are visitor-facing groupings. In particular "Loire" is not an administrative region.
+  // Regions are visitor-facing groupings, not claims about administrative boundaries.
   const regions = freeze([
     { id: "paris", name: "パリ", reading: "パリ", markerName: "パリ", markerReading: "パリ", lat: 48.8584, lon: 2.2945, status: "ready",
       description: "セーヌ川のそばから、パリを歩こう。", descriptionReading: "セーヌがわのそばから、パリをあるこう。", source: sources.eiffel },
@@ -38,8 +40,10 @@
       description: "岩山の上の修道院へ。", descriptionReading: "いわやまのうえのしゅうどういんへ。", source: sources.mont },
     { id: "loire", name: "ロワール地方", reading: "ロワールちほう", markerName: "シャンボール城", markerReading: "シャンボールじょう", lat: 47.6161, lon: 1.5163, status: "ready",
       description: "ロワール地方の城を訪ねよう。", descriptionReading: "ロワールちほうのしろをたずねよう。", source: sources.chambord },
-    { id: "provence", name: "プロヴァンス", reading: "プロヴァンス", markerName: "マルセイユ", markerReading: "マルセイユ", lat: 43.2965, lon: 5.3698, status: "planned",
-      description: "マルセイユの街は制作中です。", descriptionReading: "マルセイユのまちはせいさくちゅうです。", source: sources.marseille }
+    { id: "provence", name: "プロヴァンス", reading: "プロヴァンス", markerName: "マルセイユ", markerReading: "マルセイユ", lat: 43.2965, lon: 5.3698, status: "ready",
+      description: "船の並ぶマルセイユの旧港へ。", descriptionReading: "ふねのならぶマルセイユのきゅうこうへ。", source: sources.marseille },
+    { id: "versailles", name: "ヴェルサイユ", reading: "ヴェルサイユ", markerName: "ヴェルサイユ宮殿", markerReading: "ヴェルサイユきゅうでん", lat: 48.804328, lon: 2.120936, status: "ready",
+      description: "庭園と鏡の回廊のある宮殿へ。", descriptionReading: "ていえんとかがみのかいろうのあるきゅうでんへ。", source: sources.versailles, coordinateSource: sources.versaillesCoordinates }
   ]);
 
   function recommendation(placeId, slug, label, reading, lv, cat) {
@@ -113,6 +117,30 @@
         recommendation("chambord", "stories", "物語の言葉", "ものがたりのことば", "B1", "ものがたり"),
         recommendation("chambord", "past", "過去のことを話す文法", "かこのことをはなすぶんぽう", "ぶんぽう2", "ふくごうかこ")
       ]
+    },
+    {
+      id: "marseille", name: "マルセイユ旧港", reading: "マルセイユきゅうこう", french: "Le Vieux-Port de Marseille", regionId: "provence",
+      // Keep the existing regional marker: this is an approximate Old Port location, not an entrance or a walking waypoint.
+      lat: 43.2965, lon: 5.3698, x: 50, y: 50, scene: "riverside", illustration: "img/adventure/marseille.svg",
+      description: "地中海につながる港。水辺に船が並び、入口を2つの砦が見守ります。",
+      descriptionReading: "ちちゅうかいにつながるみなと。みずべにふねがならび、いりぐちをふたつのとりでがみまもります。", source: sources.marseille,
+      recommendations: [
+        recommendation("marseille", "transport", "乗り物の言葉", "のりもののことば", "A1", "のりもの"),
+        recommendation("marseille", "town", "街の言葉", "まちのことば", "A2", "まち"),
+        recommendation("marseille", "restaurant", "レストランの会話", "レストランのかいわ", "はなし3", "レストラン")
+      ]
+    },
+    {
+      id: "versailles", name: "ヴェルサイユ宮殿", reading: "ヴェルサイユきゅうでん", french: "Le château de Versailles", regionId: "versailles",
+      lat: 48.804328, lon: 2.120936, x: 50, y: 50, scene: "park", illustration: "img/adventure/versailles.svg",
+      description: "庭園と「鏡の回廊」がある宮殿。回廊では窓の向かいに鏡が並びます。",
+      descriptionReading: "ていえんと「かがみのかいろう」があるきゅうでん。かいろうではまどのむかいにかがみがならびます。", source: sources.versailles,
+      coordinateSource: sources.versaillesCoordinates,
+      recommendations: [
+        recommendation("versailles", "colors", "色の言葉", "いろのことば", "A1", "いろ"),
+        recommendation("versailles", "home", "家や部屋の言葉", "いえやへやのことば", "A1", "いえ"),
+        recommendation("versailles", "comparison", "比べて話す文法", "くらべてはなすぶんぽう", "ぶんぽう2", "ひかく")
+      ]
     }
   ]);
 
@@ -126,7 +154,13 @@
       descriptionReading: "あおいケープをまとった、しおをながめるなかま。すいめんのへんかをみつけるのがすきな、くうそうのオリジナルキャラクター。" },
     { id: "plume", name: "プリュム", reading: "プリュム", placeId: "chambord", fictional: true, asset: "img/adventure/char-plume.svg",
       description: "羽ペンの帽子をかぶった、旅の記録係。発見を手帳に書くのが好きな、空想のオリジナルキャラクター。",
-      descriptionReading: "はねペンのぼうしをかぶった、たびのきろくがかり。はっけんをてちょうにかくのがすきな、くうそうのオリジナルキャラクター。" }
+      descriptionReading: "はねペンのぼうしをかぶった、たびのきろくがかり。はっけんをてちょうにかくのがすきな、くうそうのオリジナルキャラクター。" },
+    { id: "sol", name: "ソル", reading: "ソル", placeId: "marseille", fictional: true, asset: "img/adventure/char-sol.svg",
+      description: "帆の飾りの帽子をかぶった、港の旅仲間。風の向きや船の帆を見つけるのが好きな、空想のオリジナルキャラクター。",
+      descriptionReading: "ほのかざりのぼうしをかぶった、みなとのたびなかま。かぜのむきやふねのほをみつけるのがすきな、くうそうのオリジナルキャラクター。" },
+    { id: "miro", name: "ミロ", reading: "ミロ", placeId: "versailles", fictional: true, asset: "img/adventure/char-miro.svg",
+      description: "小さな手帳を持った、庭園の旅仲間。鏡の光や庭の形を観察するのが好きな、空想のオリジナルキャラクター。",
+      descriptionReading: "ちいさなてちょうをもった、ていえんのたびなかま。かがみのひかりやにわのかたちをかんさつするのがすきな、くうそうのオリジナルキャラクター。" }
   ]);
 
   function getNode(id) { return nodes.find(function (node) { return node.id === id; }) || null; }

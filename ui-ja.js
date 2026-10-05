@@ -11,9 +11,58 @@
     });
   }
 
-  function ruby(text, reading) {
-    if (!reading) return escape(text);
+  const han = /[\u3400-\u9fff々〆〇]/;
+  const kana = /[\u3040-\u30ff]/;
+  const foreignReadings = { "être": "エートル", "avoir": "アヴォワール", "aller": "アレ", "-er": "エーアール", "si": "シ", "y": "イ", "en": "アン" };
+  const foreignPattern = /être|avoir|aller|-er|\b(?:si|y|en)\b/g;
+  // Repeated kana can belong either to a kanji reading or the following
+  // particle. These reviewed labels explicitly assign each kanji span.
+  const readingSegments = new Map([
+    ["乗り物の言葉", ["の", "もの", "ことば"]],
+    ["食べ物の言葉", ["た", "もの", "ことば"]],
+    ["物語の言葉", ["ものがたり", "ことば"]],
+    ["庭園と「鏡の回廊」がある宮殿。回廊では窓の向かいに鏡が並びます。", ["ていえん", "かがみ", "かいろう", "きゅうでん", "かいろう", "まど", "む", "かがみ", "なら"]]
+  ]);
+  function normalizeKana(value) {
+    return String(value).replace(/[\u30a1-\u30f6]/g, character => String.fromCharCode(character.charCodeAt(0) - 0x60));
+  }
+  function annotate(text, reading) {
     return "<ruby>" + escape(text) + "<rp>（</rp><rt>" + escape(reading) + "</rt><rp>）</rp></ruby>";
+  }
+  function plainSegment(text) {
+    // French grammar names retain their pronunciation aid; Japanese kana do not.
+    let html = "", from = 0;
+    for (const match of text.matchAll(foreignPattern)) {
+      html += escape(text.slice(from, match.index)) + annotate(match[0], foreignReadings[match[0]]);
+      from = match.index + match[0].length;
+    }
+    return html + escape(text.slice(from));
+  }
+  function ruby(text, reading) {
+    const base = String(text == null ? "" : text);
+    if (!reading) return escape(base);
+    if (!han.test(base)) return kana.test(base) ? plainSegment(base) : annotate(base, reading);
+    // Match unchanged kana/punctuation against the supplied reading. Only the
+    // intervening kanji get ruby: エッフェル + 塔(とう), not the whole name.
+    const parts = base.match(/[\u3400-\u9fff々〆〇]+|[^\u3400-\u9fff々〆〇]+/g);
+    const literal = part => normalizeKana(part.replace(foreignPattern, word => foreignReadings[word])).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const segments = readingSegments.get(base);
+    let segmentIndex = 0;
+    const pattern = parts.map(part => han.test(part) ? (segments ? "(" + literal(segments[segmentIndex++]) + ")" : "(.+?)") : literal(part)).join("");
+    const normalized = normalizeKana(reading);
+    const match = new RegExp("^" + pattern + "$", "u").exec(normalized);
+    // An inconsistent future label must never invent or misplace a reading.
+    if (!match) return escape(base);
+    if (!segments) {
+      const otherPattern = parts.map(part => han.test(part) ? "(.+)" : literal(part)).join("");
+      const other = new RegExp("^" + otherPattern + "$", "u").exec(normalized);
+      // Neither shortest nor longest matching is linguistically reliable.
+      // If they disagree, leave a new ambiguous label unannotated until its
+      // reading segments are supplied explicitly above.
+      if (!other || match.some((value, index) => value !== other[index])) return escape(base);
+    }
+    let index = 0;
+    return parts.map(part => han.test(part) ? annotate(part, match[++index]) : plainSegment(part)).join("");
   }
 
   function level(lv) {

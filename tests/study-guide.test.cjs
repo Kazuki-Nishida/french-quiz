@@ -72,7 +72,7 @@ assert.deepEqual(Guide.progress({}, first, []), { attempted: 0, total: 0, comple
 assert.equal(JSON.stringify(WORDS), wordSnapshot, "guidance must preserve every original curriculum field");
 
 // Display helpers accept plain text only and cannot inject HTML through names/readings.
-assert.equal(UIJa.ruby("<文法>&\"'", "<よみ>&\"'"), "<ruby>&lt;文法&gt;&amp;&quot;&#39;<rp>（</rp><rt>&lt;よみ&gt;&amp;&quot;&#39;</rt><rp>）</rp></ruby>");
+assert.equal(UIJa.ruby("<文法>&\"'", "<よみ>&\"'"), "&lt;<ruby>文法<rp>（</rp><rt>よみ</rt><rp>）</rp></ruby>&gt;&amp;&quot;&#39;");
 assert.equal(UIJa.ruby("<名前>", ""), "&lt;名前&gt;");
 assert.match(UIJa.level("C2"), /単語/);
 assert.match(UIJa.level("ぶんぽう3"), /上級/);

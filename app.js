@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v38 · France & characters";
+const APP_VER = "v39 · Marseille & Versailles";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];

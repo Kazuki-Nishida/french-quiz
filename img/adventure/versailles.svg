@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300">
+  <title>庭園側から見るヴェルサイユ宮殿の長い石の正面と、整えられた花壇・水の庭</title>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d2e5d7"/><stop offset="1" stop-color="#f2edce"/></linearGradient>
+    <pattern id="paper" width="41" height="29" patternUnits="userSpaceOnUse"><path d="M4 8h6m22 15h5" stroke="#fff7dc" stroke-width="1" opacity=".28"/></pattern>
+    <g id="bay"><path d="M0 0h26v65H0Z" fill="#e8dabb"/><path d="M6 9a7 7 0 0 1 14 0v23H6Z" fill="#9ba99a"/><path d="M5 39h16v21H5Z" fill="#93a291"/><path d="M13 4v29M6 17h14M13 40v19m-8-9h16" stroke="#eee4c4" stroke-width="1.5"/><path d="M1 0v65m24-65v65" stroke="#c9bc96" stroke-width="2"/><path d="M-2 35h30" stroke="#c7ba95" stroke-width="3"/></g>
+    <g id="statue"><path d="M0 0v-7m-4 6 2-12h4l2 12m-7 2h10" fill="#d7c9a2" stroke="#b7ae8d" stroke-width="1"/><circle cx="0" cy="-16" r="3" fill="#d7c9a2"/></g>
+    <g id="topiary"><path d="M0 0v18" stroke="#8b8765" stroke-width="3"/><path d="M-12 3 0-25 12 3Z" fill="#648574"/><path d="M-11 3h22" stroke="#597b68" stroke-width="2"/></g>
+  </defs>
+  <path d="M0 0h960v300H0Z" fill="url(#sky)"/>
+  <path d="M93 60c9-18 32-17 40-3 14-16 36-9 40 7 20-6 35 3 36 15H94m541-35c7-13 26-17 33-4 13-16 35-8 36 8h-68" fill="#fff8df" opacity=".65"/>
+  <path d="M0 189c109-42 179-24 257-5l455-5c98-23 170-23 248 8v113H0Z" fill="#b3c4a1"/>
+  <path d="M0 227h960v73H0Z" fill="#97ae82"/>
+  <!-- Garden façade: long horizontal wings, classical bays and roof balustrades. -->
+  <path d="M229 142h237v82H229m0-90h237v9H229m196-19h244v112H425m244-82h247v82H669m0-90h247v9H669" fill="#e6d8b7"/>
+  <path d="M423 109h248v16H423m-197 6h242v14H226m441-14h251v14H667" fill="#f0e3c1"/>
+  <path d="M424 107h246m-444 22h241m202 0h247" stroke="#bfaf87" stroke-width="3"/>
+  <path d="M236 121h219m225 0h226m-472-25h226" stroke="#d0c39e" stroke-width="3"/>
+  <path d="M239 122v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m236-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8m13-8v8" stroke="#b9b291" stroke-width="2"/>
+  <g><use href="#bay" x="239" y="151"/><use href="#bay" x="270" y="151"/><use href="#bay" x="301" y="151"/><use href="#bay" x="332" y="151"/><use href="#bay" x="363" y="151"/><use href="#bay" x="394" y="151"/><use href="#bay" x="678" y="151"/><use href="#bay" x="709" y="151"/><use href="#bay" x="740" y="151"/><use href="#bay" x="771" y="151"/><use href="#bay" x="802" y="151"/><use href="#bay" x="833" y="151"/><use href="#bay" x="864" y="151"/></g>
+  <g><use href="#bay" transform="translate(439 137) scale(1 1.2)"/><use href="#bay" transform="translate(470 137) scale(1 1.2)"/><use href="#bay" transform="translate(501 137) scale(1 1.2)"/><use href="#bay" transform="translate(563 137) scale(1 1.2)"/><use href="#bay" transform="translate(594 137) scale(1 1.2)"/><use href="#bay" transform="translate(625 137) scale(1 1.2)"/></g>
+  <path d="M529 137h27v79h-27Z" fill="#eadebc"/><path d="M535 151a8 8 0 0 1 16 0v30h-16m0 35v-18a8 8 0 0 1 16 0v18" fill="#8ea18e"/><path d="M543 147v32m-8-13h16" stroke="#eadebc" stroke-width="2"/>
+  <path d="M499 107 545 76 591 107Z" fill="#e7d8b0" stroke="#c4b38b" stroke-width="2"/><path d="m513 101 31-19 32 19" stroke="#efe4c0" stroke-width="3" fill="none"/>
+  <circle cx="545" cy="98" r="7" fill="#c1a877"/><path d="M545 93v6l4 2" stroke="#f1e6c1" stroke-width="1.5" fill="none"/>
+  <g><use href="#statue" x="239" y="120"/><use href="#statue" x="311" y="120"/><use href="#statue" x="391" y="120"/><use href="#statue" x="440" y="95"/><use href="#statue" x="486" y="95"/><use href="#statue" x="607" y="95"/><use href="#statue" x="654" y="95"/><use href="#statue" x="695" y="120"/><use href="#statue" x="771" y="120"/><use href="#statue" x="849" y="120"/><use href="#statue" x="904" y="120"/></g>
+  <path d="M225 220h694m-704 6h715m-726 6h737" stroke="#c9bd9a" stroke-width="3"/>
+  <path d="M191 237h749l20 15H153Z" fill="#e9ddb8"/><path d="M525 244h39l54 56H472Z" fill="#eee2bd"/>
+  <!-- Paired reflecting basins and formal beds echo the gardens without claiming a route map. -->
+  <path d="m282 249 199 0-29 24H209Zm331 0h198l76 24H642Z" fill="#daccaa" stroke="#eae0bc" stroke-width="3"/>
+  <path d="m291 254 177 0-16 14H231Zm334 0h177l61 14H644Z" fill="#97b8af"/>
+  <path d="M295 259h150m204 0h139" stroke="#d1dfc3" stroke-width="2" stroke-linecap="round"/>
+  <path d="m211 281 231 0-25 19H130Zm444 0h229l76 19H684Z" fill="#65896b"/>
+  <path d="M251 286h159l-7 8H202Zm433 0h166l33 8H697Z" fill="#b5bf91"/>
+  <use href="#topiary" x="203" y="244"/><use href="#topiary" x="467" y="244"/><use href="#topiary" x="625" y="244"/><use href="#topiary" x="887" y="244"/>
+  <path d="M0 292c65-21 111-32 172-34l-33 42H0" fill="#76967b"/><path d="M28 279c26-16 50-28 85-31" stroke="#a6bc99" stroke-width="4" fill="none"/>
+  <path fill="url(#paper)" d="M0 0h960v300H0Z"/>
+</svg>

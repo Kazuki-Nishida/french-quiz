@@ -28,6 +28,29 @@ function legacyV1(overrides = {}) {
   };
 }
 
+// Generated with the actual v38 WorldData + Adventure scripts from
+// git show 3084b2f9658c9ebb34e29102f63e1fd691889b74 in an isolated VM.
+// Kept as data so the test also runs without Git history in exported copies.
+function legacyV38ActiveJourney() {
+  const sample = (bucket, count) => ({ wordKey: "aventure::冒険", bucket, count });
+  const metAt = "2026-10-05T00:00:00.007Z";
+  return {
+    schemaVersion: 2, effectsMode: "rich", currentNodeId: "eiffel",
+    activeLeg: {
+      edgeId: "eiffel--chambord", from: "eiffel", to: "chambord", requiredUnits: 24, progressUnits: 2,
+      learning: { buckets: { "C2|regular": 1, "C2|review": 1 }, samples: [sample("C2|regular", 1), sample("C2|review", 1)] },
+      extraLeg: "keep"
+    },
+    earnedUnits: 10, spentUnits: 8, pendingUnits: 0, pendingLearning: empty(),
+    visited: {
+      trocadero: { firstVisitedAt: iso, learning: empty() },
+      eiffel: { firstVisitedAt: metAt, learning: { buckets: { "C2|review": 4, "C2|regular": 4 }, samples: [sample("C2|review", 4), sample("C2|regular", 4)] } }
+    },
+    characters: { lumie: { metAt, placeId: "eiffel" } }, lastProgressEventId: "v38-a:9",
+    introCompleted: false, extraV38: { preserved: true }
+  };
+}
+
 function check(value) {
   assert.deepEqual(Adventure.status(value), { ok: true, reason: null });
   const s = value.adventure;
@@ -174,7 +197,7 @@ test("current-place, unvisited, and unknown return clicks do not cancel or mutat
   assert.equal(JSON.stringify(p), before);
 });
 
-test("all three characters register once on first arrival; free revisits preserve dates and learning", () => {
+test("the original three characters register once on first arrival; free revisits preserve dates and learning", () => {
   const p = profile();
   for (const [place, character, cost] of [["eiffel", "lumie", 8], ["mont-saint-michel", "mare", 48], ["chambord", "plume", 48]]) {
     const from = p.adventure.currentNodeId;
@@ -434,8 +457,8 @@ test("browser UMD exports the catalog and every route has an equal-cost reverse 
   for (const file of ["world-data.js", "adventure.js"]) vm.runInNewContext(readFileSync(join(__dirname, "../" + file), "utf8"), browser);
   assert.equal(typeof browser.window.Adventure.ensure, "function");
   assert.equal(typeof browser.window.Adventure.summarizeLearning, "function");
-  assert.deepEqual(Adventure.nodes.map(n => n.id), ["trocadero", "seine", "eiffel", "champ-de-mars", "mont-saint-michel", "chambord"]);
-  assert.equal(Adventure.edges.length, 28);
+  assert.deepEqual(new Set(Adventure.nodes.map(n => n.id)), new Set(["trocadero", "seine", "eiffel", "champ-de-mars", "mont-saint-michel", "chambord", "versailles", "marseille"]));
+  assert.equal(Adventure.edges.length, 54);
   for (const edge of Adventure.edges) {
     assert.equal(edge.id, edge.from + "--" + edge.to);
     const reverse = Adventure.edges.find(other => other.from === edge.to && other.to === edge.from);
@@ -446,4 +469,94 @@ test("browser UMD exports the catalog and every route has an equal-cost reverse 
   }
   assert.ok(Object.isFrozen(Adventure.nodes));
   assert.ok(Adventure.edges.every(Object.isFrozen));
+});
+
+test("the twenty-eight old directed routes retain their IDs and costs in the expanded graph", () => {
+  const pairs = [["trocadero", "seine", 3], ["trocadero", "eiffel", 8], ["seine", "eiffel", 8], ["eiffel", "champ-de-mars", 8], ["seine", "champ-de-mars", 8], ["mont-saint-michel", "chambord", 48]];
+  for (const from of ["trocadero", "seine", "eiffel", "champ-de-mars"]) pairs.push([from, "mont-saint-michel", 48], [from, "chambord", 24]);
+  const expected = pairs.flatMap(([from, to, cost]) => [{ id: from + "--" + to, from, to, cost }, { id: to + "--" + from, from: to, to: from, cost }]);
+  assert.equal(expected.length, 28);
+  for (const edge of expected) assert.deepEqual(Adventure.edges.find(current => current.id === edge.id), edge);
+  assert.equal(new Set(Adventure.edges.map(edge => edge.id)).size, 54);
+  for (const place of ["trocadero", "seine", "eiffel", "champ-de-mars"]) assert.equal(Adventure.edges.find(edge => edge.id === place + "--versailles").cost, 16);
+  assert.equal(Adventure.edges.find(edge => edge.id === "versailles--chambord").cost, 24);
+  assert.equal(Adventure.edges.find(edge => edge.id === "versailles--mont-saint-michel").cost, 48);
+  for (const place of Adventure.nodes.filter(node => node.id !== "marseille")) assert.equal(Adventure.edges.find(edge => edge.id === place.id + "--marseille").cost, 48);
+});
+
+test("actual v38 schema-two active journey loads byte-for-byte without a migration or progress change", () => {
+  const p = { adventure: legacyV38ActiveJourney() };
+  const original = JSON.stringify(p);
+  const state = p.adventure;
+  assert.equal(Adventure.ensure(p, NOW + 999999), state);
+  assert.equal(JSON.stringify(p), original);
+  assert.equal(p.adventure.schemaVersion, 2);
+  assert.equal(Object.hasOwn(p.adventure, "legacyJourney"), false);
+  assert.equal(Adventure.addCorrect(p, "v38-a:9", NOW).added, false);
+  assert.equal(JSON.stringify(p), original);
+  assert.equal(Adventure.addCorrect(p, "continued:0", NOW, { level: "A1", review: true, wordKey: "bonjour::こんにちは" }).added, true);
+  assert.equal(p.adventure.activeLeg.progressUnits, 3);
+  assert.equal(p.adventure.spentUnits, 8);
+  assert.equal(p.adventure.characters.lumie.metAt, "2026-10-05T00:00:00.007Z");
+  check(p);
+});
+
+test("new first visits register Miro and Sol once and revisits preserve both footprints", () => {
+  const p = profile();
+  Adventure.selectPath(p, "trocadero--versailles", NOW);
+  correct(p, 16, "versailles", { level: "B1", review: true, wordKey: "château::城" });
+  assert.equal(p.adventure.currentNodeId, "versailles");
+  assert.deepEqual(p.adventure.characters.miro, { metAt: new Date(NOW + 15).toISOString(), placeId: "versailles" });
+  Adventure.selectPath(p, "versailles--marseille", NOW);
+  correct(p, 48, "marseille", { level: "A1", review: false, wordKey: "mer::海" });
+  assert.deepEqual(p.adventure.characters.sol, { metAt: new Date(NOW + 47).toISOString(), placeId: "marseille" });
+  const visits = clone(p.adventure.visited), collection = clone(p.adventure.characters);
+  Adventure.returnTo(p, "trocadero");
+  assert.equal(Adventure.selectPath(p, "trocadero--versailles", NOW).changed, false);
+  Adventure.returnTo(p, "versailles"); Adventure.returnTo(p, "marseille");
+  assert.deepEqual(p.adventure.visited, visits);
+  assert.deepEqual(p.adventure.characters, collection);
+  assert.equal(p.adventure.earnedUnits, 64);
+  assert.equal(p.adventure.spentUnits, 64);
+  assert.equal(summary(visits.versailles.learning).reviewCount, 16);
+  assert.equal(summary(visits.marseille.learning).reviewCount, 0);
+  check(p);
+});
+
+test("switching a long Marseille route to Versailles and returning refunds exact unfinished learning", () => {
+  const p = profile();
+  Adventure.selectPath(p, "trocadero--marseille", NOW);
+  correct(p, 17, "long", { level: "C2", review: true, wordKey: "voyage::旅" });
+  const before = bucketTotals(p);
+  assert.deepEqual(Adventure.selectPath(p, "trocadero--versailles", NOW), { changed: true, arrived: "versailles" });
+  assert.equal(p.adventure.spentUnits, 16);
+  assert.equal(p.adventure.pendingUnits, 1);
+  assert.equal(p.adventure.characters.sol, undefined);
+  Adventure.selectPath(p, "versailles--marseille", NOW);
+  correct(p, 2, "continued", { level: "A1", review: false, wordKey: "sud::南" });
+  assert.equal(p.adventure.activeLeg.progressUnits, 3);
+  Adventure.returnTo(p, "trocadero");
+  assert.equal(p.adventure.pendingUnits, 3);
+  assert.equal(p.adventure.spentUnits, 16);
+  assert.equal(p.adventure.activeLeg, null);
+  assert.deepEqual(bucketTotals(p), { ...before, "A1|regular": 2 });
+  assert.deepEqual(summary(p.adventure.pendingLearning).countsByLevel, { A1: 2, C2: 1 });
+  check(p);
+});
+
+test("an already migrated version-one archive is not credited a second time after the map expands", () => {
+  const p = { adventure: legacyV1() };
+  Adventure.ensure(p, NOW);
+  Adventure.selectPath(p, "trocadero--seine", NOW);
+  const archived = clone(p.adventure.legacyJourney);
+  const before = JSON.stringify(p);
+  Adventure.ensure(p, NOW + 1000);
+  assert.equal(JSON.stringify(p), before);
+  assert.equal(p.adventure.earnedUnits, 7);
+  assert.equal(p.adventure.spentUnits, 3);
+  assert.equal(p.adventure.pendingUnits, 4);
+  Adventure.selectPath(p, "seine--versailles", NOW);
+  assert.equal(p.adventure.activeLeg.progressUnits, 4);
+  assert.deepEqual(p.adventure.legacyJourney, archived);
+  check(p);
 });
