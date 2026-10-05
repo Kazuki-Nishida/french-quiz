@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
+  <title>パリの広場から公園と川沿いへ伸びるオリジナルの絵地図</title>
+  <defs>
+    <pattern id="paper" width="31" height="29" patternUnits="userSpaceOnUse"><circle cx="3" cy="6" r=".6" fill="#7b9170" opacity=".1"/><circle cx="22" cy="22" r=".4" fill="#7b9170" opacity=".11"/></pattern>
+    <pattern id="water" width="76" height="34" patternUnits="userSpaceOnUse"><path d="M4 11h17m17 15h24" stroke="#e5f4e8" stroke-width="2" stroke-linecap="round" opacity=".6"/></pattern>
+    <g id="tree"><ellipse cy="20" rx="19" ry="7" fill="#5b71542b"/><path d="M0 5v17" stroke="#816c4b" stroke-width="3"/><path d="M-19-1c-1-10 6-13 6-19 2-17 25-17 25-1 8 3 10 12 5 18-4 9-29 13-36 2Z" fill="#709577"/><path d="M-12-8c-2-6 0-11 5-16" fill="none" stroke="#a4b896" stroke-width="3" stroke-linecap="round"/></g>
+    <g id="bush"><ellipse rx="18" ry="9" fill="#93ad83"/><ellipse cx="12" cy="-5" rx="13" ry="9" fill="#809f77"/></g>
+    <g id="house"><path d="M-28 6 5-6l26 15-33 14Z" fill="#61745525"/><path d="M-29-32 5-41v44l-34 10Z" fill="#ead4ad"/><path d="m5-41 25 12v45L5 3Z" fill="#c8b795"/><path d="m-35-31 16-20 33-10L32-30 4-37Z" fill="#587379"/><path d="m-19-51 6 19 17-5 10-24Z" fill="#72888a"/><path d="M-20-21v9m13-13v9M-20-4v9M14-24v8m0 10v9" stroke="#647b71" stroke-width="5"/><path d="M-8-1v9" stroke="#a87f56" stroke-width="7"/><path d="M15-60v-10h7v14" fill="#b58b66"/></g>
+    <g id="lamp"><path d="M0-28v28m-4 0h8" fill="none" stroke="#567666" stroke-width="2"/><path d="m-4-36 8 0-1 8h-6Z" fill="#f4dfa3" stroke="#567666" stroke-width="1.5"/><path d="m-5-36 5-4 5 4" fill="#567666"/></g>
+    <g id="flowers"><path d="M0 0v-7m8 10v-8m8 4v-8" stroke="#77926b" stroke-width="1.5"/><circle cy="-8" r="3" fill="#cf9378"/><circle cx="8" cy="-6" r="3" fill="#ecbd8e"/><circle cx="16" cy="-10" r="3" fill="#d78a6e"/></g>
+  </defs>
+  <path fill="#e7ecd5" d="M0 0h800v520H0Z"/>
+  <path d="M0 0h459c-15 68-76 82-135 111S242 189 158 178 56 126 0 169Z" fill="#d6e2c4"/>
+  <path d="M0 394c107-53 164-23 243 28s214 56 342 4 162-35 215-24v118H0Z" fill="#dce6c7"/>
+  <path d="M676-30c-88 76-57 111 0 160s24 90-36 146-54 143 29 210l17 64h169V-30Z" fill="#c3d9cf"/>
+  <path d="M714-30c-101 77-74 109-16 159s45 96-17 157-61 115 17 179l39 85h95V-30Z" fill="#91beb9"/>
+  <path d="M714-30c-101 77-74 109-16 159s45 96-17 157-61 115 17 179l39 85h95V-30Z" fill="url(#water)"/>
+  <path d="M655-30c-95 85-61 127-4 177s6 78-40 129-58 155 12 223" fill="none" stroke="#faf2d7" stroke-width="17"/>
+  <path d="M44 279 345 270 454 364 598 370M281-12l31 236M4 441l263-106M447 527l-24-142M486 84l125 59" fill="none" stroke="#f8f2dc" stroke-width="20"/>
+  <path d="M49 279 345 270 454 364 598 370M281-12l31 236M4 441l263-106M447 527l-24-142" fill="none" stroke="#c5c5a7" stroke-width="1" stroke-dasharray="4 7"/>
+  <ellipse cx="384" cy="391" rx="108" ry="64" fill="#d7d2b2"/>
+  <ellipse cx="384" cy="389" rx="103" ry="58" fill="#f4ead0"/>
+  <path d="M313 391h143m-122-31 101 58m-101 0 102-60" stroke="#e7ddc3" stroke-width="2"/>
+  <path d="M96 47c88-37 132-13 173 41s-11 122-91 135S40 184 41 124s19-62 55-77Z" fill="#b6cda0"/>
+  <path d="M86 107c31-24 95-37 148-12s22 83-37 102S76 185 68 150s0-30 18-43Z" fill="none" stroke="#e9e0b9" stroke-width="15"/>
+  <ellipse cx="150" cy="106" rx="46" ry="20" fill="#9abeb0"/>
+  <path d="M116 107h22m22-5h19m-40 11h22" stroke="#d9eada" stroke-width="2" stroke-linecap="round"/>
+  <use href="#tree" x="77" y="74"/><use href="#tree" x="222" y="47"/><use href="#tree" x="260" y="144"/><use href="#tree" x="68" y="195"/><use href="#tree" x="208" y="207"/>
+  <use href="#bush" x="107" y="222"/><use href="#bush" x="281" y="92"/><use href="#bush" x="45" y="128"/>
+  <g transform="translate(112 150) rotate(-19)"><path d="M0 0h27M0 5h27" stroke="#b18658" stroke-width="5"/><path d="M3 6v6m20-6v6" stroke="#5f7a5d" stroke-width="2"/></g>
+  <use href="#house" x="371" y="139"/><use href="#house" x="427" y="109"/><use href="#house" x="482" y="143"/>
+  <use href="#house" x="523" y="226"/><use href="#house" x="577" y="248"/>
+  <use href="#house" x="221" y="315"/><use href="#house" x="159" y="339"/><use href="#house" x="88" y="357"/>
+  <use href="#house" x="537" y="453"/><use href="#house" x="477" y="490"/>
+  <use href="#house" x="338" y="479"/><use href="#house" x="288" y="450"/>
+  <path d="m505 48 51-14 27 12-51 14Z" fill="#8ca18d" opacity=".35"/>
+  <path d="M507 17v27l26 13V30Z" fill="#dabd92"/><path d="m507 17 50-14 25 12-49 15Z" fill="#607f7a"/><path d="m533 30 49-15v28l-49 14Z" fill="#f2d6a9"/><path d="m543 31 7-2v11l-7 2m15-15 7-2v11l-7 2" fill="#788d7b"/>
+  <use href="#tree" x="450" y="230"/><use href="#tree" x="592" y="91"/><use href="#tree" x="601" y="333"/><use href="#tree" x="660" y="413"/>
+  <use href="#tree" x="94" y="459"/><use href="#tree" x="185" y="464"/><use href="#tree" x="391" y="35"/>
+  <use href="#bush" x="534" y="305"/><use href="#bush" x="304" y="75"/><use href="#bush" x="31" y="481"/>
+  <g transform="translate(673 246) rotate(30)"><path d="M-16-9h32v23h-32Z" fill="#e4d0a9"/><path d="M-18-10h36M-18 14h36" stroke="#a39372" stroke-width="3"/><path d="M-8-10v24m16-24v24" stroke="#c0ac85" stroke-width="2"/></g>
+  <path d="m752 370-26 10 38 10 12-5Z" fill="#fbf0d1"/><path d="M752 370v-28l18 22Z" fill="#e4b18a"/><path d="M752 342v28" stroke="#6b8578" stroke-width="1.5"/>
+  <use href="#lamp" x="277" y="291"/><use href="#lamp" x="528" y="352"/><use href="#lamp" x="595" y="205"/><use href="#lamp" x="332" y="403"/>
+  <use href="#flowers" x="108" y="197"/><use href="#flowers" x="223" y="122"/><use href="#flowers" x="397" y="432"/><use href="#flowers" x="503" y="276"/>
+  <path fill="url(#paper)" d="M0 0h800v520H0Z"/>
+  <g transform="translate(737 59)" opacity=".64"><path d="m0-20-5 20 5-4 5 4Z" fill="#496d5d"/><path d="M0 0v16m-14-1h28" stroke="#638573" stroke-width="1"/><text x="0" y="-27" text-anchor="middle" font-family="Georgia,serif" font-size="10" fill="#496d5d">N</text></g>
+</svg>

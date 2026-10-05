@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="144" viewBox="0 0 128 144">
+  <title>スカーフと小さな鞄を身につけた旅の相棒</title>
+  <ellipse cx="66" cy="132" rx="33" ry="5" fill="#536f5625"/>
+  <path d="M49 119v10l-11 3m40-13v10l11 3" stroke="#6a6048" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <path d="m90 92 18 16-20 4" fill="#446f63"/>
+  <path d="M42 67c-10 12-14 25-10 40 3 15 17 22 33 22 20 0 36-14 35-34-1-12-7-23-17-31Z" fill="#638b78" stroke="#466f61" stroke-width="1.5"/>
+  <path d="M51 79c-10 9-14 19-11 30 4 12 22 18 35 11 11-6 15-21 5-34Z" fill="#eadbb9"/>
+  <path d="M89 76c10 6 13 23 2 29-6 2-15-7-18-17" fill="#496f60" stroke="#466f61" stroke-width="1.5"/>
+  <path d="M36 74c-7 5-12 17-8 24 2 4 8 5 15 0" fill="#4a7161"/>
+  <path d="M49 58 74 55l22 42" stroke="#af8760" stroke-width="5" fill="none"/>
+  <path d="m77 97 22-4 3 20-22 4Z" fill="#bf9d70" stroke="#8b7857" stroke-width="1.5"/><path d="m77 97 22-4 1 8-22 4Z" fill="#d1b284"/><path d="m88 99 5-1v5l-5 1Z" fill="#e9cc82" stroke="#9d8454"/>
+  <path d="M43 67c-10-6-15-18-10-31 3-10 13-17 26-16 17-3 32 5 35 18 6 15-2 27-14 32Z" fill="#668f7c" stroke="#466f61" stroke-width="1.5"/>
+  <path d="M46 33c-13 5-13 28-1 35 12 9 37 5 43-9 5-10-5-28-17-29-11-3-16-1-25 3Z" fill="#f0e3c8"/>
+  <path d="M43 23 43 12l12 9m1-1 7-12 5 13" fill="#668f7c" stroke="#466f61" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M48 45c2-2 4-2 6-1m20-1c2-1 4-1 6 1" fill="none" stroke="#6a785f" stroke-width="1.5" stroke-linecap="round"/>
+  <ellipse cx="53" cy="50" rx="2.3" ry="3" fill="#304c42"/><ellipse cx="78" cy="50" rx="2.3" ry="3" fill="#304c42"/>
+  <path d="m61 53 12 1-7 6Z" fill="#be8959"/><path d="M61 63q5 3 10 0" fill="none" stroke="#a39371" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M40 69c13 9 30 9 44 1l-2 11c-16 6-28 4-41-2Z" fill="#bc684f" stroke="#9b5541" stroke-width="1"/>
+  <path d="m41 76-10 20 10-2 6 6 8-20Z" fill="#c77455"/><path d="m36 88 11 4" stroke="#e9b687" stroke-width="2"/>
+</svg>

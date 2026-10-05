@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="240" viewBox="0 0 960 240">
+  <title>花壇と噴水のある木々に囲まれた公園</title>
+  <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d2e5d7"/><stop offset="1" stop-color="#eff0cb"/></linearGradient><g id="tree"><path d="M0-2v62m0-47L-17 0m17 25L19 4" stroke="#8a8261" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M-36 3c-18-18-6-44 9-43-5-24 20-41 35-29 17-16 40 6 34 24 22 6 24 42 7 46-3 22-25 27-44 17-18 11-39 7-41-15Z" fill="#769b7b"/><path d="M-28-12c-4-17 5-24 15-28" fill="none" stroke="#a1b898" stroke-width="6" stroke-linecap="round"/></g><g id="flowers"><path d="M0 0v-13m12 15V-9m13 10v-17" stroke="#778e62" stroke-width="2"/><circle cy="-13" r="5" fill="#ca8e71"/><circle cx="12" cy="-9" r="5" fill="#eac78d"/><circle cx="25" cy="-16" r="5" fill="#d7a679"/></g></defs>
+  <path fill="url(#sky)" d="M0 0h960v240H0Z"/>
+  <path d="M0 145c166-27 284-11 432-18s356-17 528 13v100H0Z" fill="#afc39b"/>
+  <path d="M0 159c182-8 338 4 499 16s302-4 461-15" fill="none" stroke="#809c78" stroke-width="18"/>
+  <path d="M0 228c180-12 247-33 355-63s185-44 279-30 74 77 326 80v25H0Z" fill="#e6dbb3"/><path d="M0 230c180-12 247-33 355-63s185-44 279-30" fill="none" stroke="#f4e7c0" stroke-width="6"/>
+  <g fill="#b3c4a0" opacity=".8"><path d="M63 146V74q-4-40 17-42 32 2 23 42v73m117 0V76q-4-47 22-46 28 1 27 48v71m355-9V50q-4-45 22-45 28 1 25 43v94m100 8V92q-3-40 21-39 23-2 19 40v58"/></g>
+  <use href="#tree" x="29" y="100"/><use href="#tree" x="154" y="104"/><use href="#tree" x="315" y="102"/><use href="#tree" x="736" y="97"/><use href="#tree" x="897" y="103"/>
+  <g><ellipse cx="474" cy="167" rx="74" ry="16" fill="#9eac88"/><ellipse cx="474" cy="162" rx="72" ry="15" fill="#ddd7b5"/><ellipse cx="474" cy="159" rx="62" ry="10" fill="#94b7a3"/><path d="M466 153h16l-3-41h-10Z" fill="#c5c5a5"/><path d="M451 111h46c-3 16-44 17-46 0Z" fill="#d7d2b2"/><path d="M470 111v-9h8v9" fill="#b5b99a"/><path d="M474 104c0-29-30-24-34-3m34 3c0-29 30-24 34-3" fill="none" stroke="#d9ebd1" stroke-width="2.5" stroke-linecap="round"/><path d="M440 108v20m68-20v20" stroke="#d9ebd1" stroke-width="2" stroke-linecap="round"/></g>
+  <g transform="translate(567 190)"><path d="M0-10h66m-66-9h66m-63-9h60" stroke="#a88358" stroke-width="7" stroke-linecap="round"/><path d="M6-32V2m52-34V2M0-8v7m66-9v8" stroke="#63826a" stroke-width="3" stroke-linecap="round"/></g>
+  <path d="M40 231c45-24 146-37 201-25s57 27 93 34H0Z" fill="#8eab7d"/><path d="M669 225c62-34 184-26 291-5v20H628Z" fill="#8eab7d"/>
+  <use href="#flowers" x="63" y="216"/><use href="#flowers" x="117" y="211"/><use href="#flowers" x="190" y="220"/><use href="#flowers" x="749" y="216"/><use href="#flowers" x="824" y="211"/><use href="#flowers" x="900" y="222"/>
+  <path d="M368 44q7-6 14 0 7-6 14 0m155 20q7-6 14 0 7-6 14 0" fill="none" stroke="#92ac8e" stroke-width="2" stroke-linecap="round"/>
+</svg>

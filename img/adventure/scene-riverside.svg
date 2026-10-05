@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="240" viewBox="0 0 960 240">
+  <title>石造りの橋と並木を望む穏やかな川沿い</title>
+  <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d6e6dc"/><stop offset="1" stop-color="#f2edce"/></linearGradient><pattern id="ripples" width="130" height="30" patternUnits="userSpaceOnUse"><path d="M10 9h34m32 13h26" stroke="#d4e7d7" stroke-width="2" stroke-linecap="round" opacity=".8"/></pattern><g id="tree"><path d="M0 0v33" stroke="#869074" stroke-width="5"/><path d="M-22 0c-10-23 3-40 17-34 9-17 34-7 31 14 14 12 4 29-16 25-14 7-26 5-32-5Z" fill="#85a28b"/></g></defs>
+  <path fill="url(#sky)" d="M0 0h960v240H0Z"/>
+  <path d="M0 103h107V76h58v45h40V82h85v52h64V96h49v-9h61v58h45V92h72v26h35V71h90v56h44v-23h107v38h113v31H0Z" fill="#beccb6" opacity=".65"/>
+  <path d="M0 142c280-16 518-13 960 4v52H0Z" fill="#b5c5aa"/>
+  <path d="M0 165c227-2 451-2 960-4v79H0Z" fill="#8fbbb4"/><path d="M0 165c227-2 451-2 960-4v79H0Z" fill="url(#ripples)"/>
+  <path d="M0 143c207-6 531-6 960 0v19c-396-5-714 1-960 3Z" fill="#d7cfaf"/><path d="M0 145c361-9 706-5 960 0" stroke="#eee4c2" stroke-width="5" fill="none"/>
+  <use href="#tree" x="64" y="113"/><use href="#tree" x="142" y="111"/><use href="#tree" x="217" y="107"/><use href="#tree" x="580" y="107"/><use href="#tree" x="657" y="110"/><use href="#tree" x="750" y="113"/><use href="#tree" x="837" y="113"/><use href="#tree" x="925" y="118"/>
+  <path d="M248 119h255v60h-18v-12a31 31 0 0 0-62 0v12h-19v-12a31 31 0 0 0-62 0v12h-17v-12a31 31 0 0 0-62 0v12h-15Z" fill="#c2b799"/>
+  <path d="M248 116h255v11H248Z" fill="#e8dbb8"/><path d="M242 115h268M245 108h262" stroke="#8d9b81" stroke-width="3"/><path d="M250 107v9m16-9v9m16-9v9m16-9v9m16-9v9m16-9v9m16-9v9m16-9v9m16-9v9m16-9v9m16-9v9m16-9v9m16-9v9m16-9v9m16-9v9m16-9v9" stroke="#8d9b81" stroke-width="1.5"/>
+  <path d="M509 190h82l-13 10h-60Z" fill="#e9d8b5"/><path d="M528 179h41v11h-41Z" fill="#f7ebcb"/><path d="M536 183h7m6 0h7m6 0h6" stroke="#679790" stroke-width="4"/><path d="M524 203h54m-9 6h28" stroke="#d6e8d6" stroke-width="2" stroke-linecap="round"/>
+  <path d="M0 204c155 8 294 24 960 16v20H0Z" fill="#e1d7b3"/><path d="M0 202c316 16 584 23 960 16" stroke="#f6ebce" stroke-width="7" fill="none"/>
+  <path d="M37 228v-41m119 47v-40m116 47v-39m122 42v-35m120 37v-33m125 33v-31m132 32v-33m128 30v-30M0 185c347 24 617 30 960 15M0 194c347 24 617 30 960 15" stroke="#658577" stroke-width="2" fill="none"/>
+  <path d="M51 51q7-6 14 0 7-6 14 0m719 15q7-6 14 0 7-6 14 0" fill="none" stroke="#90a892" stroke-width="2" stroke-linecap="round"/>
+</svg>

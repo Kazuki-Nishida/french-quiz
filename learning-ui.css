@@ -1,0 +1,31 @@
+/* Learning controls stay legible beside the illustrated journey. */
+[hidden]{display:none!important}
+ruby{ruby-align:center;white-space:nowrap}rt{font-size:.56em;font-weight:500;line-height:1.3}
+button,input,select,a,[role=button]{touch-action:manipulation}
+button:focus-visible,select:focus-visible,input:focus-visible,[role=button]:focus-visible{outline:3px solid #13696e;outline-offset:4px}
+.home-journey{padding:24px;background:linear-gradient(115deg,#fffaf0,#e8f2e9);border:1px solid #d7dfca}
+.home-journey h1{font-size:clamp(22px,4vw,30px);line-height:1.7;margin:3px 0 5px;font-family:Georgia,'Hiragino Mincho ProN',serif}
+.journey-eyebrow{font-size:11px;font-weight:800;letter-spacing:.2em;color:#497b79}
+.home-journey p{line-height:2;font-size:15px;margin:8px 0 15px}
+.study-context,.study-freedom{font-size:14px;line-height:2;color:#4c655e;margin:12px 0}
+#grammar-guide{margin-top:16px;scroll-margin-top:16px}
+#grammar-guide h2{font-size:21px;margin:0 0 7px}
+.unit-choice{display:flex;align-items:center;gap:10px;width:100%;min-height:62px;padding:14px 12px;text-align:left;border:1px solid #dbe4d8;border-radius:13px;background:#fafcf6;margin:9px 0;font-size:15px;line-height:1.8}
+.unit-choice.selected{border:2px solid #327b73;background:#e9f5ec;padding:13px 11px}
+.unit-number{color:#667b70;font-size:12px;min-width:22px}.unit-progress{margin-left:auto;white-space:nowrap;font-size:12px;color:#486453}
+.unit-choice small{font-size:10px;color:#fff;background:#367b71;border-radius:5px;padding:3px 5px;white-space:nowrap}
+.quiz-context{position:sticky;top:0;z-index:12;display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,253,246,.97);border-bottom:1px solid #dddcca;padding:10px 4px;min-height:64px;line-height:1.9}
+#quiz-subject{font-size:13px;font-weight:700;overflow-wrap:anywhere}#quiz-subject>span{white-space:nowrap;display:inline-block;color:#38786c}
+.quiz-context label{display:flex;align-items:center;gap:5px;font-size:11px;flex-shrink:0}.quiz-context select{font:inherit;font-size:12px;border:1px solid #abc3b3;border-radius:9px;background:#fff;padding:9px 3px;color:#315f54}
+.save-warning{position:relative;border:2px solid #b96325;background:#fff4dc;padding:12px;border-radius:12px;font-size:14px;line-height:1.8;margin:10px 0;z-index:20}
+.save-warning button{border:1px solid #955122;background:white;padding:9px;border-radius:8px;margin:6px 8px 0 0}
+#adventure-result:empty{display:none}#result-guide:empty{display:none}
+#rlist .rrow{overflow-wrap:anywhere}#scr-result .row .btn{font-size:16px;line-height:1.9;padding:12px 8px}
+#lvchoices .choice,#dirchoices .choice{line-height:2}.hll{line-height:2}.hlrow{min-height:36px}
+#nextwrap{z-index:15}#qprog{overflow:visible}#qprog span{flex-shrink:1}
+.option-wrap{position:relative;min-width:0}.option-wrap>.opt{width:100%;height:100%}.option-wrap>.ospeak{z-index:2}
+.opt .ofr{overflow-wrap:anywhere}
+.expl,.gramfull,.rrow .fr,.srow .fr{overflow-wrap:anywhere}
+#scr-quiz[data-effects="calm"] .opt{animation:none!important}
+@media(max-width:420px){.quiz-context{gap:5px}#quiz-subject{font-size:11px}.quiz-context label{gap:3px}.unit-choice{font-size:13px;gap:6px}.unit-progress{font-size:11px}.home-journey{padding:18px}#scr-result .row{flex-wrap:wrap}#scr-result .row>*{min-width:125px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
