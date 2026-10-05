@@ -1,27 +1,44 @@
 (function (root, factory) {
   "use strict";
-  if (typeof module === "object" && module.exports) module.exports = factory();
-  else root.Adventure = factory();
-})(typeof globalThis !== "undefined" ? globalThis : this, function () {
+  if (typeof module === "object" && module.exports) module.exports = factory(require("./world-data.js"));
+  else root.Adventure = factory(root.WorldData);
+})(typeof globalThis !== "undefined" ? globalThis : this, function (WorldData) {
   "use strict";
 
-  const nodes = Object.freeze([
-    Object.freeze({ id: "paris-start", name: "パリの広場", reading: "パリのひろば", scene: "city", x: 49, y: 71 }),
-    Object.freeze({ id: "riverside", name: "川沿い", reading: "かわぞい", scene: "riverside", x: 79, y: 35 }),
-    Object.freeze({ id: "park", name: "公園", reading: "こうえん", scene: "park", x: 22, y: 28 })
-  ]);
-  const edges = Object.freeze([
-    Object.freeze({ id: "paris-riverside", from: "paris-start", to: "riverside", cost: 3 }),
-    Object.freeze({ id: "paris-park", from: "paris-start", to: "park", cost: 3 })
-  ]);
+  const nodes = WorldData.nodes;
+  const pairs = [
+    ["trocadero", "seine", 3], ["trocadero", "eiffel", 8], ["seine", "eiffel", 8],
+    ["eiffel", "champ-de-mars", 8], ["seine", "champ-de-mars", 8]
+  ];
+  for (const from of ["trocadero", "seine", "eiffel", "champ-de-mars"]) {
+    pairs.push([from, "mont-saint-michel", 48], [from, "chambord", 24]);
+  }
+  pairs.push(["mont-saint-michel", "chambord", 48]);
+  const edges = Object.freeze(pairs.flatMap(([from, to, cost]) => [
+    Object.freeze({ id: from + "--" + to, from, to, cost }),
+    Object.freeze({ id: to + "--" + from, from: to, to: from, cost })
+  ]));
   const nodeById = new Map(nodes.map(node => [node.id, node]));
   const edgeById = new Map(edges.map(edge => [edge.id, edge]));
+  const legacyNodeIds = new Set(["paris-start", "riverside", "park"]);
+  const legacyEdges = new Map([
+    ["paris-riverside", { from: "paris-start", to: "riverside", cost: 3 }],
+    ["paris-park", { from: "paris-start", to: "park", cost: 3 }]
+  ]);
+  const levels = ["はなし", "はなし2", "はなし3", "A1", "A2", "B1", "B2", "C1", "C2", "ぶんぽう1", "ぶんぽう2", "ぶんぽう3"];
+  // Allocation is an aggregate, not an answer timeline: fixed level order,
+  // regular before review, then unknown historical attribution. Within each
+  // bucket, tracked sample quantities move before untracked quantities.
+  const bucketOrder = levels.flatMap(level => [level + "|regular", level + "|review"]).concat("unknown");
+  const bucketIds = new Set(bucketOrder);
   const owns = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
   const isRecord = value => Object.prototype.toString.call(value) === "[object Object]";
   const isCount = value => Number.isSafeInteger(value) && value >= 0;
-  const isEventId = value => typeof value === "string" && value.trim().length > 0;
+  const isText = value => typeof value === "string" && value.trim().length > 0;
+  const isDate = value => typeof value === "string" && Number.isFinite(Date.parse(value));
   const valid = () => ({ ok: true, reason: null });
   const invalid = reason => ({ ok: false, reason });
+  const emptyLearning = () => ({ buckets: {}, samples: [] });
 
   function timestamp(now) {
     if (typeof now !== "number" || !Number.isFinite(now)) return null;
@@ -29,74 +46,168 @@
     return Number.isFinite(date.getTime()) ? date.toISOString() : null;
   }
 
-  // Validation never repairs, replaces, or discards an existing saved value.
-  // A legacy profile with no adventure field is valid and can be initialized.
+  function learningTotal(learning) {
+    if (!isRecord(learning) || !isRecord(learning.buckets) || !Array.isArray(learning.samples) || learning.samples.length > 6) return null;
+    let total = 0;
+    for (const bucket of Object.keys(learning.buckets)) {
+      if (!bucketIds.has(bucket) || !isCount(learning.buckets[bucket])) return null;
+      total += learning.buckets[bucket];
+      if (!Number.isSafeInteger(total)) return null;
+    }
+    const sampled = {};
+    const identities = new Set();
+    for (const sample of learning.samples) {
+      if (!isRecord(sample) || !isText(sample.wordKey) || !bucketIds.has(sample.bucket) || sample.bucket === "unknown" || !isCount(sample.count) || sample.count === 0) return null;
+      const identity = JSON.stringify([sample.bucket, sample.wordKey]);
+      if (identities.has(identity)) return null;
+      identities.add(identity);
+      sampled[sample.bucket] = (sampled[sample.bucket] || 0) + sample.count;
+      if (!Number.isSafeInteger(sampled[sample.bucket]) || sampled[sample.bucket] > (learning.buckets[sample.bucket] || 0)) return null;
+    }
+    return total;
+  }
+
+  function summarizeLearning(learning) {
+    const total = learningTotal(learning);
+    const result = { countsByLevel: {}, reviewCount: 0, sampleKeys: [], total: total === null ? 0 : total };
+    if (total === null) return result;
+    for (const bucket of bucketOrder) {
+      const count = learning.buckets[bucket] || 0;
+      if (!count) continue;
+      const level = bucket === "unknown" ? "unknown" : bucket.split("|")[0];
+      result.countsByLevel[level] = (result.countsByLevel[level] || 0) + count;
+      if (bucket.endsWith("|review")) result.reviewCount += count;
+    }
+    result.sampleKeys = [...new Set(learning.samples.map(sample => sample.wordKey))];
+    return result;
+  }
+
+  // The bounded samples are subsets of bucket counts, never extra units.
+  // Dropping a sample at the six-record limit drops only its label, not counts.
+  function recordSample(learning, sample, count) {
+    const existing = learning.samples.find(item => item.bucket === sample.bucket && item.wordKey === sample.wordKey);
+    if (existing) existing.count += count;
+    else if (learning.samples.length < 6) learning.samples.push({ wordKey: sample.wordKey, bucket: sample.bucket, count });
+  }
+
+  function moveLearning(source, destination, amount) {
+    let remaining = amount;
+    for (const bucket of bucketOrder) {
+      const moved = Math.min(source.buckets[bucket] || 0, remaining);
+      if (!moved) continue;
+      let sampleRoom = moved;
+      for (const sample of source.samples) {
+        if (sample.bucket !== bucket || !sampleRoom) continue;
+        const count = Math.min(sample.count, sampleRoom);
+        recordSample(destination, sample, count);
+        sample.count -= count;
+        sampleRoom -= count;
+      }
+      source.samples = source.samples.filter(sample => sample.count > 0);
+      source.buckets[bucket] -= moved;
+      if (!source.buckets[bucket]) delete source.buckets[bucket];
+      destination.buckets[bucket] = (destination.buckets[bucket] || 0) + moved;
+      remaining -= moved;
+      if (!remaining) break;
+    }
+  }
+
+  function addLearning(learning, context) {
+    const known = isRecord(context) && levels.includes(context.level) && typeof context.review === "boolean";
+    const bucket = known ? context.level + (context.review ? "|review" : "|regular") : "unknown";
+    learning.buckets[bucket] = (learning.buckets[bucket] || 0) + 1;
+    if (known && isText(context.wordKey)) recordSample(learning, { wordKey: context.wordKey, bucket }, 1);
+  }
+
+  // Common validation exactly retains the original version-one topology rules.
+  // It never repairs malformed values or interprets unknown saved versions.
+  function baseStatus(state, nodeIds, routeById, startId) {
+    if (state.effectsMode !== "rich" && state.effectsMode !== "calm") return invalid("旅の演出設定を確認できません。");
+    if (typeof state.introCompleted !== "boolean") return invalid("導入の記録を確認できません。");
+    if (!nodeIds.has(state.currentNodeId)) return invalid("現在地に対応する場所がありません。");
+    if (!isRecord(state.visited)) return invalid("訪問した場所の記録を読み取れません。");
+    for (const id of Object.keys(state.visited)) {
+      if (!nodeIds.has(id)) return invalid("訪問記録に対応していない場所があります。");
+      if (!isRecord(state.visited[id]) || !isDate(state.visited[id].firstVisitedAt)) return invalid("訪問した日時の記録を確認できません。");
+    }
+    if (!owns(state.visited, startId) || !owns(state.visited, state.currentNodeId)) return invalid("出発地点または現在地の訪問記録がありません。");
+    if (![state.earnedUnits, state.spentUnits, state.pendingUnits].every(isCount)) return invalid("旅の進みの数値を確認できません。");
+    if (state.lastProgressEventId !== null && !isText(state.lastProgressEventId)) return invalid("旅の正解記録を確認できません。");
+    let progress = 0;
+    if (state.activeLeg !== null) {
+      const leg = state.activeLeg;
+      if (!isRecord(leg)) return invalid("移動中の道を読み取れません。");
+      const edge = routeById.get(leg.edgeId);
+      if (!edge || edge.from !== leg.from || edge.to !== leg.to || edge.cost !== leg.requiredUnits) return invalid("移動中の道の情報に対応していません。");
+      if (leg.from !== state.currentNodeId || owns(state.visited, leg.to)) return invalid("現在地と移動中の道が一致しません。");
+      if (!isCount(leg.progressUnits) || leg.progressUnits >= edge.cost || state.pendingUnits !== 0) return invalid("移動中の道の進みを確認できません。");
+      progress = leg.progressUnits;
+    }
+    const accounted = state.spentUnits + state.pendingUnits + progress;
+    if (!Number.isSafeInteger(accounted) || state.earnedUnits !== accounted) return invalid("旅の正解数と使った進みが一致しません。");
+    return valid();
+  }
+
+  function legacyStatus(state) {
+    if (!isRecord(state) || state.schemaVersion !== 1) return invalid("以前の旅の保存情報を読み取れません。");
+    return baseStatus(state, legacyNodeIds, legacyEdges, "paris-start");
+  }
+
   function status(profile) {
     if (!isRecord(profile)) return invalid("プロフィールを読み取れません。");
     if (!owns(profile, "adventure")) return valid();
     const state = profile.adventure;
     if (!isRecord(state)) return invalid("旅の保存情報を読み取れません。");
-    if (state.schemaVersion !== 1) return invalid("この旅の保存形式には対応していません。");
-    if (state.effectsMode !== "rich" && state.effectsMode !== "calm") return invalid("旅の演出設定を確認できません。");
-    if (typeof state.introCompleted !== "boolean") return invalid("導入の記録を確認できません。");
-    if (!nodeById.has(state.currentNodeId)) return invalid("現在地に対応する場所がありません。");
-    if (!isRecord(state.visited)) return invalid("訪問した場所の記録を読み取れません。");
-    for (const id of Object.keys(state.visited)) {
-      const visit = state.visited[id];
-      if (!nodeById.has(id)) return invalid("訪問記録に対応していない場所があります。");
-      if (!isRecord(visit) || typeof visit.firstVisitedAt !== "string" || !Number.isFinite(Date.parse(visit.firstVisitedAt))) {
-        return invalid("訪問した日時の記録を確認できません。");
-      }
+    if (state.schemaVersion === 1) return legacyStatus(state);
+    if (state.schemaVersion !== 2) return invalid("この旅の保存形式には対応していません。");
+    const common = baseStatus(state, nodeById, edgeById, "trocadero");
+    if (!common.ok) return common;
+    if (learningTotal(state.pendingLearning) !== state.pendingUnits || (state.activeLeg && learningTotal(state.activeLeg.learning) !== state.activeLeg.progressUnits)) return invalid("移動に含まれる学習の記録が一致しません。");
+    let visitedUnits = 0;
+    for (const [id, visit] of Object.entries(state.visited)) {
+      const total = learningTotal(visit.learning);
+      if (total === null || (id === "trocadero" ? total !== 0 : !edges.some(edge => edge.to === id && edge.cost === total))) return invalid("訪問に含まれる学習の記録を確認できません。");
+      visitedUnits += total;
     }
-    if (!owns(state.visited, "paris-start") || !owns(state.visited, state.currentNodeId)) {
-      return invalid("出発地点または現在地の訪問記録がありません。");
+    if (!Number.isSafeInteger(visitedUnits) || visitedUnits !== state.spentUnits) return invalid("訪問に使った進みと学習の記録が一致しません。");
+    if (!isRecord(state.characters)) return invalid("出会った仲間の記録を読み取れません。");
+    for (const [id, met] of Object.entries(state.characters)) {
+      const character = WorldData.characters.find(item => item.id === id);
+      if (!character || !isRecord(met) || met.placeId !== character.placeId || !isDate(met.metAt) || !owns(state.visited, met.placeId) || met.metAt !== state.visited[met.placeId].firstVisitedAt) return invalid("仲間と出会った場所の記録を確認できません。");
     }
-    if (![state.earnedUnits, state.spentUnits, state.pendingUnits].every(isCount)) {
-      return invalid("旅の進みの数値を確認できません。");
+    for (const character of WorldData.characters) {
+      if (owns(state.visited, character.placeId) && !owns(state.characters, character.id)) return invalid("訪問した場所の仲間の記録がありません。");
     }
-    if (state.lastProgressEventId !== null && !isEventId(state.lastProgressEventId)) {
-      return invalid("旅の正解記録を確認できません。");
-    }
-    let progress = 0;
-    if (state.activeLeg !== null) {
-      const leg = state.activeLeg;
-      if (!isRecord(leg)) return invalid("移動中の道を読み取れません。");
-      const edge = edgeById.get(leg.edgeId);
-      if (!edge || edge.from !== leg.from || edge.to !== leg.to || edge.cost !== leg.requiredUnits) {
-        return invalid("移動中の道の情報に対応していません。");
-      }
-      if (leg.from !== state.currentNodeId || owns(state.visited, leg.to)) {
-        return invalid("現在地と移動中の道が一致しません。");
-      }
-      if (!isCount(leg.progressUnits) || leg.progressUnits >= edge.cost || state.pendingUnits !== 0) {
-        return invalid("移動中の道の進みを確認できません。");
-      }
-      progress = leg.progressUnits;
-    }
-    const accounted = state.spentUnits + state.pendingUnits + progress;
-    if (!Number.isSafeInteger(accounted) || state.earnedUnits !== accounted) {
-      return invalid("旅の正解数と使った進みが一致しません。");
-    }
+    if (owns(state, "legacyJourney") && !legacyStatus(state.legacyJourney).ok) return invalid("以前の旅の保管記録を確認できません。");
     return valid();
+  }
+
+  function initialState(at) {
+    return {
+      schemaVersion: 2, effectsMode: "rich", currentNodeId: "trocadero", activeLeg: null,
+      earnedUnits: 0, spentUnits: 0, pendingUnits: 0, pendingLearning: emptyLearning(),
+      visited: { trocadero: { firstVisitedAt: at, learning: emptyLearning() } },
+      characters: {}, lastProgressEventId: null, introCompleted: false
+    };
   }
 
   function ensure(profile, now = Date.now()) {
     if (!status(profile).ok) return null;
-    if (owns(profile, "adventure")) return profile.adventure;
+    if (owns(profile, "adventure") && profile.adventure.schemaVersion === 2) return profile.adventure;
     const at = timestamp(now);
     if (at === null) return null;
-    profile.adventure = {
-      schemaVersion: 1,
-      effectsMode: "rich",
-      currentNodeId: "paris-start",
-      activeLeg: null,
-      earnedUnits: 0,
-      spentUnits: 0,
-      pendingUnits: 0,
-      visited: { "paris-start": { firstVisitedAt: at } },
-      lastProgressEventId: null,
-      introCompleted: false
-    };
+    if (!owns(profile, "adventure")) profile.adventure = initialState(at);
+    else {
+      const legacy = profile.adventure;
+      const migrated = { ...legacy, ...initialState(at),
+        effectsMode: legacy.effectsMode, introCompleted: legacy.introCompleted,
+        lastProgressEventId: legacy.lastProgressEventId,
+        earnedUnits: legacy.earnedUnits, pendingUnits: legacy.earnedUnits,
+        legacyJourney: legacy
+      };
+      if (legacy.earnedUnits) migrated.pendingLearning.buckets.unknown = legacy.earnedUnits;
+      profile.adventure = migrated;
+    }
     return profile.adventure;
   }
 
@@ -105,32 +216,39 @@
     const leg = state.activeLeg;
     if (!leg) return null;
     const amount = Math.min(state.pendingUnits, leg.requiredUnits - leg.progressUnits);
+    moveLearning(state.pendingLearning, leg.learning, amount);
     leg.progressUnits += amount;
     state.pendingUnits -= amount;
     if (leg.progressUnits < leg.requiredUnits) return null;
     state.spentUnits += leg.requiredUnits;
     state.currentNodeId = leg.to;
-    if (!owns(state.visited, leg.to)) state.visited[leg.to] = { firstVisitedAt: at };
+    state.visited[leg.to] = { firstVisitedAt: at, learning: leg.learning };
+    for (const character of WorldData.characters) {
+      if (character.placeId === leg.to && !owns(state.characters, character.id)) state.characters[character.id] = { metAt: at, placeId: leg.to };
+    }
     state.activeLeg = null;
     return leg.to;
   }
 
   function releaseActiveLeg(state) {
     if (!state.activeLeg) return;
+    moveLearning(state.activeLeg.learning, state.pendingLearning, state.activeLeg.progressUnits);
     state.pendingUnits += state.activeLeg.progressUnits;
     state.activeLeg = null;
   }
 
-  // The quiz owner must reject events from stale rounds and answered questions.
-  // This persisted receipt also prevents repeating the latest event after reload.
-  function addCorrect(profile, eventId, now = Date.now()) {
+  // The quiz owner must reject stale rounds and answered questions. This one
+  // persisted receipt additionally rejects the latest event after a reload;
+  // there is deliberately no ever-growing history of individual answer IDs.
+  function addCorrect(profile, eventId, now = Date.now(), context) {
     const unchanged = { added: false, arrived: null };
     const at = timestamp(now);
-    if (!isEventId(eventId) || at === null) return unchanged;
+    if (!isText(eventId) || at === null) return unchanged;
     const state = ensure(profile, now);
     if (!state || eventId === state.lastProgressEventId || state.earnedUnits === Number.MAX_SAFE_INTEGER) return unchanged;
     state.earnedUnits += 1;
     state.pendingUnits += 1;
+    addLearning(state.pendingLearning, context);
     const arrived = allocatePending(state, at);
     state.lastProgressEventId = eventId;
     return { added: true, arrived };
@@ -145,13 +263,7 @@
     if (!state || state.currentNodeId !== edge.from || owns(state.visited, edge.to)) return unchanged;
     if (state.activeLeg && state.activeLeg.edgeId === edge.id) return unchanged;
     releaseActiveLeg(state);
-    state.activeLeg = {
-      edgeId: edge.id,
-      from: edge.from,
-      to: edge.to,
-      requiredUnits: edge.cost,
-      progressUnits: 0
-    };
+    state.activeLeg = { edgeId: edge.id, from: edge.from, to: edge.to, requiredUnits: edge.cost, progressUnits: 0, learning: emptyLearning() };
     return { changed: true, arrived: allocatePending(state, at) };
   }
 
@@ -164,5 +276,5 @@
     return { changed: true };
   }
 
-  return Object.freeze({ nodes, edges, ensure, status, addCorrect, selectPath, returnTo });
+  return Object.freeze({ nodes, edges, ensure, status, addCorrect, selectPath, returnTo, summarizeLearning });
 });

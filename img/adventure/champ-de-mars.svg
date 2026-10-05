@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300">
+  <title>芝生と並木の軸の向こうにエッフェル塔が見えるシャン・ド・マルス公園</title>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d2e5d7"/><stop offset="1" stop-color="#f2edce"/></linearGradient>
+    <pattern id="paper" width="39" height="31" patternUnits="userSpaceOnUse"><path d="M4 9h5m18 16h6" stroke="#fff7dc" stroke-width="1" opacity=".25"/></pattern>
+    <g id="tree"><path d="M0 0v53" stroke="#7e8064" stroke-width="6"/><path d="M-27 4c-16-19-2-45 14-45 6-23 36-22 43-2 24 14 16 47-8 49-16 13-36 6-49-2Z" fill="#648574"/><path d="M-17-8c0-15 8-21 17-27" fill="none" stroke="#98b499" stroke-width="6" stroke-linecap="round"/></g>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h960v300H0Z"/>
+  <path d="M110 61c9-17 27-21 38-8 8-19 34-13 39 2 18-7 32 3 33 15H110m543-25c9-16 31-17 39-2 17-9 36-1 36 11h-78" fill="#fff8de" opacity=".65"/>
+  <path d="M0 160c136-29 269-32 406-3h272c85-25 206-24 282-10v153H0Z" fill="#b7c5a2"/>
+  <path d="M0 190c102-7 288-25 455-23h201c98 0 192 14 304 5v128H0Z" fill="#9fb58c"/>
+  <!-- The distant tower anchors the garden's central axis. -->
+  <path d="M557 47h5l3 29 8 35 16 37 34 28h-17l-28-28-12-35-6-33-5 33-13 35-28 28h-17l34-28 16-37 8-35Z" fill="#869b89"/>
+  <path d="M560 47V34m-12 76h26m-43 39h56m-59 21q32-40 64 0" stroke="#809582" stroke-width="3" fill="none"/>
+  <path d="m555 85 11 13-18 9m1 13 20 22m-22 0 20-22" fill="none" stroke="#cbd7b7" stroke-width="1.5"/>
+  <path d="M489 171h142l204 129H230Z" fill="#e4d8b0"/>
+  <path d="M511 179h99l116 121H385Z" fill="#84a071"/>
+  <path d="M502 190h118m-127 13h139m-153 19h171m-194 25h218m-247 31h278" stroke="#a0b487" stroke-width="7"/>
+  <path d="m487 174-98 61-141 65m383-126 99 61 124 65" fill="none" stroke="#f1e7c2" stroke-width="7"/>
+  <path d="M0 224c160-14 277-5 374 16m342 0c118-19 188-23 244-18" stroke="#e6dab4" stroke-width="10" fill="none"/>
+  <path d="M0 251c92-8 238-10 326 6m431-5c76-7 139-7 203-3" stroke="#809b70" stroke-width="3" fill="none"/>
+  <use href="#tree" transform="translate(470 161) scale(.38)"/><use href="#tree" transform="translate(648 161) scale(.38)"/>
+  <use href="#tree" transform="translate(429 174) scale(.52)"/><use href="#tree" transform="translate(689 174) scale(.52)"/>
+  <use href="#tree" transform="translate(365 190) scale(.71)"/><use href="#tree" transform="translate(753 190) scale(.71)"/>
+  <use href="#tree" transform="translate(275 208) scale(.93)"/><use href="#tree" transform="translate(839 208) scale(.93)"/>
+  <use href="#tree" transform="translate(148 229) scale(1.3)"/><use href="#tree" transform="translate(957 229) scale(1.3)"/>
+  <g transform="translate(291 260)"><path d="M0 0h53m-53 7h53" stroke="#a18c69" stroke-width="5" stroke-linecap="round"/><path d="M5-6v24m42-24v24" stroke="#687e67" stroke-width="3"/></g>
+  <g transform="translate(766 260)"><path d="M0 0h42m-42 7h42" stroke="#a18c69" stroke-width="5" stroke-linecap="round"/><path d="M5-6v24m31-24v24" stroke="#687e67" stroke-width="3"/></g>
+  <path d="M0 277c51-14 92-2 126 23H0m845 0c40-17 77-22 115-15v15" fill="#7c9a75"/>
+  <g fill="#ede5ba"><circle cx="211" cy="277" r="3"/><circle cx="226" cy="285" r="3"/><circle cx="240" cy="274" r="3"/><circle cx="826" cy="289" r="3"/><circle cx="838" cy="282" r="3"/></g>
+  <path fill="url(#paper)" d="M0 0h960v300H0Z"/>
+</svg>

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300">
+  <title>湾の干潟と岩山の村、その頂上にそびえるモン・サン・ミシェルの修道院</title>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d2e5d7"/><stop offset="1" stop-color="#f2edce"/></linearGradient>
+    <linearGradient id="bay" x2="0" y2="1"><stop stop-color="#b8cfbc"/><stop offset="1" stop-color="#90b9b1"/></linearGradient>
+    <pattern id="paper" width="37" height="29" patternUnits="userSpaceOnUse"><path d="M4 7h6m17 17h4" stroke="#fff7dc" stroke-width="1" opacity=".28"/></pattern>
+    <g id="house"><path d="M0 0h32v24H0Z" fill="#ddcfad"/><path d="m-4 0 20-15L37 0Z" fill="#798b83"/><path d="M6 7h5v7H6m15-7h5v7h-5" fill="#899184"/><path d="M13 16h7v8h-7" fill="#a09f86"/></g>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h960v300H0Z"/>
+  <circle cx="746" cy="53" r="24" fill="#f7edc2"/>
+  <path d="M71 81c8-13 29-18 38-5 12-22 39-14 44 2 19-5 34 3 37 14H71m647 19c8-18 29-20 39-7 11-21 41-14 45 4 25-3 33 7 34 14H717" fill="#fff8df" opacity=".7"/>
+  <path d="M0 205c104-17 191-12 277-2s206-14 312-14 227 16 371-3v114H0Z" fill="url(#bay)"/>
+  <path d="M0 229c134-12 275-4 427 20s364 6 533-10v61H0Z" fill="#d9d8b6"/>
+  <path d="M0 267c239-45 427 31 613 7s271-29 347-22" fill="none" stroke="#8eb8b1" stroke-width="17"/>
+  <path d="M0 288c255-24 367 27 590-2s276-30 370-9" fill="none" stroke="#b5cbb7" stroke-width="5"/>
+  <path d="M328 244c35-13 53-51 94-70 19-39 55-62 85-73 38-5 87 2 113 33 42 8 73 54 89 77l47 38Z" fill="#9da58b"/>
+  <path d="m374 233 47-33 22-39 50-31 61-11 44 20 11 31 54 32 42 40Z" fill="#b0b194"/>
+  <path d="m420 223 26-52 54-24-19 36 6 43m63-87 26 39 55 16 40 46" fill="none" stroke="#c0bea0" stroke-width="7"/>
+  <!-- Monastic buildings rise above the roofs of the village. -->
+  <path d="M465 139h141v59H465Z" fill="#dfd2ad"/>
+  <path d="M460 139 482 120h103l25 19Z" fill="#7b8d82"/>
+  <path d="M480 143h105v12H480Z" fill="#ede0b9"/>
+  <path d="M478 157h10v25h-10m14-25h10v25h-10m14-25h10v25h-10m14-25h10v25h-10m14-25h10v25h-10m14-25h10v25h-10m14-25h10v25h-10" fill="#899482"/>
+  <path d="M473 149v43m21-43v43m21-43v43m21-43v43m21-43v43m21-43v43m21-43v43" stroke="#b3ab89" stroke-width="3"/>
+  <path d="M501 111h89v30h-89Z" fill="#e9dcba"/><path d="m497 110 35-22h36l25 22Z" fill="#778b80"/>
+  <path d="M531 74h34v47h-34Z" fill="#ded0ac"/><path d="m527 74 21-44 22 44Z" fill="#668276"/>
+  <path d="M545 33V17m-4 8h8" stroke="#9a8b5e" stroke-width="2" stroke-linecap="round"/>
+  <path d="M538 87v17m9-17v17m9-17v17" stroke="#7d8d7d" stroke-width="4"/>
+  <path d="M463 137v-28h20v28m-23-28 13-14 13 14" fill="#bdbaa0"/>
+  <path d="M604 154h23v39h-23m-3-39 14-17 15 17" fill="#c9c1a0"/>
+  <use href="#house" x="440" y="188"/><use href="#house" x="482" y="203"/><use href="#house" x="526" y="190"/><use href="#house" x="570" y="206"/><use href="#house" x="608" y="201"/><use href="#house" x="645" y="218"/><use href="#house" x="398" y="219"/><use href="#house" x="444" y="222"/>
+  <path d="M365 245c79-15 227-15 356-2v11c-140-10-249-8-356 3Z" fill="#cbbf9b"/><path d="M365 245c110-17 229-16 356-2" stroke="#e7dabc" stroke-width="3" fill="none"/>
+  <path d="M386 241v-17h16v16m310 2v-20h15v22" fill="#c9bd98"/>
+  <path d="M421 253v-8a7 7 0 0 1 14 0v7" fill="#859785"/>
+  <path d="M438 254c-66 9-105 23-122 46" stroke="#e9dfbd" stroke-width="8" fill="none"/>
+  <path d="M48 225h72m106-5h74m427 12h98m-26 61h62m-460-9h78" stroke="#eef0d1" stroke-width="2" stroke-linecap="round"/>
+  <path d="M288 113q7-8 14 0m0 0q7-8 14 0m381-27q5-6 10 0m0 0q5-6 10 0" stroke="#89a394" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path fill="url(#paper)" d="M0 0h960v300H0Z"/>
+</svg>

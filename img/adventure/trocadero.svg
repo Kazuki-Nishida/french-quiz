@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300">
+  <title>シャイヨ宮の左右の翼と、トロカデロの庭園・噴水</title>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d2e5d7"/><stop offset="1" stop-color="#f2edce"/></linearGradient>
+    <linearGradient id="pool" x2="0" y2="1"><stop stop-color="#a7cdc1"/><stop offset="1" stop-color="#709fa4"/></linearGradient>
+    <pattern id="paper" width="38" height="31" patternUnits="userSpaceOnUse"><path d="M3 8h4m17 16h6" stroke="#fff7dc" stroke-width="1" opacity=".3"/></pattern>
+    <g id="column"><path d="M0 0h8v38H0Z" fill="#f3e7c5"/><path d="M8 0h3v38H8Z" fill="#bbaa88"/></g>
+    <g id="tree"><path d="M0 2v39" stroke="#7e8065" stroke-width="5"/><path d="M-23 8c-15-15-3-40 10-38 8-19 30-13 33 1 20 10 13 36-4 36-9 8-29 9-39 1Z" fill="#648574"/><path d="M-15-3c0-11 5-16 12-20" fill="none" stroke="#97b59a" stroke-width="5" stroke-linecap="round"/></g>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h960v300H0Z"/>
+  <circle cx="773" cy="59" r="25" fill="#f8efc5"/>
+  <path d="M61 67c8-13 21-10 27-2 8-18 35-17 44-3 20-7 37 2 38 13H61m372-41c8-13 25-11 29 1 10-12 30-7 31 6h-66" fill="#fff8df" opacity=".6"/>
+  <path d="M0 182c100-35 215-15 309 0s328-19 456-9 146 0 195-10v137H0Z" fill="#b7c7a4"/>
+  <path d="M100 154h22v-28h23v-13h48v54h48v-33h48v47H98m534-34h32v-20h59v28h31v-41h47v30h54v-15h48v46H635" fill="#bdcbb1"/>
+  <!-- Each wing curves outward from the open central esplanade. -->
+  <path d="M116 155c78 3 162-12 282-36v69c-116 9-198 20-282 12Z" fill="#ddcba7"/>
+  <path d="M652 119c104 24 192 39 286 36v45c-91 10-183-2-286-12Z" fill="#ddcba7"/>
+  <path d="M116 153c100 2 178-15 282-36v10c-102 21-201 38-282 34m536-44c119 25 185 42 286 36v8c-93 7-175-10-286-34" fill="#eee0bb"/>
+  <path d="M116 194c117 4 178-7 282-18m254 0c109 11 198 22 286 18" stroke="#bbaa88" stroke-width="4" fill="none"/>
+  <g fill="#9b9f87"><path d="M132 170h9v18h-9m24-19h9v20h-9m24-20h9v19h-9m24-20h9v19h-9m24-23h9v20h-9m24-24h9v21h-9m24-25h9v21h-9m24-26h9v22h-9m24-28h9v22h-9m24-27h9v23h-9"/><path d="M677 150h9v23h-9m25-17h9v22h-9m25-16h9v22h-9m25-18h9v21h-9m25-17h9v21h-9m25-18h9v20h-9m25-19h9v20h-9m25-19h9v20h-9m25-18h9v18h-9m25-18h9v18h-9"/></g>
+  <path d="M371 107h102v89H371m209-89h102v89H580" fill="#e7d8b5"/>
+  <path d="M367 104h110v12H367m209-12h110v12H576" fill="#f5e8c4"/>
+  <path d="M374 120h96v7h-96m209-7h96v7h-96" fill="#c5b591"/>
+  <g><use href="#column" x="386" y="137"/><use href="#column" x="405" y="137"/><use href="#column" x="424" y="137"/><use href="#column" x="443" y="137"/><use href="#column" x="595" y="137"/><use href="#column" x="614" y="137"/><use href="#column" x="633" y="137"/><use href="#column" x="652" y="137"/></g>
+  <path d="M372 183h102v12H372m209-12h102v12H581" fill="#cbbd99"/>
+  <path d="M415 198h224l68 43H348Z" fill="#ebdfbb"/><path d="M431 204h192m-204 7h218m-231 8h245m-259 8h275" stroke="#c7c8a5" stroke-width="2"/>
+  <path d="m350 224 51 6-94 70H104m594-76-42 6 82 70h174" fill="#809c76"/>
+  <path d="m354 243 36 1-62 56H277m420-57-36 1 62 56h55" fill="#d8d3aa"/>
+  <path d="m453 225 148 0 62 75H390Z" fill="#ece0bd" stroke="#b9bfa1" stroke-width="3"/>
+  <path d="m465 233 124 0 49 67H416Z" fill="url(#pool)"/>
+  <path d="M471 253h114m-126 16h139m-150 16h164" stroke="#cfdfc6" stroke-width="2" stroke-linecap="round"/>
+  <g fill="none" stroke="#f7f3d8" stroke-width="3" stroke-linecap="round"><path d="M472 246q19-66 42 12m-32 10q15-47 33 10m65-30q-18-70-41 10m30 10q-15-47-32 10M525 253v-39"/></g>
+  <g fill="#bdc7a5"><ellipse cx="472" cy="247" rx="9" ry="3"/><ellipse cx="580" cy="247" rx="9" ry="3"/><ellipse cx="482" cy="269" rx="9" ry="3"/><ellipse cx="569" cy="269" rx="9" ry="3"/></g>
+  <use href="#tree" x="80" y="198"/><use href="#tree" x="195" y="206"/><use href="#tree" x="828" y="200"/><use href="#tree" x="909" y="218"/>
+  <path d="M0 278c87-13 178-13 244 22H0m817 0c47-26 95-28 143-13v13" fill="#91ab83"/>
+  <path fill="url(#paper)" d="M0 0h960v300H0Z"/>
+</svg>

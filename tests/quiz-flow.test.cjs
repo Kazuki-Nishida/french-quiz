@@ -6,6 +6,7 @@ const { readFileSync } = require("node:fs");
 const { join } = require("node:path");
 const vm = require("node:vm");
 const Adventure = require("../adventure.js");
+const WorldData = require("../world-data.js");
 const ProfileStore = require("../profile-store.js");
 const StudyGuide = require("../study-guide.js");
 const curriculum = require("../words.js");
@@ -80,9 +81,9 @@ function harness(initial = null) {
   const speech = [];
   const id = ++nextHarness; let round = 0;
   const context = vm.createContext({
-    ...curriculum, Adventure, ProfileStore, StudyGuide, document, localStorage,
+    ...curriculum, Adventure, WorldData, ProfileStore, StudyGuide, document, localStorage,
     UIJa: { apply() {}, ruby: (base, reading) => `<ruby>${base}<rt>${reading}</rt></ruby>`, level: value => value },
-    AdventureView: { renderMap() {}, renderScene() {}, renderResult() {} },
+    AdventureView: { renderMap() {}, renderScene() {}, renderResult() {}, renderJournal() {} },
     crypto: { randomUUID: () => `harness-${id}-round-${++round}` },
     console, Date, Set, Map, URL, Blob,
     alert() {}, confirm: () => true,
@@ -117,12 +118,12 @@ function harness(initial = null) {
 
 test("actual quiz starts with three questions, saves intro completion before results, then starts ten", () => {
   const h = harness();
-  h.run("Adventure.selectPath(prof(), 'paris-riverside'); startQuiz(false)");
+  h.run("Adventure.selectPath(prof(), 'trocadero--seine'); startQuiz(false)");
   assert.equal(h.inspect("quiz.qs.length"), 3);
   h.answer(); h.run("nextQ()"); h.answer(); h.run("nextQ()"); h.answer();
   const persisted = JSON.parse(h.storage.raw).profiles[0];
   assert.equal(persisted.adventure.introCompleted, true);
-  assert.equal(persisted.adventure.currentNodeId, "riverside");
+  assert.equal(persisted.adventure.currentNodeId, "seine");
   assert.equal(persisted.adventure.earnedUnits, 3);
   assert.equal(h.inspect("current"), "scr-quiz", "the last explanation remains visible");
   h.run("nextQ(); startQuiz(false)");
@@ -169,7 +170,7 @@ test("incorrect answers add stock without travel; one-question review clears it 
 
 test("a saved interrupted round retains partial travel but starts a new question sequence", () => {
   const h = harness();
-  h.run("prof().adventure.introCompleted=true; Adventure.selectPath(prof(),'paris-park'); startQuiz(false)");
+  h.run("prof().adventure.introCompleted=true; Adventure.selectPath(prof(),'trocadero--seine'); startQuiz(false)");
   h.answer(); h.run("nextQ()"); h.answer(false); h.run("nextQ()"); h.answer();
   const fresh = harness(h.storage.raw);
   assert.equal(fresh.inspect("quiz"), null);
@@ -180,7 +181,7 @@ test("a saved interrupted round retains partial travel but starts a new question
   assert.equal(fresh.inspect("quiz.i"), 0);
   assert.equal(fresh.inspect("quiz.qs.length"), 10);
   fresh.answer();
-  assert.equal(fresh.inspect("prof().adventure.currentNodeId"), "park");
+  assert.equal(fresh.inspect("prof().adventure.currentNodeId"), "seine");
 });
 
 test("profile ownership and screen guards reject stale answers without mutating either profile", () => {
@@ -271,4 +272,70 @@ test("unsupported adventure formats default to restrained visual effects without
   const h = harness(JSON.stringify({ profiles: [p], active: p.id, settings: {} }));
   assert.equal(h.run("richEffects()"), false);
   assert.deepEqual(h.inspect("prof().adventure"), p.adventure);
+});
+
+test("place recommendation selects only its real curriculum topic without changing the destination", () => {
+  const h=harness();
+  h.run("Adventure.selectPath(prof(),'trocadero--eiffel'); prof().adventure.introCompleted=true; selectRecommendation('eiffel-numbers'); startQuiz(false)");
+  assert.equal(h.inspect("quiz.qs.length"),10);
+  assert.ok(h.inspect("quiz.qs.every(q=>q.w.lv==='A1' && q.w.cat==='かず')"));
+  assert.equal(h.inspect("prof().adventure.activeLeg.to"),'eiffel');
+  h.run("selectUnit(StudyGuide.getUnit('grammar-3-conditional')); startQuiz(false)");
+  assert.equal(h.inspect("setup.recommendationId"),null);
+  assert.ok(h.inspect("quiz.qs.every(q=>q.w.lv==='ぶんぽう3')"));
+  assert.equal(h.inspect("prof().adventure.activeLeg.to"),'eiffel');
+});
+
+test("actual answers register a character and curriculum footprint once, and survive reload", () => {
+  const h=harness();
+  h.run("Adventure.selectPath(prof(),'trocadero--eiffel'); startQuiz(false)");
+  h.finish();
+  h.run("startQuiz(false)");
+  for(let i=0;i<5;i++){h.answer();if(i<4)h.run('nextQ()');}
+  assert.equal(h.inspect("prof().adventure.currentNodeId"),'eiffel');
+  assert.deepEqual(h.inspect("Object.keys(prof().adventure.characters)"),['lumie']);
+  const footprint=h.inspect("Adventure.summarizeLearning(prof().adventure.visited.eiffel.learning)");
+  assert.equal(footprint.total,8);
+  assert.equal(footprint.countsByLevel.A1,8);
+  assert.equal(footprint.reviewCount,0);
+  assert.ok(footprint.sampleKeys.length>0 && footprint.sampleKeys.length<=6);
+  const saved=h.storage.raw;
+  h.answer();
+  assert.equal(h.storage.raw,saved);
+  const fresh=harness(saved);
+  assert.deepEqual(fresh.inspect('prof().adventure'),h.inspect('prof().adventure'));
+  const before=fresh.inspect('DB');
+  fresh.run("showJournal('characters'); showJournal('places'); showMap('eiffel')");
+  assert.deepEqual(fresh.inspect('DB'),before,'opening a collection or location never grants progress');
+});
+
+test("mixing a grammar stage clears the place topic and restores the complete stage", () => {
+  const h=harness();
+  h.run("prof().adventure.introCompleted=true; selectRecommendation('trocadero-aller')");
+  const mixed=h.document.getElementById('grammar-guide').children.find(b=>b.classList.contains('unit-choice'));
+  assert.ok(mixed);
+  assert.equal(mixed.classList.contains('selected'),false);
+  mixed.click();
+  assert.equal(h.inspect('setup.recommendationId'),null);
+  h.run('var selectedPoolSize=0; var originalPickQuestions=pickQuestions; pickQuestions=(pool,n)=>{selectedPoolSize=pool.length; return originalPickQuestions(pool,n);}; startQuiz(false)');
+  assert.equal(h.inspect('quiz.qs.length'),10);
+  assert.ok(h.inspect("quiz.qs.every(q=>q.w.lv==='ぶんぽう1')"));
+  assert.equal(h.inspect('selectedPoolSize'),curriculum.WORDS.filter(w=>w.lv==='ぶんぽう1').length);
+});
+
+test("review contributes a subset of the actual curriculum footprint", () => {
+  const h=harness();
+  h.run("prof().stock=[wkey(WORDS.find(w=>w.lv==='ぶんぽう3'))]; startQuiz(true)");
+  h.answer();
+  const footprint=h.inspect("Adventure.summarizeLearning(prof().adventure.pendingLearning)");
+  assert.equal(footprint.total,1);
+  assert.equal(footprint.countsByLevel['ぶんぽう3'],1);
+  assert.equal(footprint.reviewCount,1);
+});
+
+test("place recommendations never leak into a review's heading or question pool", () => {
+  const h=harness();
+  h.run("selectRecommendation('eiffel-numbers'); prof().stock=[wkey(WORDS.find(w=>w.lv==='C2'))]; startQuiz(true)");
+  assert.ok(h.inspect("quiz.qs.every(q=>q.w.lv==='C2')"));
+  assert.equal(h.document.getElementById('quiz-subject').innerHTML.includes('数の言葉'),false);
 });

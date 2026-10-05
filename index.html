@@ -289,8 +289,8 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
   .opt .ofr{font-size:19px;} .scorebig{font-size:46px;}
 }
 </style>
-<link rel="stylesheet" href="adventure.css">
-<link rel="stylesheet" href="learning-ui.css">
+<link rel="stylesheet" href="adventure.css?v=38.1">
+<link rel="stylesheet" href="learning-ui.css?v=38.1">
 </head>
 <body>
 <div id="app">
@@ -319,7 +319,8 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 
   <!-- ホーム -->
   <section class="screen" id="scr-home">
-    <div class="home-journey card"><div class="journey-eyebrow">BONJOUR, PARIS</div><h1>ことばと歩く、フランス。</h1><p id="home-journey-status"></p><button class="btn teal" id="btnmap">地図から出発</button></div>
+    <div class="home-journey card"><div class="journey-eyebrow">BONJOUR, FRANCE</div><h1>ことばと歩く、フランス。</h1><p id="home-journey-status"></p><button class="btn teal" id="btnmap">地図から出発</button><button class="btn ghost mt14" id="btnjournal">旅の図鑑を見る <span id="journal-count"></span></button></div>
+    <div class="journey-migration card" id="journey-migration" hidden><p id="journey-migration-text"></p><button class="btn ghost small" id="dismiss-migration">わかった</button></div>
     <div class="lvlcard">
       <div class="big" style="margin-bottom:8px">⭐ きみの レベル <span id="homebadges" style="float:right;font-size:18px"></span></div>
       <div id="homelvls"></div>
@@ -349,12 +350,14 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
   </section>
 
   <section class="screen" id="scr-map"><div id="adventure-map"></div></section>
+  <section class="screen" id="scr-journal"><div id="adventure-journal"></div></section>
 
   <!-- クイズせってい -->
   <section class="screen" id="scr-setup">
     <div class="title">どんな クイズに する?</div>
     <div id="setup-journey" class="study-context"></div>
     <p class="study-freedom">どの教材も、初めから自由に選べます。</p>
+    <div id="place-recommendations" class="card place-recommendations"></div>
     <button class="btn ghost small" id="btnrecommended">文法のおすすめから</button>
     <div class="card">
       <div class="choicegrid" id="dirchoices">
@@ -419,6 +422,7 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
       <button class="btn" id="btnagain">もういちど!</button>
     </div>
     <div class="row mt14"><button class="btn teal" id="btnresultmap">地図で行き先を選ぶ</button><button class="btn ghost" id="btnresultstudy">教材を選び直す</button></div>
+    <button class="btn teal mt14" id="btnresultjournal">旅の図鑑を見る</button>
     <div id="result-guide" class="mt14"></div>
     <button class="btn yellow mt14" id="btnresultreview">間違えた言葉を復習</button>
     <div class="rlist" id="rlist"></div>
@@ -884,11 +888,12 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 <div id="toast"></div>
 
 <script src="words.js"></script>
-<script src="adventure.js"></script>
-<script src="study-guide.js"></script>
-<script src="ui-ja.js"></script>
-<script src="profile-store.js"></script>
-<script src="adventure-view.js"></script>
-<script src="app.js"></script>
+<script src="world-data.js?v=38.1"></script>
+<script src="adventure.js?v=38.1"></script>
+<script src="study-guide.js?v=38.1"></script>
+<script src="ui-ja.js?v=38.1"></script>
+<script src="profile-store.js?v=38.1"></script>
+<script src="adventure-view.js?v=38.1"></script>
+<script src="app.js?v=38.1"></script>
 </body>
 </html>

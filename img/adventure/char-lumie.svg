@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="230" height="270" viewBox="0 0 230 270"><title>ルミエ。星の飾りと方位盤を持つ、空想の旅案内キャラ</title><defs><linearGradient id="coat" x2="1" y2="1"><stop stop-color="#7d9b7d"/><stop offset="1" stop-color="#426d5b"/></linearGradient><linearGradient id="face" x2="0" y2="1"><stop stop-color="#f5e7bc"/><stop offset="1" stop-color="#e3c694"/></linearGradient></defs>
+<ellipse cx="111" cy="255" rx="57" ry="8" fill="#526c4521"/>
+<path d="m83 223-4 23 25 3 4-26m17-1 4 27 26-4-9-22" fill="#536c52"/><path d="M79 240c-7 3-17 9-15 15 9 7 25 3 40 0l1-13m25-1v15c10 4 36 3 41-3 1-8-13-14-21-14" fill="#907752" stroke="#675d45" stroke-width="2"/>
+<path d="M69 111c-9 29-8 75-18 106 24 27 103 31 128-4-11-25-13-78-27-101Z" fill="url(#coat)" stroke="#486d56" stroke-width="2"/>
+<path d="m103 118-13 112c15 5 31 5 48-1l-9-111" fill="#d3bb86"/><path d="M118 125v107" stroke="#ab9269" stroke-width="2"/><g fill="#897b51"><circle cx="113" cy="150" r="2.5"/><circle cx="113" cy="173" r="2.5"/><circle cx="113" cy="196" r="2.5"/></g>
+<path d="m63 129-22 49c-3 11 6 20 16 14l25-49m64-15 19 33 17-6 6 11-22 11c-6 2-11-1-14-6l-20-25" fill="#709376" stroke="#4a725c" stroke-width="2"/>
+<path d="m41 179-5 8 3 10 10 4 9-8-4-12m124-21 8-8 10 1 5 6-9 10-11-2" fill="#e9cea1" stroke="#b89b6f" stroke-width="1.5"/>
+<path d="M92 101v17c11 12 26 12 37 0v-18" fill="#ddbd87"/>
+<path d="M71 62c-7 14-3 42 10 50 20 15 51 11 66-7 10-13 10-44-3-56-13-13-54-8-73 13Z" fill="url(#face)" stroke="#9d8f66" stroke-width="1.5"/>
+<path d="M69 77c-1-37 17-53 40-50 26-10 52 12 49 42-6 8-13 5-16-6l-5-8c-13 16-26 5-24-8-8 11-28 21-37 17l-4 21Z" fill="#a88d60"/>
+<path d="M75 61c13 1 31-12 36-23m8 3c12 9 23 12 34 16" fill="none" stroke="#c7ad7a" stroke-width="4" stroke-linecap="round"/>
+<path d="m85 79 9-1m28-1 10 2" stroke="#826f50" stroke-width="2" stroke-linecap="round"/><ellipse cx="93" cy="86" rx="3" ry="4" fill="#37503c"/><ellipse cx="126" cy="86" rx="3" ry="4" fill="#37503c"/><path d="m108 88-3 10 7 1m-13 9q10 7 20-1" fill="none" stroke="#af8e62" stroke-width="2" stroke-linecap="round"/>
+<path d="M59 54c24 9 79 10 106-2l-4-7c-14-1-22-1-33-14l-39-1c-5 10-13 14-25 13Z" fill="#be9362" stroke="#98764d" stroke-width="2"/><path d="m78 42 13-25 39 4 17 26c-20 7-44 6-69-5Z" fill="#d3ae72"/><path d="m81 39 59 5" stroke="#6d8b6a" stroke-width="6"/>
+<path d="m148 20 4 10 11 1-8 7 2 11-10-5-9 6 1-12-9-7 12-2Z" fill="#edcf83" stroke="#b0914f" stroke-width="1.5"/>
+<path d="M78 115c19 14 51 14 65-1l-2 15c-18 10-42 9-61-1Z" fill="#bd7755"/><path d="m82 124-10 42 14-6 8 8 13-38Z" fill="#cf8c5d"/><path d="m78 151 16 5" stroke="#edc195" stroke-width="3"/>
+<path d="M84 137c17 27 47 49 76 65" fill="none" stroke="#b79b66" stroke-width="6"/><path d="m150 190 27-9 5 35-27 7Z" fill="#d8bc82" stroke="#978054" stroke-width="2"/><path d="m149 190 29-9 1 10-28 9Z" fill="#e5ca90"/><path d="m160 192 9-3 1 8-9 3Z" fill="#efd889" stroke="#ab9055"/>
+<g transform="translate(190 146)"><circle r="22" fill="#dab779" stroke="#9a7e4d" stroke-width="2"/><circle r="17" fill="#f7eac4" stroke="#bca375"/><path d="m0-13 4 11 9 2-11 4-2 9-4-11-9-2 11-4Z" fill="#71937c"/><path d="m0-13 2 13-2 13-2-13Z" fill="#bd7659"/><circle r="3" fill="#e2c997"/></g>
+<path d="m39 52 2 6 6 2-6 2-2 6-2-6-6-2 6-2m146 37 2 5 5 2-5 2-2 5-2-5-5-2 5-2" fill="#d4b46d" opacity=".9"/>
+</svg>

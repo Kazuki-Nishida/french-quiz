@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300">
+  <title>空に伸びるエッフェル塔の四脚と鉄骨の格子</title>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d2e5d7"/><stop offset="1" stop-color="#f2edce"/></linearGradient>
+    <pattern id="paper" width="41" height="29" patternUnits="userSpaceOnUse"><path d="M4 8h4m23 14h6" stroke="#fff7dc" stroke-width="1" opacity=".25"/></pattern>
+    <g id="tree"><path d="M0 0v37" stroke="#7e8167" stroke-width="5"/><path d="M-25 4c-12-16-2-38 13-36 9-23 36-15 39 1 15 7 19 33-4 39-20 7-34 6-48-4Z" fill="#769782"/><path d="M-15-9c3-9 6-14 14-17" stroke="#a5ba9d" stroke-width="5" stroke-linecap="round" fill="none"/></g>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h960v300H0Z"/>
+  <circle cx="720" cy="68" r="33" fill="#f8edbf"/>
+  <path d="M87 68c7-20 32-26 44-7 11-22 42-14 44 4 27-4 43 4 46 17H89m604 12c7-17 28-18 35-4 10-15 31-11 34 2 20-5 32 4 34 13H692" fill="#fff9df" opacity=".65"/>
+  <path d="M343 62q8-8 16 0m0 0q8-8 16 0m391 76q6-6 12 0m0 0q6-6 12 0" fill="none" stroke="#8ca896" stroke-width="2" stroke-linecap="round"/>
+  <path d="M0 213h65v-39h62v36h29v-23h63v21h67v-19h68v26h378v-35h71v24h36v-40h64v45h57v91H0Z" fill="#bdcbb0"/>
+  <path d="M0 229c162-20 288-11 438-4s368-10 522-2v77H0Z" fill="#adbfa0"/>
+  <path d="M244 255c202-31 392-25 545 6l69 39H170Z" fill="#e6d7b3"/>
+  <path d="M373 288c113-14 238-14 366 0" fill="none" stroke="#c8c5a3" stroke-width="3"/>
+  <ellipse cx="569" cy="263" rx="162" ry="11" fill="#bcbda0" opacity=".65"/>
+  <!-- Rear legs remain distinct behind the two front legs. -->
+  <path d="M560 131c-2 48-12 85-54 131h21c30-31 41-72 43-120m5-11c2 48 12 85 54 131h-21c-30-31-41-72-43-120" fill="#91a091"/>
+  <path d="M566 39h8l5 50 11 47 27 69 72 59h-37l-61-62-17-59-8-55-6 55-17 59-61 62h-37l72-59 27-69 11-47Z" fill="#627e76"/>
+  <path d="M566 39v-14h8v14m-8-17h8" fill="none" stroke="#627e76" stroke-width="3" stroke-linecap="round"/>
+  <path d="M559 75h22v6h-22m-15 53h52v8h-52m-33 59h118v11H511m-67 50h40v10h-40m166-10h40v10h-40" fill="#5f796f"/>
+  <path d="M545 133h50m-82 66h114m-108 15h102" stroke="#b7c6a7" stroke-width="2"/>
+  <path d="M492 251q78-85 156 0" stroke="#627e76" stroke-width="9" fill="none"/>
+  <path d="M489 251q81-94 162 0" stroke="#a9bda1" stroke-width="2" fill="none"/>
+  <g stroke="#d5dabc" stroke-width="1.8" fill="none" stroke-linejoin="round">
+    <path d="m569 84-7 17 11 14-17 16m16-47 7 17-11 14 17 16"/>
+    <path d="m552 146 17 15-25 12 13 17-30 11m60-55-17 15 25 12-13 17 30 11"/>
+    <path d="m516 216 20 1-35 16 13 4-37 18m147-39-20 1 35 16-13 4 37 18"/>
+  </g>
+  <g stroke="#5f796f" fill="none"><path d="M555 113h31m-41 40h50m-58 19h68m-94 55h120" stroke-width="3"/><path d="M520 193v15m9-15v15m9-15v15m65-15v15m9-15v15m9-15v15" stroke-width="2"/></g>
+  <use href="#tree" x="176" y="229"/><use href="#tree" x="303" y="220"/><use href="#tree" x="764" y="230"/><use href="#tree" x="880" y="223"/>
+  <path d="M0 271c51-31 122-13 165 29H0m807 0c47-32 105-26 153-16v16" fill="#769680"/>
+  <path d="M208 270h30m62 13h45m395-17h37m-49 22h57" stroke="#b0ba96" stroke-width="2" stroke-linecap="round"/>
+  <path fill="url(#paper)" d="M0 0h960v300H0Z"/>
+</svg>

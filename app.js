@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v37 · Paris preview";
+const APP_VER = "v38 · France & characters";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
@@ -198,7 +198,7 @@ function sndTada(){
 }
 
 /* ================= がめん いどう ================= */
-const SCREENS = ["scr-profile","scr-home","scr-map","scr-setup","scr-quiz","scr-result","scr-stock","scr-stats","scr-tutorial","scr-grammar"];
+const SCREENS = ["scr-profile","scr-home","scr-map","scr-journal","scr-setup","scr-quiz","scr-result","scr-stock","scr-stats","scr-tutorial","scr-grammar"];
 let current = "scr-profile";
 function go(id){
   clearTransientEffects();
@@ -392,6 +392,14 @@ function renderHome(){
   const p = prof(); if(!p) return;
   const a = Adventure.ensure(p);
   document.getElementById('home-journey-status').innerHTML = a ? journeyText(p) : '旅の記録はそのまま保管中です。教材は引き続き使えます。';
+  const places=a ? WorldData.nodes.filter(n=>a.visited[n.id]).length : 0;
+  const characters=a ? WorldData.characters.filter(c=>a.characters?.[c.id]).length : 0;
+  document.getElementById('journal-count').innerHTML=UIJa.ruby('名所','めいしょ')+' '+places+'/'+WorldData.nodes.length+' · キャラ '+characters+'/'+WorldData.characters.length;
+  document.getElementById('journey-migration').hidden=!(a?.legacyJourney && !a.migrationAcknowledged);
+  if(a?.legacyJourney && !a.migrationAcknowledged){
+    const r=UIJa.ruby;
+    document.getElementById('journey-migration-text').innerHTML='フランスの'+r('名所','めいしょ')+'を'+r('巡','めぐ')+'る'+r('旅','たび')+'が'+r('始','はじ')+'まりました。'+r('練習','れんしゅう')+'マップの <b>'+a.legacyJourney.earnedUnits+r('正解分','せいかいぶん')+'</b>を、'+r('新','あたら')+'しい'+r('道','みち')+'へ'+r('引','ひ')+'き'+r('継','つ')+'いでいます。'+r('以前','いぜん')+'の'+r('学習','がくしゅう')+'と'+r('旅','たび')+'の'+r('記録','きろく')+'も'+r('保管','ほかん')+'しています。';
+  }
   const wrap = document.getElementById("homelvls");
   wrap.innerHTML = "";
   activeLevels().forEach(lv => {
@@ -478,7 +486,7 @@ document.getElementById("btnstock").addEventListener("click", () => { renderStoc
 document.getElementById("btnstats").addEventListener("click", () => { renderStats(); go("scr-stats"); });
 
 /* ================= クイズせってい ================= */
-let setup = { dir:"jf", lv:"A1" };
+let setup = { dir:"jf", lv:"A1", unitId:null, recommendationId:null };
 document.querySelectorAll("#dirchoices .choice").forEach(b => {
   b.addEventListener("click", () => {
     document.querySelectorAll("#dirchoices .choice").forEach(x => x.classList.remove("sel"));
@@ -490,6 +498,7 @@ document.querySelectorAll("#lvchoices .choice").forEach(b => {
     document.querySelectorAll("#lvchoices .choice").forEach(x => x.classList.remove("sel"));
     b.classList.add("sel"); setup.lv = b.dataset.lv;
     setup.unitId = null;
+    setup.recommendationId = null;
     renderSetup();
   });
 });
@@ -575,6 +584,7 @@ function startQuiz(review){
   const adventure = Adventure.ensure(p);
   const intro = !review && !!adventure && !adventure.introCompleted;
   const unit = !review && StudyGuide.getUnit(setup.unitId);
+  const recommendation = !review && WorldData.getRecommendation(setup.recommendationId);
   let pool;
   if(review){
     pool = p.stock.map(findWord).filter(Boolean);
@@ -584,6 +594,7 @@ function startQuiz(review){
       : setup.lv === "abc" ? WORDS.filter(w => ["A1","A2","B1"].includes(w.lv))
       : WORDS.filter(w => w.lv === setup.lv);
     if(unit && unit.lv === setup.lv) pool = pool.filter(w => w.cat === unit.cat);
+    if(recommendation && recommendation.lv === setup.lv) pool = pool.filter(w => w.cat === recommendation.cat);
   }
   if(!pool.length){ toast('この教材には問題がありません。別の教材を選んでください。'); return; }
   const questionLimit = intro ? 3 : 10;
@@ -717,7 +728,7 @@ function answer(idx){
   }
   quiz.results.push({ w:q.w, ok, stocked, unstocked });
   if(ok) quiz.correct++;
-  const move = ok ? Adventure.addCorrect(p, quiz.roundId+':'+quiz.i) : {added:false,arrived:null};
+  const move = ok ? Adventure.addCorrect(p, quiz.roundId+':'+quiz.i, Date.now(), {level:q.w.lv,wordKey:key,review:quiz.review}) : {added:false,arrived:null};
   if(move.added) quiz.earned++;
   if(move.arrived) quiz.arrivals.push(move.arrived);
   if(quiz.intro && quiz.results.length === quiz.qs.length){
@@ -866,7 +877,7 @@ function showResult(){
     rb.innerHTML = "🏅 <b>バッジ ゲット!</b> " +
       badgeQueue.map(b => BADGE[b.lv] + (b.m > 10 ? "✨" : "") + " " + b.lv + " " + (b.m * 10) + "%").join(" ／ ");
   } else rb.style.display = "none";
-  AdventureView.renderResult(document.getElementById('adventure-result'), prof(), {earned:quiz.earned,arrivals:quiz.arrivals});
+  AdventureView.renderResult(document.getElementById('adventure-result'), prof(), {earned:quiz.earned,arrivals:quiz.arrivals,onMap:id=>showMap(id),onJournal:()=>showJournal('characters')});
   renderResultGuide();
   document.getElementById('btnresultreview').hidden = prof().stock.length === 0;
   if(firstShow && (pct >= 80 || badgeQueue.length)){ sndTada(); if(richEffects()) confetti(); }
@@ -1012,8 +1023,8 @@ document.getElementById("importfile").addEventListener("change", ev => {
       clearTransientEffects(); quiz = null;
       DB = candidate; storageLocked = false; storageProblem = null; unreadableBackup = null;
       lastVoiceListKey = ''; refreshVoices(); showSaveState();
-      alert("きろくを よみこんだよ!");
       renderProfiles(); go("scr-profile");
+      toast("記録を読み込みました。");
     }catch(e){ alert("記録を読み込めませんでした。今の記録は変更していません。\n" + (e.message || '')); }
   };
   r.readAsText(f);
@@ -1033,10 +1044,10 @@ function exportRecords(){
 document.getElementById('retry-save').addEventListener('click', save);
 document.getElementById('recover-export').addEventListener('click', exportRecords);
 function resetSetupForProfile(p){
-  setup = {dir:'jf',lv:'A1',unitId:null};
+  setup = {dir:'jf',lv:'A1',unitId:null,recommendationId:null};
   if(ProfileStore.guideAvailable(p)){
     const unit = StudyGuide.getUnit(p.studyGuide.lastGrammarUnitId);
-    if(unit) setup = {dir:'jf',lv:unit.lv,unitId:unit.id};
+    if(unit) setup = {dir:'jf',lv:unit.lv,unitId:unit.id,recommendationId:null};
   }
 }
 function journeyText(p){
@@ -1050,20 +1061,74 @@ function journeyText(p){
   }
   return label(node)+' · '+(a.pendingUnits ? UIJa.ruby('次','つぎ')+'の'+UIJa.ruby('道','みち')+'へ '+a.pendingUnits+UIJa.ruby('正解分','せいかいぶん') : UIJa.ruby('行','い')+'きたい'+UIJa.ruby('道','みち')+'を'+UIJa.ruby('選','えら')+'ぼう');
 }
-function showMap(){
+let journalTab = 'places';
+let mapFocusPlaceId = null;
+function showMap(placeId){
   if(!prof()) return;
+  mapFocusPlaceId = typeof placeId === 'string' && WorldData.getNode(placeId) ? placeId : null;
   renderMap(); go('scr-map');
 }
 function renderMap(){
   const p = prof(); if(!p) return;
   AdventureView.renderMap(document.getElementById('adventure-map'), p, {
+    focusPlaceId:mapFocusPlaceId,
     onChoose(edgeId){
-      Adventure.selectPath(p,edgeId); save(); renderMap();
+      const move=Adventure.selectPath(p,edgeId); save(); renderMap();
+      if(move.arrived) toast(WorldData.getNode(move.arrived).name+'に到着！ 図鑑に記録したよ。');
     },
     onReturn(nodeId){ Adventure.returnTo(p,nodeId); save(); renderMap(); },
     onStudy(){ go('scr-setup'); },
+    onJournal(){ showJournal(); },
+    onRecommend(id){ selectRecommendation(id); },
     onEffects(mode){ setEffects(mode); renderMap(); }
   });
+  mapFocusPlaceId = null;
+}
+function showJournal(tab='places'){
+  if(!prof()) return;
+  journalTab=['places','characters'].includes(tab) ? tab : 'places';
+  renderJournal(); go('scr-journal');
+}
+function renderJournal(){
+  const p=prof(); if(!p) return;
+  AdventureView.renderJournal(document.getElementById('adventure-journal'),p,{
+    tab:journalTab,
+    onTab(tab){ journalTab=tab; renderJournal(); },
+    onMap(placeId){ showMap(placeId); },
+    wordLabel(key){ const w=findWord(key); return w ? frDisplay(w)+' — '+w.ja : ''; }
+  });
+}
+function selectRecommendation(id){
+  const item=WorldData.getRecommendation(id); if(!item || !prof()) return;
+  setup={...setup,lv:item.lv,unitId:null,recommendationId:item.id};
+  go('scr-setup');
+}
+function renderRecommendations(p){
+  const panel=document.getElementById('place-recommendations');
+  const state=Adventure.status(p).ok && p.adventure;
+  const place=state && WorldData.getNode(state.activeLeg?.to || state.currentNodeId);
+  panel.innerHTML=''; panel.hidden=!place;
+  if(!place) return;
+  const h=document.createElement('h2');
+  h.innerHTML=UIJa.ruby(place.name,place.reading)+'で'+UIJa.ruby('学','まな')+'ぶなら'; panel.appendChild(h);
+  const caption=document.createElement('p'); caption.className='study-context';
+  caption.innerHTML='おすすめの'+UIJa.ruby('教材','きょうざい')+'です。'+UIJa.ruby('下','した')+'から'+UIJa.ruby('別','べつ')+'の'+UIJa.ruby('教材','きょうざい')+'も'+UIJa.ruby('自由','じゆう')+'に'+UIJa.ruby('選','えら')+'べます。'; panel.appendChild(caption);
+  for(const item of WorldData.recommendationsFor(place.id)){
+    const b=document.createElement('button'); b.type='button';
+    b.className='recommendation-choice'+(setup.recommendationId===item.id?' selected':'');
+    b.dataset.recommendation=item.id;
+    b.setAttribute('aria-pressed',String(setup.recommendationId===item.id));
+    b.innerHTML='<span>'+UIJa.ruby(item.label,item.labelReading)+'</span><small>'+UIJa.level(item.lv)+'</small>';
+    b.addEventListener('click',()=>selectRecommendation(item.id)); panel.appendChild(b);
+  }
+  const chosen=WorldData.getRecommendation(setup.recommendationId);
+  if(chosen){
+    const note=document.createElement('p'); note.className='recommendation-active';
+    note.innerHTML=UIJa.ruby('選択中','せんたくちゅう')+'：'+UIJa.ruby(chosen.label,chosen.labelReading)+'（'+UIJa.level(chosen.lv)+'）'; panel.appendChild(note);
+    const clear=document.createElement('button'); clear.type='button'; clear.className='btn ghost small';
+    clear.textContent='テーマを外して、この教材全体から選ぶ';
+    clear.addEventListener('click',()=>{setup.recommendationId=null;renderSetup();}); panel.appendChild(clear);
+  }
 }
 function setEffects(mode){
   if(!['rich','calm'].includes(mode)) return;
@@ -1078,12 +1143,18 @@ function setEffects(mode){
 }
 document.getElementById('btnmap').addEventListener('click', showMap);
 document.getElementById('btnresultmap').addEventListener('click', showMap);
+document.getElementById('btnjournal').addEventListener('click',()=>showJournal());
+document.getElementById('btnresultjournal').addEventListener('click',()=>showJournal());
+document.getElementById('dismiss-migration').addEventListener('click',()=>{
+  const state=prof() && Adventure.ensure(prof()); if(!state) return;
+  state.migrationAcknowledged=true;save();renderHome();
+});
 document.getElementById('btnresultstudy').addEventListener('click', () => go('scr-setup'));
 document.getElementById('btnresultreview').addEventListener('click', () => startQuiz(true));
 document.getElementById('quiz-effects').addEventListener('change', ev => setEffects(ev.target.value));
 function selectUnit(unit){
   const p = prof(); if(!unit || !p) return;
-  setup.lv = unit.lv; setup.unitId = unit.id;
+  setup.lv = unit.lv; setup.unitId = unit.id; setup.recommendationId=null;
   if(ProfileStore.guideAvailable(p)){ p.studyGuide.lastGrammarUnitId = unit.id; save(); }
   renderSetup();
 }
@@ -1093,6 +1164,7 @@ function renderSetup(){
   document.querySelectorAll('#lvchoices .choice').forEach(b => b.classList.toggle('sel',b.dataset.lv === setup.lv));
   document.querySelectorAll('#dirchoices .choice').forEach(b => b.classList.toggle('sel',b.dataset.dir === setup.dir));
   document.getElementById('setup-journey').innerHTML = journeyText(p);
+  renderRecommendations(p);
   document.getElementById('question-limit-note').innerHTML = a && !a.introCompleted
     ? 'はじめの'+UIJa.ruby('旅','たび')+'は <b>3'+UIJa.ruby('問','もん')+'</b>。'+UIJa.ruby('次','つぎ')+'からは10'+UIJa.ruby('問','もん')+'です。'
     : UIJa.ruby('今回','こんかい')+'は <b>10'+UIJa.ruby('問','もん')+'</b>。'+UIJa.ruby('時間制限','じかんせいげん')+'はありません。';
@@ -1105,9 +1177,9 @@ function renderSetup(){
     heading.innerHTML = UIJa.ruby('文法','ぶんぽう')+'の'+UIJa.ruby('道筋','みちすじ'); panel.appendChild(heading);
     const hint = document.createElement('p'); hint.className='study-context';
     hint.innerHTML='おすすめの'+UIJa.ruby('順番','じゅんばん')+'です。どの'+UIJa.ruby('単元','たんげん')+'からでも'+UIJa.ruby('挑戦','ちょうせん')+'できます。'; panel.appendChild(hint);
-    const all = document.createElement('button'); all.className='unit-choice'+(!setup.unitId?' selected':'');
+    const all = document.createElement('button'); all.className='unit-choice'+(!setup.unitId&&!setup.recommendationId?' selected':'');
     all.innerHTML='この'+UIJa.ruby('段階','だんかい')+'を'+UIJa.ruby('混','ま')+'ぜて'+UIJa.ruby('練習','れんしゅう');
-    all.addEventListener('click',()=>{ setup.unitId=null; renderSetup(); }); panel.appendChild(all);
+    all.addEventListener('click',()=>{ setup.unitId=null; setup.recommendationId=null; renderSetup(); }); panel.appendChild(all);
     const next = StudyGuide.recommended(p,WORDS);
     units.forEach((unit,i)=>{
       const progress = StudyGuide.progress(p,unit,WORDS);
@@ -1124,14 +1196,15 @@ function renderSetup(){
 document.getElementById('btnrecommended').addEventListener('click',()=>{
   const unit = StudyGuide.recommended(prof(),WORDS);
   if(unit) selectUnit(unit);
-  else { setup.lv='ぶんぽう1'; setup.unitId=null; renderSetup(); toast('一通り取り組みました。好きな単元や復習を選ぼう。'); }
+  else { setup.lv='ぶんぽう1'; setup.unitId=null; setup.recommendationId=null; renderSetup(); toast('一通り取り組みました。好きな単元や復習を選ぼう。'); }
   document.getElementById('grammar-guide').scrollIntoView({block:'start'});
 });
 function renderQuizContext(){
   if(!quiz) return;
   const q=quiz.qs[quiz.i];
   const unit=!quiz.review && StudyGuide.getUnit(quiz.settings.unitId);
-  document.getElementById('quiz-subject').innerHTML=(quiz.review?UIJa.ruby('復習','ふくしゅう')+' · ':'')+UIJa.level(q.w.lv)+(unit?' · '+UIJa.ruby(unit.title,unit.reading):'')+' <span>'+(quiz.i+1)+' / '+quiz.qs.length+'</span>';
+  const recommendation=!quiz.review && WorldData.getRecommendation(quiz.settings.recommendationId);
+  document.getElementById('quiz-subject').innerHTML=(quiz.review?UIJa.ruby('復習','ふくしゅう')+' · ':'')+UIJa.level(q.w.lv)+(unit?' · '+UIJa.ruby(unit.title,unit.reading):'')+(recommendation?' · '+UIJa.ruby(recommendation.label,recommendation.labelReading):'')+' <span>'+(quiz.i+1)+' / '+quiz.qs.length+'</span>';
   document.getElementById('quiz-effects').value=Adventure.status(prof()).ok ? (prof().adventure?.effectsMode || 'rich') : 'calm';
   document.getElementById('scr-quiz').dataset.effects=richEffects() ? 'rich' : 'calm';
   document.getElementById('quiz-effects').disabled=!Adventure.status(prof()).ok;

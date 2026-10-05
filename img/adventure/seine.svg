@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300">
+  <title>5つのアーチを持つイエナ橋と、穏やかなセーヌ川</title>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#d2e5d7"/><stop offset="1" stop-color="#f2edce"/></linearGradient>
+    <linearGradient id="water" x2="0" y2="1"><stop stop-color="#a6c9bc"/><stop offset="1" stop-color="#7ca8ad"/></linearGradient>
+    <pattern id="paper" width="43" height="27" patternUnits="userSpaceOnUse"><path d="M5 6h5m19 16h5" stroke="#fff7dc" stroke-width="1" opacity=".25"/></pattern>
+    <g id="tree"><path d="M0 4v30" stroke="#7f8165" stroke-width="4"/><path d="M-24 5c-12-15 0-34 12-33 8-13 30-9 34 6 19 10 13 31-5 31-10 4-29 5-41-4Z" fill="#799b82"/><path d="M-15-5c0-8 5-13 10-15" fill="none" stroke="#a1b799" stroke-width="4" stroke-linecap="round"/></g>
+    <g id="lamp"><path d="M0 0v-34m-5 1h10l-2-12h-6Z" fill="#f5e3b6" stroke="#6d8277" stroke-width="2"/><path d="m-6-46 6-5 6 5" fill="#6d8277"/></g>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h960v300H0Z"/>
+  <path d="M42 62c7-17 26-21 39-7 8-18 35-12 39 1 20-4 29 7 27 18H45m626-27c8-12 24-16 31-3 12-16 35-11 37 5h-69" fill="#fff8df" opacity=".65"/>
+  <path d="M0 130h77v-22h42v-17h56v44h51v-24h49v30h419v-14h24V98h35v36h23v-19h72v21h31v-31h43v23h38v172H0Z" fill="#b7c8ad"/>
+  <path d="M0 183c161-19 269-5 481-6s309-18 479 5v118H0Z" fill="url(#water)"/>
+  <path d="M0 148c111-18 212-12 318 2h349c116-17 195-17 293-7v32c-167-6-259 6-401 8-215 2-378-8-559-1Z" fill="#8fab8f"/>
+  <path d="M0 170c107-5 158-2 209 6m514 1c94-11 173-7 237-5" stroke="#ddcfaa" stroke-width="12" fill="none"/>
+  <use href="#tree" x="61" y="134"/><use href="#tree" x="134" y="137"/><use href="#tree" x="294" y="124"/><use href="#tree" x="752" y="121"/><use href="#tree" x="828" y="133"/><use href="#tree" x="912" y="138"/>
+  <!-- A single stone silhouette with five open, shallow bridge arches. -->
+  <path fill="#e4d3ab" fill-rule="evenodd" d="M162 153h696v77h-29v-4H193v4h-31ZM205 220v-15q0-31 52-31t52 31v15Zm124 0v-15q0-31 52-31t52 31v15Zm124 0v-15q0-31 52-31t52 31v15Zm124 0v-15q0-31 52-31t52 31v15Zm124 0v-15q0-31 52-31t52 31v15Z"/>
+  <path d="M205 219v-14q0-31 52-31t52 31v14m20 0v-14q0-31 52-31t52 31v14m20 0v-14q0-31 52-31t52 31v14m20 0v-14q0-31 52-31t52 31v14m20 0v-14q0-31 52-31t52 31v14" fill="none" stroke="#bfaf8b" stroke-width="4"/>
+  <path d="M160 147h700v10H160Z" fill="#f0e3bf"/><path d="M162 158h696M171 167h678" stroke="#cbbb96" stroke-width="2"/>
+  <path d="M171 135h678v10H171Z" fill="#c5b794"/><path d="M171 134h678" stroke="#eee2bb" stroke-width="4"/>
+  <path d="M177 221h24v12h-24m132-12h24v12h-24m100-12h24v12h-24m100-12h24v12h-24m100-12h24v12h-24m100-12h24v12h-24" fill="#d4c39e"/>
+  <path d="m215 171 5 6m31-12v9m36-3-4 6m56-6 5 6m31-12v9m36-3-4 6m56-6 5 6m31-12v9m36-3-4 6m56-6 5 6m31-12v9m36-3-4 6m56-6 5 6m31-12v9m36-3-4 6" stroke="#b4a486" stroke-width="2"/>
+  <use href="#lamp" x="220" y="134"/><use href="#lamp" x="368" y="134"/><use href="#lamp" x="516" y="134"/><use href="#lamp" x="664" y="134"/><use href="#lamp" x="812" y="134"/>
+  <path d="M80 228h74m219 6h80m112-8h39m109 12h59m108-7h90M44 273h83m88-15h120m56 27h113m51-28h120m30 23h80m63-21h65" fill="none" stroke="#c9ddc6" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+  <g transform="translate(474 252)"><path d="M0 0h106l-16 15H18Z" fill="#c07857"/><path d="M21-19h57V0H14Z" fill="#efe2be"/><path d="M29-14h10v10H29m18-10h10v10H47m18-10h9v10h-9" fill="#779c97"/><path d="M16-21h65" stroke="#727f6a" stroke-width="3"/><path d="M0 0h106" stroke="#f6eac6" stroke-width="3"/><path d="M-10 20h119" stroke="#b9d2c1" stroke-width="2" stroke-linecap="round"/></g>
+  <path d="M0 284c50-31 96-20 135 16H0m841 0c27-21 80-26 119-8v8" fill="#739480"/>
+  <path fill="url(#paper)" d="M0 0h960v300H0Z"/>
+</svg>
