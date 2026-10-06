@@ -131,6 +131,14 @@ body{background:radial-gradient(ellipse at 15% 0,#fff9eb 0,transparent 55%),line
 .av-place-marker.is-current .av-place-pin{background:#247267;border-color:#fffce9;box-shadow:0 0 0 3px #267469}.av-place-marker.is-traveling .av-place-pin{background:#b76e48;box-shadow:0 0 0 3px #b76e4840}
 .av-place-marker.is-visited:not(.is-current) .av-place-name:before{content:'✓';color:#528263;margin-right:4px}.av-place-marker.is-selected.is-visited .av-place-name:before{color:#d9e5c4}
 .av-place-marker:hover .av-place-name{filter:brightness(.96)}.av-place-marker:focus-visible,.av-region-marker:focus-visible{outline:3px solid #226782;outline-offset:4px}
+.av-map-paris .av-place-marker{transform:translate(-50%,-50%);min-height:44px;min-width:76px;max-width:160px;padding:0;background:#fffaf0f5;border:1px solid #c6d1b9;box-shadow:0 3px 9px #4b65441c;overflow:hidden}
+.av-map-paris .av-place-name{white-space:normal;overflow-wrap:anywhere;margin:0;padding:7px 8px 2px;line-height:1.8;background:none;box-shadow:none}
+.av-map-paris .av-place-marker small{background:none;padding:0 6px 4px}
+.av-map-paris .av-place-marker.is-selected{background:#315f4f;border-color:#315f4f;color:#fffaf0}
+.av-map-paris .av-place-marker.is-selected small{color:#e7efda}
+.av-map-paris .av-place-marker.is-current:not(.is-selected){border:2px solid #267469}
+.av-map-paris .av-place-marker.is-traveling:not(.is-selected){border:2px solid #b76e48}
+@media(max-width:520px){.av-map-paris .av-place-marker{max-width:118px;min-width:66px}.av-map-paris .av-place-name{font-size:10px;padding:5px 5px 1px}.av-map-paris .av-place-marker small{font-size:8px}}
 .av-region-marker{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 11px 7px;border-radius:9px;border:1px solid #879d7d;background:#fffaf0ef;box-shadow:0 3px 10px #4e6d5620;font-size:12px;font-weight:800;line-height:1.7;max-width:160px;white-space:nowrap;color:#375a46}
 .av-region-marker small{font-size:8px;font-weight:500;line-height:1.9;color:#6c7c64}.av-region-marker.is-selected{background:#356b58;color:#fffcec;border-color:#356b58}.av-region-marker.is-selected small{color:#e0e8cc}.av-region-marker.is-planned{border-style:dashed;background:#f5f1e3;color:#85775d}.av-region-marker.is-planned small{color:#938169}
 .av-map-instruction{text-align:center;font-size:10px;color:#6c7c65;line-height:2.1;margin:11px 16px 6px!important}

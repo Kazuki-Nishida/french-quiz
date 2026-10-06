@@ -8,10 +8,10 @@ const vm = require("node:vm");
 const World = require("../world-data.js");
 const { WORDS } = require("../words.js");
 
-const expectedPlaces = ["trocadero", "seine", "eiffel", "champ-de-mars", "mont-saint-michel", "chambord", "marseille", "versailles"];
-const hosts = new Set(["www.paris.fr", "www.toureiffel.paris", "www.abbaye-mont-saint-michel.fr", "www.chambord.org", "www.marseille-tourisme.com", "www.chateauversailles.fr", "www.versailles-tourisme.com"]);
+const expectedPlaces = ["trocadero", "seine", "eiffel", "champ-de-mars", "mont-saint-michel", "chambord", "marseille", "versailles", "arc-de-triomphe", "louvre", "notre-dame"];
+const hosts = new Set(["www.paris.fr", "www.toureiffel.paris", "www.abbaye-mont-saint-michel.fr", "www.chambord.org", "www.marseille-tourisme.com", "www.chateauversailles.fr", "www.versailles-tourisme.com", "www.paris-arc-de-triomphe.fr", "www.louvre.fr", "parisjetaime.com"]);
 
-test("eight real places have unique stable identities and complete display metadata", () => {
+test("eleven real places retain the original eight identities in order and complete display metadata", () => {
   assert.deepEqual(World.nodes.map(node => node.id), expectedPlaces);
   assert.equal(new Set(World.nodes.map(node => node.id)).size, World.nodes.length);
   for (const node of World.nodes) {
@@ -47,7 +47,7 @@ test("recommendations refer to real curriculum themes with at least ten question
       assert.equal(Object.hasOwn(item, "requiredScore"), false);
     }
   }
-  assert.equal(ids.size, 24);
+  assert.equal(ids.size, 33);
   assert.equal(JSON.stringify(WORDS), original, "recommendation lookup must leave curriculum text and keys unchanged");
 });
 
@@ -145,7 +145,7 @@ test("plain browser script exposes the same catalog without a module loader", ()
   const browser = {};
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, "..", "world-data.js"), "utf8"), browser, { filename: "world-data.js" });
   assert.ok(browser.WorldData);
-  assert.equal(browser.WorldData.nodes.length, 8);
+  assert.equal(browser.WorldData.nodes.length, 11);
   assert.equal(browser.WorldData.getCharacter("lumie").placeId, "eiffel");
   assert.equal(browser.WorldData.getRecommendation("trocadero-aller").cat, "アレ");
   assert.equal(browser.WorldData.getVehicle("dragon").requiredUnits, 120);
@@ -191,20 +191,22 @@ test("the fictional finale requires all existing companions and vehicles without
   }
 });
 
-test("the extension preserves the old map coordinates and keeps Versailles outside the Paris close-up", () => {
+test("the wider Paris map preserves real coordinates while reprojecting display positions", () => {
   const oldPositions = [
-    ["trocadero", 48.86297, 2.287, 28, 21.64],
-    ["seine", 48.8609, 2.2934, 53.6, 36.43],
-    ["eiffel", 48.8584, 2.2945, 58, 54.29],
-    ["champ-de-mars", 48.8555, 2.2985, 74, 75],
+    ["trocadero", 48.86297, 2.287, 13.64, 53.22],
+    ["seine", 48.8609, 2.2934, 20.91, 59.69],
+    ["eiffel", 48.8584, 2.2945, 22.16, 67.5],
+    ["champ-de-mars", 48.8555, 2.2985, 26.7, 76.56],
     ["mont-saint-michel", 48.6361, -1.5115, 50, 50],
-    ["chambord", 47.6161, 1.5163, 50, 50]
+    ["chambord", 47.6161, 1.5163, 50, 50],
+    ["marseille", 43.2965, 5.3698, 50, 50],
+    ["versailles", 48.804328, 2.120936, 50, 50]
   ];
   for (const [id, lat, lon, x, y] of oldPositions) {
     const node = World.getNode(id);
     assert.deepEqual([node.lat, node.lon, node.x, node.y], [lat, lon, x, y], id);
   }
-  assert.deepEqual(World.mapBounds.paris, { west: 2.280, east: 2.305, north: 48.866, south: 48.852 });
+  assert.deepEqual(World.mapBounds.paris, { west: 2.275, east: 2.363, north: 48.88, south: 48.848 });
   const paris = World.getNode("eiffel");
   const versailles = World.getNode("versailles");
   assert.equal(versailles.lat, 48.804328);
@@ -215,4 +217,27 @@ test("the extension preserves the old map coordinates and keeps Versailles outsi
   const provence = World.regions.find(region => region.id === "provence");
   assert.deepEqual([provence.lat, provence.lon], [43.2965, 5.3698]);
   assert.ok(World.getNode("marseille").lat < World.getNode("chambord").lat);
+});
+
+test("three new Paris landmarks have distinct recommendations and fit the geographic map bounds", () => {
+  const expected = [
+    ["arc-de-triomphe", 48.8738, 2.295, "www.paris-arc-de-triomphe.fr"],
+    ["louvre", 48.8606, 2.3376, "www.louvre.fr"],
+    ["notre-dame", 48.853, 2.3499, "parisjetaime.com"]
+  ];
+  for (const [id, lat, lon, host] of expected) {
+    const node = World.getNode(id), bounds = World.mapBounds.paris;
+    assert.equal(node.regionId, "paris");
+    assert.deepEqual([node.lat, node.lon], [lat, lon]);
+    assert.ok(lat > bounds.south && lat < bounds.north && lon > bounds.west && lon < bounds.east);
+    assert.equal(new URL(node.source).hostname, host);
+    assert.equal(World.recommendationsFor(id).length, 3);
+    for (const item of World.recommendationsFor(id)) assert.equal(World.getRecommendation(item.id), item);
+    assert.equal(World.characters.some(character => character.placeId === id), false, "new places do not add finale requirements");
+  }
+  assert.equal(World.nodes.filter(node => node.regionId === "paris").length, 7);
+  assert.ok(World.getNode("arc-de-triomphe").y < World.getNode("trocadero").y);
+  assert.ok(World.getNode("louvre").x > World.getNode("eiffel").x);
+  assert.ok(World.getNode("notre-dame").x > World.getNode("louvre").x);
+  assert.ok(World.getNode("notre-dame").y > World.getNode("louvre").y);
 });

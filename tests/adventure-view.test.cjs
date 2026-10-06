@@ -335,3 +335,138 @@ test("switching from the bicycle removes its basket passenger from every shared 
     }
   }
 });
+
+const newParisPlaceIds = ['arc-de-triomphe', 'louvre', 'notre-dame'];
+
+function postcard(container, placeId) {
+  const card = container.querySelectorAll('.av-postcard').find(item => item.querySelector('[data-open-place="' + placeId + '"]'));
+  assert.ok(card, 'the journal contains a postcard for ' + placeId);
+  return card;
+}
+
+test('each added Paris landmark is selectable before earning progress and exposes its real route and recommendations', () => {
+  const p = profile(), h = harness(), container = h.container(), calls = [];
+  p.words['bonjour::こんにちは'] = { c: 2, w: 1 };
+  p.stock.push('bonjour::こんにちは');
+  const before = JSON.stringify(p);
+  h.view.renderMap(container, p, {
+    onChoose: edgeId => calls.push(['choose', edgeId]),
+    onRecommend: recommendationId => calls.push(['recommend', recommendationId])
+  });
+  const parisIds = WorldData.nodes.filter(place => place.regionId === 'paris').map(place => place.id);
+  assert.deepEqual(new Set(container.querySelectorAll('[data-place]').map(button => button.dataset.place)), new Set(parisIds));
+  for (const id of newParisPlaceIds) {
+    const place = WorldData.getNode(id);
+    assert.ok(place, id + ' is present in the actual catalog');
+    const edge = Adventure.edges.find(item => item.from === 'trocadero' && item.to === id);
+    assert.ok(edge, 'the new destination has a route from the initial location');
+    calls.length = 0;
+    click(container, '[data-place="' + id + '"]');
+    assert.deepEqual(calls, [], 'looking at a landmark neither chooses its route nor starts learning');
+    const markers = container.querySelectorAll('[data-place]');
+    assert.deepEqual(markers.filter(button => button.getAttribute('aria-pressed') === 'true').map(button => button.dataset.place), [id]);
+    const detail = container.querySelector('.av-place-detail');
+    assert.equal(detail.querySelector('h3').textContent, place.name);
+    assert.equal(detail.querySelector('img').getAttribute('src').split('?')[0], place.illustration);
+    assert.match(detail.querySelector('.av-discovery-status').textContent, /予告/);
+    const choose = detail.querySelector('[data-action="choose"]');
+    assert.ok(choose, 'an unvisited landmark remains available without level or vehicle requirements');
+    assert.equal(choose.getAttribute('disabled'), null);
+    assert.equal(choose.dataset.edge, edge.id);
+    click(container, '[data-edge="' + edge.id + '"]');
+    assert.deepEqual(calls, [['choose', edge.id]]);
+    assert.ok(place.recommendations.length > 0);
+    assert.deepEqual(detail.querySelectorAll('[data-recommendation]').map(button => button.dataset.recommendation), place.recommendations.map(item => item.id));
+    for (const recommendation of place.recommendations) click(container, '[data-recommendation="' + recommendation.id + '"]');
+    assert.deepEqual(calls, [['choose', edge.id], ...place.recommendations.map(item => ['recommend', item.id])]);
+    assert.equal(JSON.stringify(p), before, 'view callbacks leave route selection and learning changes to the app');
+  }
+  click(container, '[data-scope="france"]');
+  assert.equal(container.querySelectorAll('[data-region]').length, WorldData.regions.length);
+  click(container, '[data-scope="paris"]');
+  assert.deepEqual(new Set(container.querySelectorAll('[data-place]').map(button => button.dataset.place)), new Set(parisIds));
+  assert.equal(JSON.stringify(p), before);
+});
+
+test('unvisited journal cards include every catalog place and repeatedly open the requested Paris detail', () => {
+  const p = profile(), h = harness(), journal = h.container(), map = h.container(), calls = [];
+  const before = JSON.stringify(p);
+  h.view.renderJournal(journal, p, { tab: 'places', onMap: id => calls.push(id) });
+  assert.equal(journal.querySelectorAll('.av-postcard').length, WorldData.nodes.length);
+  assert.match(journal.querySelector('[data-tab="places"]').textContent, new RegExp('1 / ' + WorldData.nodes.length + '$'));
+  for (const id of newParisPlaceIds) {
+    const place = WorldData.getNode(id), card = postcard(journal, id);
+    assert.ok(card.matches('.is-unfound'));
+    assert.ok(card.querySelector('.av-landmark-silhouette'));
+    assert.equal(card.querySelector('img'), null, 'the visited illustration is not awarded ahead of arrival');
+    assert.match(card.textContent, /未訪問/);
+    click(journal, '[data-open-place="' + id + '"]');
+    assert.equal(calls.at(-1), id);
+    h.view.renderMap(map, p, { focusPlaceId: id });
+    assert.equal(map.querySelector('.av-place-detail').querySelector('h3').textContent, place.name);
+    click(map, '[data-place="seine"]');
+    h.view.renderMap(map, p, { focusPlaceId: id });
+    assert.equal(map.querySelector('.av-place-detail').querySelector('h3').textContent, place.name, 'opening the same journal link again consumes the new explicit focus');
+    assert.equal(map.querySelector('[data-place="' + id + '"]').getAttribute('aria-pressed'), 'true');
+    assert.equal(JSON.stringify(p), before);
+  }
+});
+
+test('travel to each new landmark previews its own scene and awards its postcard only after arrival', () => {
+  for (const id of newParisPlaceIds) {
+    const p = profile(), h = harness(), scene = h.container(), journal = h.container(), result = h.container();
+    const place = WorldData.getNode(id), start = WorldData.getNode(p.adventure.currentNodeId);
+    const edge = Adventure.edges.find(item => item.from === start.id && item.to === id);
+    h.view.renderScene(scene, p, { reaction: 'idle' });
+    assert.equal(Adventure.selectPath(p, edge.id, NOW).changed, true);
+    let before = JSON.stringify(p);
+    h.view.renderScene(scene, p, { reaction: 'correct' });
+    assert.equal(scene.querySelector('.av-scene-art').getAttribute('src').split('?')[0], start.illustration, 'answer feedback keeps the existing scenery until the next idle question');
+    h.view.renderScene(scene, p, { reaction: 'idle' });
+    assert.equal(scene.querySelector('.av-scene-art').getAttribute('src').split('?')[0], place.illustration);
+    assert.match(scene.querySelector('.av-scene-location').textContent, /この先の景色/);
+    h.view.renderScene(scene, p, { reaction: 'wrong' });
+    assert.equal(scene.querySelector('.av-scene-art').getAttribute('src').split('?')[0], place.illustration);
+    h.view.renderJournal(journal, p, { tab: 'places' });
+    assert.ok(postcard(journal, id).matches('.is-unfound'));
+    assert.equal(JSON.stringify(p), before);
+    correct(p, edge.cost, id);
+    assert.equal(p.adventure.currentNodeId, id);
+    before = JSON.stringify(p);
+    h.view.renderScene(scene, p, { reaction: 'arrival' });
+    assert.equal(scene.querySelector('.av-scene-art').getAttribute('src').split('?')[0], place.illustration);
+    assert.match(scene.querySelector('.av-scene-location').textContent, /現在地/);
+    h.view.renderJournal(journal, p, { tab: 'places' });
+    const card = postcard(journal, id);
+    assert.ok(card.matches('.is-found'));
+    assert.equal(card.querySelector('img').getAttribute('src').split('?')[0], place.illustration);
+    assert.equal(card.querySelector('.av-landmark-silhouette'), null);
+    assert.ok(card.querySelector('.av-learning-trail'), 'the place retains the learning footprint used to arrive');
+    assert.match(journal.querySelector('[data-tab="places"]').textContent, new RegExp('2 / ' + WorldData.nodes.length + '$'));
+    h.view.renderResult(result, p, { earned: edge.cost, arrivals: [id] });
+    assert.equal(result.querySelector('.av-scene-art').getAttribute('src').split('?')[0], place.illustration);
+    assert.ok(result.textContent.includes(place.name + 'に到着'));
+    assert.match(readFileSync(join(__dirname, '..', place.illustration), 'utf8'), /<svg\b/, 'the new scene refers to an existing SVG asset');
+    assert.equal(JSON.stringify(p), before, 'scene, journal and result rendering never modify the saved arrival');
+  }
+});
+
+test('new Paris postcards do not expand the existing five-character and four-vehicle finale requirements', () => {
+  const p = readyForFinale(), h = harness(), container = h.container(), calls = [];
+  assert.deepEqual(WorldData.finale.requiredCharacterIds, ['lumie', 'mare', 'plume', 'sol', 'miro']);
+  assert.equal(WorldData.finale.requiredVehicleIds.length, 4);
+  assert.ok(newParisPlaceIds.every(id => !p.adventure.visited[id]));
+  const before = JSON.stringify(p);
+  h.view.renderMap(container, p, { onChoose: id => calls.push(id) });
+  assert.match(container.querySelector('.av-goal-compact').textContent, /キャラ 5 \/ 5/);
+  assert.match(container.querySelector('.av-goal-compact').textContent, /乗り物 4 \/ 4/);
+  assert.ok(container.querySelector('[data-action="finale"]'), 'the castle stays ready without visiting the optional new landmarks');
+  for (const id of newParisPlaceIds) {
+    h.view.renderMap(container, p, { focusPlaceId: id, onChoose: edgeId => calls.push(edgeId) });
+    const edge = Adventure.edges.find(item => item.from === p.adventure.currentNodeId && item.to === id);
+    click(container, '[data-edge="' + edge.id + '"]');
+    assert.equal(calls.at(-1), edge.id, 'ordinary travel stays available when the castle is ready');
+  }
+  assert.equal(JSON.stringify(p), before);
+  assert.equal(Adventure.getFinaleStatus(p).unlocked, true);
+});

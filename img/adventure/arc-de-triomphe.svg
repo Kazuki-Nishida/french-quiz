@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300">
+  <title>大きなアーチと石の彫刻、段状の頂部があるパリの凱旋門</title>
+  <defs>
+    <linearGradient id="arc-sky" x2="0" y2="1"><stop stop-color="#d2e5d7"/><stop offset="1" stop-color="#f2edce"/></linearGradient>
+    <linearGradient id="arc-stone" x2=".8" y2="1"><stop stop-color="#f2e6c7"/><stop offset="1" stop-color="#d9c49c"/></linearGradient>
+    <pattern id="arc-paper" width="41" height="29" patternUnits="userSpaceOnUse"><path d="M4 8h4m23 14h6" stroke="#fff7dc" stroke-width="1" opacity=".28"/></pattern>
+    <g id="arc-tree"><path d="M0 0v35" stroke="#7c8067" stroke-width="5"/><path d="M-27 1c-13-17-1-41 16-39 12-21 37-12 40 5 18 10 16 33-3 38-15 8-37 7-53-4Z" fill="#75947e"/><path d="M-15-9q7-15 20-16" fill="none" stroke="#a0b99a" stroke-width="5" stroke-linecap="round"/></g>
+    <g id="arc-house"><path d="M0 0h45v42H0Z" fill="#cbd2b6"/><path d="m-4 0 11-13h31L49 0Z" fill="#a7b6a1"/><path d="M7 8h6v9H7m12-9h6v9h-6m12-9h6v9h-6M7 25h6v9H7m12-9h6v9h-6m12-9h6v9h-6" fill="#aabca5"/></g>
+    <g id="arc-relief"><path d="M-16 0h32v58h-32Z" fill="#d9c9a7"/><path d="M-9 49q-5-9 1-16l-5-7 4-13 8 4 8-10 8 13-5 13 5 17Z" fill="#b5ac8e"/><path d="m-5 21 8 12-7 12m7-12 7 10m-7-11 8-10m-17 8 8 4" fill="none" stroke="#efe2bd" stroke-width="2.5" stroke-linecap="round"/><circle cx="-5" cy="13" r="4" fill="#ece0bd"/><circle cx="8" cy="9" r="4" fill="#e9dcba"/><path d="M-14 53h28" stroke="#a49f85" stroke-width="3"/></g>
+  </defs>
+  <path d="M0 0h960v300H0Z" fill="url(#arc-sky)"/>
+  <circle cx="720" cy="57" r="28" fill="#f8efc5"/>
+  <path d="M72 70c6-17 27-22 38-8 11-18 36-12 40 3 20-6 35 3 38 15H71m626 21c10-13 25-11 31 1 15-9 32-1 33 11h-69" fill="#fff8df" opacity=".65"/>
+  <path d="M231 74q8-7 16 0m0 0q8-7 16 0m480 62q6-6 12 0m0 0q6-6 12 0" fill="none" stroke="#8da896" stroke-width="2" stroke-linecap="round"/>
+  <path d="M0 194q117-39 261-16t310-3 389 10v115H0Z" fill="#b8c8aa"/>
+  <g><use href="#arc-house" x="72" y="163"/><use href="#arc-house" x="124" y="151"/><use href="#arc-house" x="177" y="157"/><use href="#arc-house" x="234" y="166"/><use href="#arc-house" x="440" y="167"/><use href="#arc-house" x="492" y="160"/><use href="#arc-house" x="688" y="164"/><use href="#arc-house" x="741" y="153"/><use href="#arc-house" x="795" y="161"/><use href="#arc-house" x="850" y="167"/></g>
+  <path d="M0 225q220-29 478-8 252-20 482 9v74H0Z" fill="#c9cbb0"/>
+  <path d="M0 285 360 231l256 0 344 59v10H0Z" fill="#e3d9b9"/>
+  <path d="M198 252q288-57 559 1l-15 15q-259-45-528-1Z" fill="#ece0bd"/>
+  <ellipse cx="490" cy="247" rx="153" ry="12" fill="#b7b79a" opacity=".7"/>
+  <!-- The monumental opening remains transparent to the distant avenue. -->
+  <path d="m573 58 48-17v190l-48 13Z" fill="#c2b495"/>
+  <path d="M589 225v-62q0-29 17-35v91Z" fill="#94a18b"/>
+  <path d="M587 226v-64q0-31 20-38v99" fill="none" stroke="#e1d0aa" stroke-width="5"/>
+  <path d="M365 67h210v177h-68v-88a38 38 0 0 0-76 0v88h-66Z" fill="url(#arc-stone)" stroke="#b5a887" stroke-width="1.5"/>
+  <path d="M421 244v-87a48 48 0 0 1 96 0v87" fill="none" stroke="#bcae8f" stroke-width="6"/>
+  <path d="M422 152a47 47 0 0 1 94 0" fill="none" stroke="#f5e8c5" stroke-width="7"/>
+  <path d="m435 118 5 8m15-15 2 10m14-12v10m15-8-3 10m17-4-5 9" stroke="#c4b38c" stroke-width="2"/>
+  <path d="M359 50h222v25H359Z" fill="#f0e1bc" stroke="#c8b894" stroke-width="1.5"/>
+  <path d="m581 50 45-17v26l-45 16Z" fill="#d1c09b"/>
+  <path d="M355 44h227v9H355Z" fill="#f6ebcb"/><path d="m582 44 48-16v9l-48 16Z" fill="#dbcaab"/>
+  <path d="M365 24h210v21H365Z" fill="#e6d8b6" stroke="#bdae8b" stroke-width="1.5"/>
+  <path d="m575 24 43-9v26l-43 4Z" fill="#cbbd9c"/>
+  <path d="m364 23 47-9h207l-43 10Z" fill="#f1e6c7"/>
+  <path d="M377 28h186v10H377Z" fill="#d8c9a8"/><path d="M390 30v6m16-6v6m16-6v6m16-6v6m16-6v6m16-6v6m16-6v6m16-6v6m16-6v6m16-6v6m16-6v6" stroke="#b7ab8e" stroke-width="3"/>
+  <path d="M370 60h199" stroke="#bcac85" stroke-width="4" stroke-dasharray="3 5"/>
+  <path d="M369 81h202m-202 8h202M372 128h42m109 0h43M372 139h42m109 0h43" fill="none" stroke="#cab993" stroke-width="2"/>
+  <path d="M379 99h29v22h-29m153-22h29v22h-29" fill="#dfceaa" stroke="#c1b28f" stroke-width="1.5"/>
+  <path d="M384 110h19m-15-6h12m139 6h17m-14-6h12" stroke="#b5ab8c" stroke-width="2" stroke-linecap="round"/>
+  <path d="M376 145h37v67h-37m153-67h37v67h-37" fill="#e8d9b5"/>
+  <use href="#arc-relief" x="395" y="150"/><use href="#arc-relief" x="547" y="150"/>
+  <path d="M365 224h66v8h-66m142-8h68v8h-68m-144 4h66v8h-66m142-8h70v8h-70" fill="#e6d5ae" stroke="#bbab87" stroke-width="1.5"/>
+  <path d="M411 244h118m-74-13h31" stroke="#b3ab8c" stroke-width="2"/>
+  <path d="M343 247h248m-257 5h269" stroke="#eaddb7" stroke-width="4"/>
+  <path d="m368 267-73 33m136-35-22 35m107-35 28 35m55-36 85 36" stroke="#c6c4a7" stroke-width="2"/>
+  <path d="M281 251v14m57-22v14m273-14v14m57-6v14" stroke="#8c9985" stroke-width="4" stroke-linecap="round"/>
+  <use href="#arc-tree" x="97" y="214"/><use href="#arc-tree" x="234" y="217"/><use href="#arc-tree" x="740" y="216"/><use href="#arc-tree" x="861" y="224"/>
+  <path d="M0 279q80-28 164 21H0m801 0q63-28 159-20v20" fill="#829f81"/>
+  <path d="M0 0h960v300H0Z" fill="url(#arc-paper)"/>
+</svg>

@@ -16,7 +16,7 @@
   // These are display bounds, not walking routes, distances, or administrative borders.
   // x/y are percentages of the north-up local Paris map; the national map uses lat/lon.
   const mapBounds = freeze({
-    paris: { west: 2.280, east: 2.305, north: 48.866, south: 48.852 },
+    paris: { west: 2.275, east: 2.363, north: 48.88, south: 48.848 },
     france: { west: -5.2, east: 10, north: 51.5, south: 40.8 }
   });
 
@@ -29,7 +29,10 @@
     chambord: "https://www.chambord.org/fr/histoire/le-chateau/architecture/",
     marseille: "https://www.marseille-tourisme.com/decouvrez-marseille/culture-et-patrimoine/sites-et-monuments/le-vieux-port/",
     versailles: "https://www.chateauversailles.fr/decouvrir/domaine/chateau/galerie-glaces",
-    versaillesCoordinates: "https://www.versailles-tourisme.com/chateau-de-versailles.html"
+    versaillesCoordinates: "https://www.versailles-tourisme.com/chateau-de-versailles.html",
+    arc: "https://www.paris-arc-de-triomphe.fr/decouvrir/histoire-de-l-arc-de-triomphe",
+    louvre: "https://www.louvre.fr/en/explore/the-palace/a-pyramid-for-a-symbol",
+    notreDame: "https://parisjetaime.com/article/balade-decouverte-autour-de-la-cathedrale-notre-dame-de-paris-a1798"
   };
 
   // Regions are visitor-facing groupings, not claims about administrative boundaries.
@@ -54,7 +57,7 @@
   const nodes = freeze([
     {
       id: "trocadero", name: "トロカデロ", reading: "トロカデロ", french: "Trocadéro", regionId: "paris",
-      lat: 48.86297, lon: 2.287, x: 28, y: 21.64, scene: "city", illustration: "img/adventure/trocadero.svg",
+      lat: 48.86297, lon: 2.287, x: 13.64, y: 53.22, scene: "city", illustration: "img/adventure/trocadero.svg",
       description: "エッフェル塔を見渡せる庭園のある、パリの出発地点。",
       descriptionReading: "エッフェルとうをみわたせるていえんのある、パリのしゅっぱつちてん。", source: sources.trocadero,
       recommendations: [
@@ -65,7 +68,7 @@
     },
     {
       id: "seine", name: "セーヌ川（イエナ橋）", reading: "セーヌがわ（イエナばし）", french: "La Seine, près du pont d’Iéna", regionId: "paris",
-      lat: 48.8609, lon: 2.2934, x: 53.6, y: 36.43, scene: "riverside", illustration: "img/adventure/seine.svg",
+      lat: 48.8609, lon: 2.2934, x: 20.91, y: 59.69, scene: "riverside", illustration: "img/adventure/seine.svg",
       description: "トロカデロとエッフェル塔をつなぐイエナ橋の近くで、セーヌ川を眺める場所。",
       descriptionReading: "トロカデロとエッフェルとうをつなぐイエナばしのちかくで、セーヌがわをながめるばしょ。", source: sources.seine,
       recommendations: [
@@ -76,7 +79,7 @@
     },
     {
       id: "eiffel", name: "エッフェル塔", reading: "エッフェルとう", french: "La tour Eiffel", regionId: "paris",
-      lat: 48.8584, lon: 2.2945, x: 58, y: 54.29, scene: "city", illustration: "img/adventure/eiffel.svg",
+      lat: 48.8584, lon: 2.2945, x: 22.16, y: 67.5, scene: "city", illustration: "img/adventure/eiffel.svg",
       description: "パリのシャン・ド・マルスに立つ塔。近くをセーヌ川が流れています。",
       descriptionReading: "パリのシャン・ド・マルスにたつとう。ちかくをセーヌがわがながれています。", source: sources.eiffel,
       recommendations: [
@@ -87,7 +90,7 @@
     },
     {
       id: "champ-de-mars", name: "シャン・ド・マルス公園", reading: "シャン・ド・マルスこうえん", french: "Le Champ-de-Mars", regionId: "paris",
-      lat: 48.8555, lon: 2.2985, x: 74, y: 75, scene: "park", illustration: "img/adventure/champ-de-mars.svg",
+      lat: 48.8555, lon: 2.2985, x: 26.7, y: 76.56, scene: "park", illustration: "img/adventure/champ-de-mars.svg",
       description: "エッフェル塔のそばに広がる公園。中央には大きな芝生があります。",
       descriptionReading: "エッフェルとうのそばにひろがるこうえん。ちゅうおうにはおおきなしばふがあります。", source: sources.champ,
       recommendations: [
@@ -140,6 +143,39 @@
         recommendation("versailles", "colors", "色の言葉", "いろのことば", "A1", "いろ"),
         recommendation("versailles", "home", "家や部屋の言葉", "いえやへやのことば", "A1", "いえ"),
         recommendation("versailles", "comparison", "比べて話す文法", "くらべてはなすぶんぽう", "ぶんぽう2", "ひかく")
+      ]
+    },
+    {
+      id: "arc-de-triomphe", name: "凱旋門", reading: "がいせんもん", french: "L’Arc de triomphe", regionId: "paris",
+      lat: 48.8738, lon: 2.295, x: 22.73, y: 19.38, scene: "city", illustration: "img/adventure/arc-de-triomphe.svg",
+      description: "エトワール広場に立つ大きな門。1836年に完成し、パリの歴史を伝えています。",
+      descriptionReading: "エトワールひろばにたつおおきなもん。1836ねんにかんせいし、パリのれきしをつたえています。", source: sources.arc,
+      recommendations: [
+        recommendation("arc-de-triomphe", "town", "街の言葉", "まちのことば", "A1", "まち"),
+        recommendation("arc-de-triomphe", "directions", "道案内の会話", "みちあんないのかいわ", "はなし3", "みち"),
+        recommendation("arc-de-triomphe", "past", "過去のことを話す文法", "かこのことをはなすぶんぽう", "ぶんぽう2", "ふくごうかこ")
+      ]
+    },
+    {
+      id: "louvre", name: "ルーヴル美術館", reading: "ルーヴルびじゅつかん", french: "Le musée du Louvre", regionId: "paris",
+      lat: 48.8606, lon: 2.3376, x: 71.14, y: 60.63, scene: "city", illustration: "img/adventure/louvre.svg",
+      description: "かつての宮殿を使った美術館。中庭にはガラスのピラミッドがあります。",
+      descriptionReading: "かつてのきゅうでんをつかったびじゅつかん。なかにわにはガラスのピラミッドがあります。", source: sources.louvre,
+      recommendations: [
+        recommendation("louvre", "colors", "色の言葉", "いろのことば", "A1", "いろ"),
+        recommendation("louvre", "stories", "物語の言葉", "ものがたりのことば", "B1", "ものがたり"),
+        recommendation("louvre", "adjectives", "形容詞の性・数", "けいようしのせい・すう", "ぶんぽう1", "けいようし")
+      ]
+    },
+    {
+      id: "notre-dame", name: "ノートルダム大聖堂", reading: "ノートルダムだいせいどう", french: "La cathédrale Notre-Dame de Paris", regionId: "paris",
+      lat: 48.853, lon: 2.3499, x: 85.11, y: 84.38, scene: "riverside", illustration: "img/adventure/notre-dame.svg",
+      description: "セーヌ川に浮かぶシテ島の大聖堂。2つの塔と、丸いステンドグラスの窓が目印です。",
+      descriptionReading: "セーヌがわにうかぶシテとうのだいせいどう。ふたつのとうと、まるいステンドグラスのまどがめじるしです。", source: sources.notreDame,
+      recommendations: [
+        recommendation("notre-dame", "colors", "色の言葉", "いろのことば", "A1", "いろ"),
+        recommendation("notre-dame", "town", "街の言葉", "まちのことば", "A2", "まち"),
+        recommendation("notre-dame", "comparison", "比べて話す文法", "くらべてはなすぶんぽう", "ぶんぽう2", "ひかく")
       ]
     }
   ]);

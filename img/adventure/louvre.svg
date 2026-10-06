@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300">
+  <title>ルーブル美術館の宮殿の窓列と、中庭のガラスのピラミッド</title>
+  <defs>
+    <linearGradient id="louvre-sky" x2="0" y2="1"><stop stop-color="#d2e5d7"/><stop offset="1" stop-color="#f2edce"/></linearGradient>
+    <linearGradient id="louvre-glass" x2=".6" y2="1"><stop stop-color="#e7eed4" stop-opacity=".86"/><stop offset="1" stop-color="#98bab4" stop-opacity=".9"/></linearGradient>
+    <linearGradient id="louvre-pool" x2="0" y2="1"><stop stop-color="#b9d6c7"/><stop offset="1" stop-color="#91b9b2"/></linearGradient>
+    <pattern id="louvre-paper" width="39" height="31" patternUnits="userSpaceOnUse"><path d="M4 9h4m21 15h6" stroke="#fff7dc" stroke-width="1" opacity=".27"/></pattern>
+    <g id="louvre-window"><path d="M0 0h10v19H0Z" fill="#81968d"/><path d="M-2-2h14v3H-2m-1 20h16" stroke="#c2b795" stroke-width="2"/><path d="M5 1v17M0 9h10" stroke="#eee2bc" stroke-width="1.2"/></g>
+    <g id="louvre-bay"><path d="M0 0h23v70H0Z" fill="#e9ddbd"/><use href="#louvre-window" x="6" y="8"/><use href="#louvre-window" x="6" y="40"/><path d="M0 32h23M0 66h23" stroke="#c6b894" stroke-width="2"/></g>
+    <g id="louvre-dormer"><path d="M0 0h14v17H0Z" fill="#e7d8b3"/><path d="m-3 0 10-11L17 0Z" fill="#cad0b2" stroke="#acaf95" stroke-width="1.2"/><path d="M4 4h6v10H4Z" fill="#8fa093"/></g>
+    <g id="louvre-tree"><path d="M0 0v29" stroke="#7d8067" stroke-width="4"/><path d="M-21 1c-14-17-4-36 12-36 13-19 34-8 35 6 14 14 3 34-12 32-13 7-25 3-35-2Z" fill="#7e9e83"/></g>
+    <clipPath id="louvre-front"><path d="m468 117-139 131 245 4Z"/></clipPath>
+    <clipPath id="louvre-side"><path d="m468 117 106 135 64-27Z"/></clipPath>
+  </defs>
+  <path d="M0 0h960v300H0Z" fill="url(#louvre-sky)"/>
+  <circle cx="749" cy="51" r="27" fill="#f9efc5"/>
+  <path d="M49 64c10-19 33-19 42-3 13-20 40-9 41 7 21-7 34 1 37 12H51m278-50c9-13 28-14 35-1 13-11 29-5 33 8h-70m365 51c9-15 27-11 31 1 18-9 34-1 34 12h-68" fill="#fff8df" opacity=".64"/>
+  <path d="M0 191q159-24 316-7t305-7 339 12v111H0Z" fill="#becbad"/>
+  <path d="M0 223h960v77H0Z" fill="#dfd8b9"/>
+  <!-- The palace wings frame an open courtyard; the pyramid is the foreground focus. -->
+  <path d="M85 133h737v78H85Z" fill="#e3d5b1"/>
+  <path d="m77 134 25-35h703l25 35Z" fill="#7f9287"/>
+  <path d="M88 131h730v9H88m-2 34h734v7H86m-6 27h746v8H80" fill="#f0e3c1"/>
+  <g><use href="#louvre-bay" x="99" y="140"/><use href="#louvre-bay" x="128" y="140"/><use href="#louvre-bay" x="157" y="140"/><use href="#louvre-bay" x="186" y="140"/><use href="#louvre-bay" x="215" y="140"/><use href="#louvre-bay" x="244" y="140"/><use href="#louvre-bay" x="273" y="140"/><use href="#louvre-bay" x="302" y="140"/><use href="#louvre-bay" x="331" y="140"/><use href="#louvre-bay" x="360" y="140"/><use href="#louvre-bay" x="553" y="140"/><use href="#louvre-bay" x="582" y="140"/><use href="#louvre-bay" x="611" y="140"/><use href="#louvre-bay" x="640" y="140"/><use href="#louvre-bay" x="669" y="140"/><use href="#louvre-bay" x="698" y="140"/><use href="#louvre-bay" x="727" y="140"/><use href="#louvre-bay" x="756" y="140"/><use href="#louvre-bay" x="785" y="140"/></g>
+  <g><use href="#louvre-dormer" x="123" y="107"/><use href="#louvre-dormer" x="174" y="107"/><use href="#louvre-dormer" x="225" y="107"/><use href="#louvre-dormer" x="276" y="107"/><use href="#louvre-dormer" x="327" y="107"/><use href="#louvre-dormer" x="571" y="107"/><use href="#louvre-dormer" x="622" y="107"/><use href="#louvre-dormer" x="673" y="107"/><use href="#louvre-dormer" x="724" y="107"/><use href="#louvre-dormer" x="775" y="107"/></g>
+  <path d="M377 107h160v107H377Z" fill="#efe1bd" stroke="#c4b894" stroke-width="1.5"/>
+  <path d="M382 107 400 66h114l19 41Z" fill="#6c867f"/>
+  <path d="M405 66 418 43h80l14 23Z" fill="#81958a"/>
+  <path d="M424 43h68v-9h-68Z" fill="#dfd4b2"/><path d="M440 34v-8m35 8v-8" stroke="#a3aa92" stroke-width="3"/>
+  <path d="M427 80h61v29h-61Z" fill="#e6d7b1"/><path d="m422 80 35-22 37 22Z" fill="#d9ccaa" stroke="#bdb291" stroke-width="1.5"/>
+  <circle cx="457" cy="91" r="9" fill="#b7b797" stroke="#9b9f87" stroke-width="1.5"/><path d="M457 85v7l5 2" stroke="#e9e1bf" stroke-width="1.5" fill="none"/>
+  <path d="M371 107h174v8H371m5 36h162v6H376m-1 33h165v6H375" fill="#cbbd97"/>
+  <g><use href="#louvre-window" x="390" y="122"/><use href="#louvre-window" x="416" y="122"/><use href="#louvre-window" x="442" y="122"/><use href="#louvre-window" x="468" y="122"/><use href="#louvre-window" x="494" y="122"/><use href="#louvre-window" x="520" y="122"/><use href="#louvre-window" x="390" y="162"/><use href="#louvre-window" x="416" y="162"/><use href="#louvre-window" x="494" y="162"/><use href="#louvre-window" x="520" y="162"/></g>
+  <path d="M380 119v89m28-89v89m28-89v89m44-89v89m28-89v89m28-89v89" stroke="#f5e9c7" stroke-width="5"/>
+  <path d="M437 214v-35a21 21 0 0 1 42 0v35Z" fill="#829488"/>
+  <path d="M66 130h48v85H66m748-85h47v85h-47" fill="#e9ddbb"/>
+  <path d="m63 130 8-49h38l9 49m696 0 8-49h38l10 49" fill="#6f887e"/>
+  <path d="M79 77h24v-7H79m749 7h24v-7h-24" fill="#c9c5a8"/>
+  <use href="#louvre-window" x="86" y="94"/><use href="#louvre-window" x="831" y="94"/>
+  <path d="M77 144h9v20h-9M92 144h9v20h-9M77 178h9v22h-9M92 178h9v22h-9M826 144h9v20h-9M842 144h9v20h-9M826 178h9v22h-9M842 178h9v22h-9" fill="#84998c"/>
+  <path d="M238 234h406l69 48H204Z" fill="#eee1bc"/>
+  <path d="M235 242h405l45 31H212Z" fill="url(#louvre-pool)"/>
+  <path d="M232 260h412m-353 7h199" stroke="#d2e5d0" stroke-width="2" stroke-linecap="round"/>
+  <path d="m468 117-139 131 245 4 64-27Z" fill="url(#louvre-glass)" stroke="#73999b" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="m468 117 106 135 64-27Z" fill="#88aba8" opacity=".72"/>
+  <g clip-path="url(#louvre-front)" fill="none" stroke="#dcebdd" stroke-width="1.5">
+    <path d="M225 280 445 73 M255 280 475 73 M285 280 505 73 M315 280 535 73 M345 280 565 73 M375 280 595 73 M405 280 625 73 M435 280 655 73 M465 280 685 73 M495 280 715 73 M525 280 745 73 M555 280 775 73 M585 280 805 73"/>
+    <path d="M260 85 430 302 M290 85 460 302 M320 85 490 302 M350 85 520 302 M380 85 550 302 M410 85 580 302 M440 85 610 302 M470 85 640 302 M500 85 670 302 M530 85 700 302 M560 85 730 302 M590 85 760 302 M620 85 790 302"/>
+  </g>
+  <g clip-path="url(#louvre-side)" fill="none" stroke="#c6ddcf" stroke-width="1.4"><path d="m468 117 135 142m-135-142 165 129M489 143l44-8m-27 30 54-12m-38 34 65-15m-48 37 79-19m-61 41 84-20"/></g>
+  <path d="m468 117 106 135m-245-4 245 4 64-27" fill="none" stroke="#648e94" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="m451 139-69 78" fill="none" stroke="#f4f4df" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+  <path d="m262 211-51 39 96 2Z" fill="#aac6bd" stroke="#789e9c" stroke-width="2"/><path d="m262 211 11 40m-30-19 43 1m-62 11 73 1" fill="none" stroke="#e0eada" stroke-width="1.5"/>
+  <path d="M201 282h514m-376 3-21 15m198-15 21 15m97-15 42 15" stroke="#c1c1a2" stroke-width="2"/>
+  <use href="#louvre-tree" x="42" y="210"/><use href="#louvre-tree" x="893" y="214"/>
+  <path d="M0 278q58-23 132 22H0m797 0q80-24 163-14v14" fill="#93ac8b"/>
+  <path d="M0 0h960v300H0Z" fill="url(#louvre-paper)"/>
+</svg>

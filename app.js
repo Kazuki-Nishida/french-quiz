@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v48 · A little fanfare along the way";
+const APP_VER = "v49 · More places to discover in Paris";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];

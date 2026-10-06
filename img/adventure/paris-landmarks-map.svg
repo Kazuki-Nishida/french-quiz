@@ -1,13 +1,76 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="650" viewBox="0 0 800 650" preserveAspectRatio="none"><title>パリの名所の位置関係。セーヌ川の北西岸にトロカデロ、南東岸にエッフェル塔とシャン・ド・マルス</title><defs><pattern id="grain" width="27" height="31" patternUnits="userSpaceOnUse"><circle cx="5" cy="8" r=".6" fill="#607d65" opacity=".1"/></pattern><pattern id="water" width="74" height="37" patternUnits="userSpaceOnUse"><path d="M5 9h17m21 15h21" stroke="#d9eee0" stroke-width="2" stroke-linecap="round" opacity=".6"/></pattern><g id="tree"><ellipse cy="9" rx="13" ry="5" fill="#7a896544"/><path d="M0-4v14" stroke="#8b8060" stroke-width="2.5"/><path d="M-13-6c-5-12 4-19 12-18 7-7 20 4 16 13 7 12-19 22-28 5Z" fill="#7b9d7c"/><path d="m-7-13 4-5" stroke="#adc1a0" stroke-width="2" stroke-linecap="round"/></g><g id="building"><path d="m-18-8 30-8 12 9-29 9Z" fill="#8b9b8733"/><path d="M-18-35 11-43v34l-29 8Z" fill="#e5cba3"/><path d="m11-43 12 10v32L11-9Z" fill="#c0ad8e"/><path d="m-23-35 9-15 28-9 14 27-17-9Z" fill="#6e8580"/><path d="M-10-29v8m11-12v8M-10-13v7M17-29v9" stroke="#779085" stroke-width="4"/></g></defs><path fill="#e7e6ce" d="M0 0h800v650H0Z"/><path d="M-80 610C110 462 240 438 369 293S593 214 880 55" fill="none" stroke="#bcd0bc" stroke-width="75"/><path d="M-80 610C110 462 240 438 369 293S593 214 880 55" fill="none" stroke="#87b9b2" stroke-width="50"/><path d="M-80 610C110 462 240 438 369 293S593 214 880 55" fill="none" stroke="url(#water)" stroke-width="48"/><path d="M-53 566C98 447 211 420 349 277S583 193 859 35M-66 646C129 491 272 463 391 315S620 239 891 80" fill="none" stroke="#f6ebc9" stroke-width="13"/>
-<path d="M-15 153 194 155 314 38M221 139 221-10M32-10l163 141M-18 278l225-108M287 146l168-85M431 421l-70 229M508 372l292 140M584 446l151-167M678 567l120 51" fill="none" stroke="#f8efda" stroke-width="20"/><path d="M-15 153 194 155 314 38M221 139 221-10M32-10l163 141M431 421l-70 229M508 372l292 140" fill="none" stroke="#d9d4b5" stroke-width="1" stroke-dasharray="4 7"/>
-<path d="m185 166 53-23 119 98-25 29Z" fill="#b5c49a"/><path d="m215 168 14-8 103 87-14 8Z" fill="#e2d6ac"/><path d="m237 185 9-7 61 53-9 7Z" fill="#87b7a5"/><path d="m249 190 3-3 45 39-3 3Z" fill="#d7e7c9"/>
-<path d="M217 121C177 75 93 57 80 86l16 30c15-16 70-3 98 22m34-17c8-61 57-120 88-110l20 30c-35-11-67 33-83 92" fill="#e7d1a7" stroke="#bdad8a" stroke-width="2"/><path d="M211 121c-45-37-102-41-119-29m150 32c6-45 47-91 78-95" fill="none" stroke="#839486" stroke-width="13"/><path d="M209 131c-38-31-84-33-104-22m143 26c10-40 44-72 73-75" fill="none" stroke="#cbb791" stroke-width="3"/>
-<path d="m361 255 23-19 76 83-23 18Z" fill="#ded0ac" stroke="#a29777" stroke-width="2"/><path d="m366 251 23-19 76 83m-23 22-76-83" fill="none" stroke="#f5e7c4" stroke-width="4"/><path d="m374 259 22-18m-10 31 23-20m-12 33 24-21m-11 34 23-21m-11 34 23-22" stroke="#b6a989" stroke-width="2"/>
-<path d="m417 385 88-58 221 253-112 69Z" fill="#b9cca1"/><path d="m441 384 21-14 228 256-24 14Z" fill="#e7deb7"/><path d="m479 359 19-11 220 254-20 12Z" fill="#e7deb7"/><path d="m455 390 30-19 50 56-30 21Zm61 70 30-20 50 57-31 20Zm61 70 31-20 48 55-32 19Z" fill="#92b08a"/>
-<g stroke="#789975" stroke-width="8" stroke-linecap="round"><path d="m423 401 167 196m-67-248 188 208"/></g>
-<g transform="translate(464 353)"><ellipse cy="10" rx="35" ry="14" fill="#6f866844"/><path d="M-5-91 4-91 9-47 27 4H-27l19-51Z" fill="#927958" stroke="#695f4a" stroke-width="2"/><path d="M-20-15h40m-32-31h24m-20-25h16M0-101v12" stroke="#5e634e" stroke-width="3"/><path d="M-17 4q17-29 34 0" fill="#c3d2ab" stroke="#635e48" stroke-width="2"/><path d="m-5-79 11 26-18 18 27 17m-11-61-11 26 18 18-27 17" fill="none" stroke="#d9c397" stroke-width="1.5"/></g>
-<use href="#building" x="73" y="206"/><use href="#building" x="117" y="235"/><use href="#building" x="42" y="351"/><use href="#building" x="146" y="53"/><use href="#building" x="356" y="119"/><use href="#building" x="408" y="73"/><use href="#building" x="479" y="120"/><use href="#building" x="535" y="81"/><use href="#building" x="585" y="124"/>
-<use href="#building" x="221" y="575"/><use href="#building" x="287" y="612"/><use href="#building" x="330" y="546"/><use href="#building" x="576" y="331"/><use href="#building" x="640" y="381"/><use href="#building" x="710" y="411"/><use href="#building" x="758" y="339"/>
-<use href="#tree" x="164" y="145"/><use href="#tree" x="270" y="186"/><use href="#tree" x="310" y="219"/><use href="#tree" x="328" y="270"/><use href="#tree" x="200" y="226"/><use href="#tree" x="440" y="181"/><use href="#tree" x="517" y="153"/>
-<use href="#tree" x="392" y="387"/><use href="#tree" x="428" y="466"/><use href="#tree" x="476" y="520"/><use href="#tree" x="527" y="582"/><use href="#tree" x="553" y="391"/><use href="#tree" x="606" y="448"/><use href="#tree" x="659" y="508"/>
-<path d="m677 148 38-15-17 21Z" fill="#e5d3b0"/><path d="m690 145 3-17 16 9Z" fill="#c28c65"/><text x="101" y="500" transform="rotate(-33 101 500)" font-family="Georgia,serif" font-size="13" letter-spacing="3" fill="#588d85">LA SEINE</text><path fill="url(#grain)" d="M0 0h800v650H0Z"/><g transform="translate(739 49)"><path d="m0-16-4 16 4-3 4 3Z" fill="#668069"/><path d="M0 0v13" stroke="#668069"/><text y="-23" text-anchor="middle" font-size="11" font-family="Georgia,serif" fill="#668069">N</text></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="650" viewBox="0 0 800 650" preserveAspectRatio="none">
+<title>パリの名所をめぐる地図。北が上。セーヌ川の北側に凱旋門とルーブル、シテ島にノートルダム</title>
+<defs>
+<pattern id="grain" width="29" height="31" patternUnits="userSpaceOnUse"><circle cx="5" cy="8" r=".7" fill="#627d68" opacity=".12"/></pattern>
+<pattern id="water" width="54" height="29" patternUnits="userSpaceOnUse"><path d="M4 8h14m14 14h16" stroke="#d8eee3" stroke-width="2" opacity=".7"/></pattern>
+<g id="tree"><path d="M0 0v11" stroke="#927c59" stroke-width="2"/><ellipse cy="-3" rx="9" ry="12" fill="#98b191"/><path d="M-3-10v8" stroke="#c1ce9f" stroke-width="2" stroke-linecap="round"/></g>
+<g id="house"><path d="m0 0 15-4 7 5v23H0Z" fill="#dfcba7"/><path d="m-3 0 6-9 15-3 7 13-9-4Z" fill="#889997"/><path d="M16-4v27h6V1Z" fill="#c6b598"/><path d="M4 5v5m7-7v5M4 15v5m7-7v5" stroke="#a2ae9b" stroke-width="3"/></g>
+</defs>
+<path d="M0 0h800v650H0Z" fill="#e8e6d0"/>
+<!-- Urban blocks and broad boulevards are illustrative; landmark pins use geographic coordinates. -->
+<g fill="#dbdfc4"><path d="M20 20h115v117H20ZM355 32h145v134H355ZM600 25h156v145H600ZM436 190h115v95H436ZM380 495h156v125H380ZM35 520h115v88H35Z"/></g>
+<g fill="none" stroke="#faf2de" stroke-width="19"><path d="M181 126 35 0M181 126 176 0M181 126 290 0M181 126 381 93M181 126 442 230 568 394M181 126 237 287M181 126 109 346M181 126 0 234M181 126 0 102M535 0 510 158 618 315 773 396M10 465 407 592M48 619 274 443 436 322M309 650 400 465 416 202 465 0"/></g>
+<path d="M-45 680C29 539 101 442 167 389S246 311 291 326C399 335 433 379 502 432S598 522 675 548 754 612 837 674" fill="none" stroke="#c0d2b9" stroke-width="48"/>
+<path id="river" d="M-45 680C29 539 101 442 167 389S246 311 291 326C399 335 433 379 502 432S598 522 675 548 754 612 837 674" fill="none" stroke="#87b8b2" stroke-width="33"/>
+<use href="#river" stroke="url(#water)" stroke-width="30"/>
+<path d="M603 513Q641 511 711 559Q672 571 603 513Z" fill="#eee3c6" stroke="#c3cbb3" stroke-width="3"/>
+<path d="M708 566q44 5 71 39-43-7-71-39Z" fill="#dfdfc0"/>
+<g fill="none" stroke="#f0dfb9" stroke-width="12"><path d="m152 373 30 31M267 305l-4 45M360 336l-18 35M494 412l-25 32M626 503l-17 34M702 537l-18 42"/></g>
+<g stroke="#bba785" stroke-width="2"><path d="m147 376 30 31m-20-36 30 31M262 305l-4 44M621 502l-16 32M697 536l-18 42"/></g>
+<!-- Gardens of the Trocadero, Champ-de-Mars and Tuileries. -->
+<path d="m98 327 26-5 37 50-21 15Z" fill="#abc49a"/><path d="m114 331 31 44" stroke="#eee0b7" stroke-width="8"/>
+<path d="m167 441 23-9 48 83-29 16Z" fill="#adc69c"/><path d="m181 443 43 79" stroke="#efdfb8" stroke-width="6"/>
+<path d="m446 312 55 28 42 42-54-24Z" fill="#b6c79b"/><path d="m455 324 75 48" stroke="#f1e2bc" stroke-width="6"/>
+
+<use href="#house" x="40" y="48"/>
+<use href="#house" x="90" y="78"/>
+<use href="#house" x="317" y="40"/>
+<use href="#house" x="345" y="80"/>
+<use href="#house" x="388" y="165"/>
+<use href="#house" x="445" y="110"/>
+<use href="#house" x="580" y="63"/>
+<use href="#house" x="676" y="91"/>
+<use href="#house" x="733" y="140"/>
+<use href="#house" x="64" y="280"/>
+<use href="#house" x="43" y="332"/>
+<use href="#house" x="339" y="250"/>
+<use href="#house" x="383" y="270"/>
+<use href="#house" x="610" y="275"/>
+<use href="#house" x="675" y="317"/>
+<use href="#house" x="733" y="363"/>
+<use href="#house" x="287" y="440"/>
+<use href="#house" x="344" y="470"/>
+<use href="#house" x="412" y="522"/>
+<use href="#house" x="448" y="565"/>
+<use href="#house" x="496" y="532"/>
+<use href="#house" x="559" y="614"/>
+<use href="#house" x="72" y="571"/>
+<use href="#house" x="760" y="497"/>
+<use href="#tree" x="61" y="130"/>
+<use href="#tree" x="38" y="305"/>
+<use href="#tree" x="85" y="375"/>
+<use href="#tree" x="109" y="401"/>
+<use href="#tree" x="239" y="187"/>
+<use href="#tree" x="342" y="167"/>
+<use href="#tree" x="424" y="290"/>
+<use href="#tree" x="449" y="314"/>
+<use href="#tree" x="481" y="335"/>
+<use href="#tree" x="535" y="368"/>
+<use href="#tree" x="750" y="275"/>
+<use href="#tree" x="733" y="530"/>
+<use href="#tree" x="589" y="569"/>
+<use href="#tree" x="210" y="551"/>
+<use href="#tree" x="164" y="564"/>
+<use href="#tree" x="382" y="553"/>
+<use href="#tree" x="46" y="416"/>
+
+<!-- Miniatures sit above each actual position; all are original vector drawings. -->
+<g transform="translate(181 126)"><ellipse cy="4" rx="32" ry="10" fill="#87917733"/><path d="M-25 0v-61h50V0H10v-23a10 10 0 0 0-20 0V0Z" fill="#decca6" stroke="#ad9575" stroke-width="2"/><path d="M-28-60h56v9h-56Z" fill="#eadbb7"/><path d="M-25-42h50M-20-67h40" stroke="#bda57e" stroke-width="5"/><path d="M-18-34v23m36-23v23" stroke="#b39f7e" stroke-width="6"/></g>
+<g transform="translate(109 346)"><path d="M-31-8q-2-20 20-24l7 10Q-21-19-21-8m26-14 7-10q22 4 19 24H20q1-12-15-14Z" fill="#d8c49d" stroke="#a79c7a" stroke-width="2"/><path d="M-5-24h10v15H-5Z" fill="#e9d6af"/></g>
+<g transform="translate(177 439)"><ellipse cy="3" rx="22" ry="7" fill="#70856933"/><path d="M-2-66h4l5 33L21 0H-21l14-33Z" fill="#af9066" stroke="#716a52" stroke-width="2"/><path d="M-14-14h28M-8-34H8M-4-51h8M0-74v8M-12 0q12-21 24 0" fill="none" stroke="#716a52" stroke-width="3"/></g>
+<g transform="translate(569 394)"><path d="M-37-7v-27h28v-16H9v16h28v27Z" fill="#dcc8a3" stroke="#b9a586" stroke-width="1.5"/><path d="m-41-34 8-10h21l3 10m-3-16 12-13 12 13m-3 16 4-10h20l8 10" fill="#7d9591"/><path d="M-29-26v12m8-12v12m41-12v12m8-12v12M-4-42v10m8-10v10" stroke="#92a49a" stroke-width="3"/><path d="m-20 0 20-29L23 0Z" fill="#a4d0c9" stroke="#729b9b" stroke-width="2"/><path d="M0-29V0m-10-15h21m-27 8h32" stroke="#e5efe0" stroke-width="1.5"/></g>
+<g transform="translate(680 549)"><path d="M-23-5v-63h15v23H8v-23h15v63Z" fill="#dcccac" stroke="#b09c7c" stroke-width="2"/><path d="M-18-60v13m5-13v13m26-13v13m5-13v13" stroke="#788f88" stroke-width="3"/><circle cy="-31" r="8" fill="#91b6b1" stroke="#b8a582" stroke-width="3"/><path d="M0-38v14m-7-7H7M-23-17h46" stroke="#e7d9b8" stroke-width="2"/><path d="M-18-5v-6q4-8 8 0v6m6 0v-6q4-9 8 0v6m6 0v-6q4-8 8 0v6" fill="#87968a"/></g>
+<g fill="#6d8f85" font-family="Georgia,serif" font-size="12" letter-spacing="3"><text x="350" y="387" transform="rotate(29 350 387)">LA SEINE</text><text x="485" y="57" font-size="20" fill="#a0a589" letter-spacing="8">PARIS</text></g>
+<path fill="url(#grain)" d="M0 0h800v650H0Z"/>
+<g transform="translate(749 48)" fill="#67836d"><path d="m0-16-5 18 5-4 5 4Z"/><path d="M0 1v12" stroke="#67836d"/><text y="-23" text-anchor="middle" font-family="Georgia,serif" font-size="11">N</text></g>
+</svg>

@@ -23,6 +23,16 @@
   for (const from of ["trocadero", "seine", "eiffel", "champ-de-mars", "mont-saint-michel", "chambord", "versailles"]) {
     pairs.push([from, "marseille", 48]);
   }
+  // Append the new Paris destinations without changing any of the old 54
+  // directed routes, including journeys saved partway along those routes.
+  const connectedPlaces = ["trocadero", "seine", "eiffel", "champ-de-mars", "mont-saint-michel", "chambord", "marseille", "versailles"];
+  for (const to of ["arc-de-triomphe", "louvre", "notre-dame"]) {
+    for (const from of connectedPlaces) {
+      const cost = from === "versailles" ? 16 : from === "chambord" ? 24 : from === "mont-saint-michel" || from === "marseille" ? 48 : 8;
+      pairs.push([from, to, cost]);
+    }
+    connectedPlaces.push(to);
+  }
   const edges = Object.freeze(pairs.flatMap(([from, to, cost]) => [
     Object.freeze({ id: from + "--" + to, from, to, cost }),
     Object.freeze({ id: to + "--" + from, from: to, to: from, cost })

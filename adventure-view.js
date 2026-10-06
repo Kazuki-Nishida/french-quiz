@@ -3,6 +3,13 @@
 
   const ASSETS = 'img/adventure/';
   const REGION_LABEL_POSITIONS = { paris: [70, 14], normandy: [20, 18], versailles: [72, 35], loire: [23, 53], provence: [70, 80] };
+  // Labels have room to breathe on phones; dots and journey paths keep their
+  // geographic positions. Leader lines connect each label to its real place.
+  const PARIS_LABEL_POSITIONS = {
+    trocadero: [18, 35], seine: [47, 57], eiffel: [17, 73],
+    'champ-de-mars': [40, 91], 'arc-de-triomphe': [30, 12],
+    louvre: [74, 35], 'notre-dame': [79, 78]
+  };
   const fallbackNodes = [
     { id: 'trocadero', name: 'トロカデロ広場', reading: 'トロカデロひろば', regionId: 'paris', x: 28, y: 21.64, lat: 48.86297, lon: 2.287, illustration: ASSETS + 'trocadero.svg' }
   ];
@@ -48,7 +55,11 @@
     '再開': 'さいかい', '始': 'はじ', '開け': 'あけ', '空': 'そら', '集め': 'あつめ', '選択中': 'せんたくちゅう',
     '積み上げ': 'つみあげ', '残': 'のこ', '楽': 'たの', '一緒': 'いっしょ',
     '確認中': 'かくにんちゅう', '自由': 'じゆう', '同じ': 'おなじ', '別': 'べつ', '紹介': 'しょうかい',
-    '宝物': 'たからもの', '条件': 'じょうけん', '行き': 'いき'
+    '宝物': 'たからもの', '条件': 'じょうけん', '行き': 'いき',
+    '凱旋門': 'がいせんもん', '美術館': 'びじゅつかん', '大聖堂': 'だいせいどう',
+    '点': 'てん', '位置': 'いち', '線': 'せん', '中庭': 'なかにわ',
+    '門': 'もん', '年': 'ねん', '完成': 'かんせい', '伝': 'つた',
+    '浮': 'う', 'シテ島': 'シテとう', '塔': 'とう', '丸': 'まる', '目印': 'めじるし', '大き': 'おおき'
   };
   const readingPattern = new RegExp(Object.keys(readings).sort((a, b) => b.length - a.length).join('|'), 'g');
   const sceneMemory = new WeakMap();
@@ -185,6 +196,9 @@
       chambord: '<path d="M8 40V23h8V13h6v11h7V12h7v12h8v16ZM6 23l6-9 6 9M28 12l5-8 5 8M21 40V29h8v11M36 25v15M15 25v15"/>',
       marseille: '<path d="M5 40q5-4 10 0t10 0t10 0t10 0M8 29h34l-5 7H14ZM25 8v21m-3-16L11 26h11m6-14 10 14H28M5 24V13h8v8m29 3V13h-7v8"/>',
       versailles: '<path d="M5 37V21h12V13h16v8h12v16ZM15 13l10-7 10 7M21 37V25h8v12M10 26v6m5-6v6m20-6v6m5-6v6M4 42h42M20 17h10"/>',
+      'arc-de-triomphe': '<path d="M8 42V9h34v33H31V29a6 6 0 0 0-12 0v13ZM6 9h38M8 17h34M13 23v12m24-12v12M12 5h26"/>',
+      louvre: '<path d="M4 34V16h14v9m14 0v-9h14v18M2 16l9-7 9 7m10 0 9-7 9 7M12 42l13-22 14 22Zm13-22v22M8 22v7m34-7v7M17 35h17"/>',
+      'notre-dame': '<path d="M7 42V8h11v13h14V8h11v34ZM11 12v5m3-5v5m22-5v5m3-5v5M7 31h36M11 42v-6q3-5 6 0v6m5 0v-6q3-5 6 0v6m5 0v-6q3-5 6 0v6"/><circle cx="25" cy="26" r="4"/>',
       seine: '<path d="M5 33q5-4 10 0t10 0t10 0t10 0M5 41q5-4 10 0t10 0t10 0t10 0M6 24h38M8 24V13m34 11V13M8 13q17 17 34 0"/>',
       'champ-de-mars': '<path d="M25 43V26M16 32H9a7 7 0 0 1 0-14 9 9 0 0 1 16-8 8 8 0 1 1 12 13 8 8 0 0 1-6 9M18 44h14M25 28l-6-5"/>',
       trocadero: '<path d="M5 40h40M8 38V22h12V12h10v10h12v16M5 22h17M28 22h17M12 26v10m5-10v10m16-10v10m5-10v10M20 12l5-7 5 7"/>'
@@ -207,7 +221,7 @@
   function routeLines(state, scope) {
     const unique = new Map();
     const priority = edge => state && state.activeLeg && state.activeLeg.edgeId === edge.id ? 3 : state && state.currentNodeId === edge.from ? 2 : 1;
-    edges().filter(edge => routeMatches(edge, scope)).forEach(edge => {
+    edges().filter(edge => routeMatches(edge, scope) && (scope !== 'paris' || state && (edge.from === state.currentNodeId || state.activeLeg && edge.id === state.activeLeg.edgeId))).forEach(edge => {
       const pair = scope === 'france' ? [node(edge.from).regionId, node(edge.to).regionId] : [edge.from, edge.to];
       const key = pair.sort().join('::'), previous = unique.get(key);
       if (!previous || priority(edge) > priority(previous)) unique.set(key, edge);
@@ -263,9 +277,17 @@
     }
     const shortNames = { trocadero: 'トロカデロ広場', seine: 'セーヌ川', eiffel: 'エッフェル塔', 'champ-de-mars': 'シャン・ド・マルス' };
     return nodes().filter(place => place.regionId === 'paris').map(place => {
+      const position = PARIS_LABEL_POSITIONS[place.id] || [place.x, place.y];
       const here = state && state.currentNodeId === place.id, inTransit = state && state.activeLeg, chosen = inTransit && state.activeLeg.to === place.id;
       const label = here ? (inTransit ? '出発地' : '現在地') : chosen ? '移動中' : visited(state, place.id) ? '訪問済み' : '未訪問';
-      return '<button type="button" class="av-place-marker' + (here && !inTransit ? ' is-current' : '') + (chosen ? ' is-traveling' : '') + (selected === place.id ? ' is-selected' : '') + (visited(state, place.id) ? ' is-visited' : '') + '" style="left:' + count(place.x) + '%;top:' + count(place.y) + '%" data-place="' + escape(place.id) + '" data-av-focus="place-' + escape(place.id) + '" aria-pressed="' + (selected === place.id) + '" aria-label="' + escape(place.name + '、' + label) + '"><span class="av-place-pin"></span><span class="av-place-name">' + ja(shortNames[place.id] || place.name) + '</span><small>' + ja(label) + '</small></button>';
+      return '<button type="button" class="av-place-marker' + (here && !inTransit ? ' is-current' : '') + (chosen ? ' is-traveling' : '') + (selected === place.id ? ' is-selected' : '') + (visited(state, place.id) ? ' is-visited' : '') + '" style="left:' + position[0] + '%;top:' + position[1] + '%" data-place="' + escape(place.id) + '" data-av-focus="place-' + escape(place.id) + '" aria-pressed="' + (selected === place.id) + '" aria-label="' + escape(place.name + '、' + label) + '"><span class="av-place-name">' + (shortNames[place.id] ? ja(shortNames[place.id]) : nodeLabel(place)) + '</span><small>' + ja(label) + '</small></button>';
+    }).join('');
+  }
+  function placeLeaders(state, selected) {
+    return nodes().filter(place => place.regionId === 'paris').map(place => {
+      const label = PARIS_LABEL_POSITIONS[place.id] || [place.x, place.y];
+      const color = selected === place.id ? '#b26845' : state && state.currentNodeId === place.id ? '#267469' : '#6e8a77';
+      return '<g data-location-dot="' + escape(place.id) + '"><path d="M' + place.x + ' ' + place.y + ' L' + label.join(' ') + '" stroke="' + color + '" stroke-width=".3" fill="none"/><circle cx="' + place.x + '" cy="' + place.y + '" r="1.05" fill="' + color + '" stroke="#fff9e9" stroke-width=".5"/></g>';
     }).join('');
   }
   function regionLeaders() {
@@ -329,14 +351,14 @@
     const regionDescription = ui.scope === 'france' ? '<div class="av-region-summary"><p class="av-eyebrow">FRANCE · ' + escape(selectedRegion.id || '').toUpperCase() + '</p><h3>' + nodeLabel(selectedRegion) + '</h3><p>' + ja(selectedRegion.description || '') + '</p>' + (selectedRegion.id === 'paris' ? '<button type="button" class="av-inline-button" data-scope="paris">' + ja('パリ周辺の地図を見る') + ' →</button>' : '') + '</div>' : '';
     const header = '<header class="av-map-heading"><div><p class="av-eyebrow">LES CHEMINS DES MOTS</p><h2>' + ja('言葉と旅するフランス') + '</h2><p>' + ja('名所を訪ね、旅のキャラに出会おう。') + '</p></div><button type="button" class="av-journal-shortcut" data-journal data-av-focus="journal">' + glyph('chambord') + '<span>' + ja('旅の図鑑') + '</span></button></header>';
     const tabs = '<div class="av-map-switch" role="group" aria-label="地図の範囲"><button type="button" data-scope="france" data-av-focus="scope-france" aria-pressed="' + (ui.scope === 'france') + '">' + ja('フランス全国') + '</button><button type="button" data-scope="paris" data-av-focus="scope-paris" aria-pressed="' + (ui.scope === 'paris') + '">' + ja('パリ周辺') + '</button></div>';
-    const canvas = '<div class="av-map-canvas av-geographic-map av-map-' + ui.scope + '"><img class="av-map-art" src="' + ASSETS + (ui.scope === 'france' ? 'france-map.svg?v=39' : 'paris-landmarks-map.svg?v=39') + '" alt="' + (ui.scope === 'france' ? 'フランス本土とコルシカ島。北が上の略図' : 'トロカデロとエッフェル塔の間をセーヌ川が流れる、北が上のパリ周辺の略図') + '" width="800" height="650"><svg class="av-map-routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + routeLines(state, ui.scope) + (ui.scope === 'france' ? regionLeaders() : '') + '</svg>' + mapNodes(state, ui.scope, ui.scope === 'france' ? ui.regionId : ui.placeId) + traveler(profile, ui.scope) + '<span class="av-map-caption">' + (ui.scope === 'france' ? 'FRANCE · N ↑' : 'PARIS · N ↑') + '</span></div>';
+    const canvas = '<div class="av-map-canvas av-geographic-map av-map-' + ui.scope + '"><img class="av-map-art" src="' + ASSETS + (ui.scope === 'france' ? 'france-map.svg?v=39' : 'paris-landmarks-map.svg?v=49') + '" alt="' + (ui.scope === 'france' ? 'フランス本土とコルシカ島。北が上の略図' : '凱旋門からルーブル美術館、シテ島のノートルダム大聖堂まで。北が上のパリ周辺の略図') + '" width="800" height="650"><svg class="av-map-routes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' + routeLines(state, ui.scope) + (ui.scope === 'france' ? regionLeaders() : placeLeaders(state, ui.placeId)) + '</svg>' + mapNodes(state, ui.scope, ui.scope === 'france' ? ui.regionId : ui.placeId) + traveler(profile, ui.scope) + '<span class="av-map-caption">' + (ui.scope === 'france' ? 'FRANCE · N ↑' : 'PARIS · N ↑') + '</span></div>';
     const outskirts = ui.scope === 'paris' && nodes().some(place => place.id === 'versailles') ? '<button type="button" class="av-map-outskirts" data-outside-place="versailles" data-av-focus="outside-versailles"><span aria-hidden="true">←</span><span><strong>' + ja('西へ：ヴェルサイユ宮殿') + '</strong><small>' + ja('パリ市内の外へ。全国の地図で場所を見る') + '</small></span></button>' : '';
     const finale = finaleStatus(profile), transport = selectedVehicle(profile);
     const travel = '<div class="av-travel-summary"><div><span class="av-small-label">' + ja(finale.active ? '最後の宝探し' : state && state.activeLeg ? '移動中' : '現在地') + '</span><strong>' + ja(finale.active ? catalog().finale.name + 'へ' : state && state.activeLeg ? nodeName(state.activeLeg.from) + ' → ' + nodeName(state.activeLeg.to) : current.name) + '</strong><p>' + ja(journeyRemaining(profile)) + '</p>' + journeyProgress(profile) + (finale.active ? '' : pendingText(state)) + '</div>' + ride(profile, 'idle', 'av-summary-buddy') + '</div>';
     const transportSummary = '<div class="av-transport-summary"><div><span>' + ja('旅の乗り物') + '</span><strong>' + (transport ? ruby(transport.name, transport.reading) : ja('徒歩')) + '</strong></div><button type="button" class="av-inline-button" data-journal="vehicles" data-av-focus="change-vehicle">' + ja('乗りかえる') + ' →</button></div>';
     const startButton = '<button type="button" class="av-study-button av-map-start" data-action="study" data-av-focus="study-top">' + ja('学習して旅を進める') + '<span aria-hidden="true">→</span></button>';
     const modes = ['rich', 'calm'].map(value => '<button type="button" class="av-effect-button" data-mode="' + value + '" data-av-focus="effects-' + value + '" aria-pressed="' + (mode === value) + '">' + (value === 'rich' ? 'たっぷり' : 'ひかえめ') + '</button>').join('');
-    paint(container, '<div class="av-map-panel av-mode-' + mode + '">' + header + startButton + goalSummary(profile) + tabs + canvas + outskirts + '<p class="av-map-instruction">' + ja(ui.scope === 'france' ? '地域の名前を選ぶと、旅先の紹介が開きます。' : '地点を選ぶと、名所の紹介と進む道が見られます。') + '</p>' + travel + transportSummary + (!status.ok ? '<p class="av-unavailable" role="status">' + escape(status.reason || '旅の記録を確認してください。') + '</p>' : '') + regionDescription + (planned ? '<div class="av-planned-card"><span>À BIENTÔT</span><h3>' + ja('この旅先は制作中') + '</h3><p>' + ja('次に訪ねる場所を、少しずつ増やしていきます。') + '</p></div>' : detailCard(selected, profile)) + finaleCard(profile) + '<button type="button" class="av-study-button" data-action="study" data-av-focus="study">' + ja('好きな教材で学習する') + '<span aria-hidden="true">→</span></button><fieldset class="av-effects"><legend>' + ja('応援の多さ') + '</legend><div>' + modes + '</div></fieldset></div>');
+    paint(container, '<div class="av-map-panel av-mode-' + mode + '">' + header + startButton + goalSummary(profile) + tabs + canvas + outskirts + '<p class="av-map-instruction">' + ja(ui.scope === 'france' ? '地域の名前を選ぶと、旅先の紹介が開きます。' : '名前を選ぶと名所の紹介へ。点は場所の位置、点線は旅の道です。') + '</p>' + travel + transportSummary + (!status.ok ? '<p class="av-unavailable" role="status">' + escape(status.reason || '旅の記録を確認してください。') + '</p>' : '') + regionDescription + (planned ? '<div class="av-planned-card"><span>À BIENTÔT</span><h3>' + ja('この旅先は制作中') + '</h3><p>' + ja('次に訪ねる場所を、少しずつ増やしていきます。') + '</p></div>' : detailCard(selected, profile)) + finaleCard(profile) + '<button type="button" class="av-study-button" data-action="study" data-av-focus="study">' + ja('好きな教材で学習する') + '<span aria-hidden="true">→</span></button><fieldset class="av-effects"><legend>' + ja('応援の多さ') + '</legend><div>' + modes + '</div></fieldset></div>');
     const redraw = () => renderMap(container, profile, Object.assign({}, handlers, { focusPlaceId: null, focusFinale: false }));
     connect(container, '[data-scope]', data => { ui.scope = data.scope; if (data.scope === 'paris') { ui.regionId = 'paris'; if (node(ui.placeId).regionId !== 'paris') ui.placeId = 'eiffel'; } redraw(); });
     connect(container, '[data-region]', data => { ui.regionId = data.region; const first = nodes().find(item => item.regionId === data.region); if (first) ui.placeId = first.id; redraw(); });
