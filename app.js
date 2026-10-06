@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v42 · Stars and balloons";
+const APP_VER = "v43 · Clear audio buttons";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];

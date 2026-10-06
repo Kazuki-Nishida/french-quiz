@@ -23,7 +23,11 @@ button:focus-visible,select:focus-visible,input:focus-visible,[role=button]:focu
 #rlist .rrow{overflow-wrap:anywhere}#scr-result .row .btn{font-size:16px;line-height:1.9;padding:12px 8px}
 #lvchoices .choice,#dirchoices .choice{line-height:2}.hll{line-height:2}.hlrow{min-height:36px}
 #nextwrap{z-index:15}#qprog{overflow:visible}#qprog span{flex-shrink:1}
-.option-wrap{position:relative;min-width:0}.option-wrap>.opt{width:100%;height:100%}.option-wrap>.ospeak{z-index:2}
+/* Keep audio controls in their own row, included in the option grid's height. */
+.option-wrap{position:relative;min-width:0;display:flex;flex-direction:column;gap:10px}
+.option-wrap>.opt{width:100%;flex:1}
+.option-wrap>.ospeak{align-self:center;min-width:64px;min-height:44px;padding:6px 18px;border:1px solid #c8d8d0;border-radius:99px;background:#edf4ee;color:#29423e;font-size:20px;line-height:1.4}
+.option-wrap>.ospeak:focus-visible{outline:3px solid #277d70;outline-offset:3px}
 .opt .ofr{overflow-wrap:anywhere}
 .expl,.gramfull,.rrow .fr,.srow .fr{overflow-wrap:anywhere}
 #scr-quiz[data-effects="calm"] .opt{animation:none!important}
