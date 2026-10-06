@@ -186,7 +186,7 @@ test("home preview shows the actual next vehicle and does not invent another rew
     const expected = WorldData.vehicles.find(vehicle => vehicle.requiredUnits > amount);
     const picture = card.querySelector("img");
     if (expected) {
-      assert.equal(picture && picture.getAttribute("src"), expected.asset);
+      assert.equal(picture && picture.getAttribute("src").split('?')[0], expected.asset);
       assert.match(card.textContent, new RegExp("あと\\s*" + (expected.requiredUnits - amount) + "\\s*問"));
       assert.doesNotMatch(card.textContent, /全部そろった/);
     } else {

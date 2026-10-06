@@ -85,14 +85,14 @@
   }
   function companion(reaction, extraClass) {
     const variant = ['idle', 'correct', 'wrong', 'arrival'].includes(reaction) ? reaction : 'idle';
-    return '<img class="av-companion ' + (extraClass || '') + '" src="' + ASSETS + 'companion-' + variant + '.svg" alt="" width="128" height="144" draggable="false">';
+    return '<img class="av-companion ' + (extraClass || '') + '" src="' + ASSETS + 'companion-' + variant + '.svg?v=44-art" alt="" width="128" height="144" draggable="false">';
   }
   function ride(profile, reaction, extraClass) {
     const vehicle = selectedVehicle(profile);
     if (!vehicle) return companion(reaction, extraClass);
     const definition = (catalog().vehicles || []).find(item => item.id === vehicle.id) || vehicle;
     const rider = vehicle.rider || definition.rider || { x: 50, y: 65 };
-    return '<span class="av-mounted av-vehicle-' + escape(vehicle.id) + ' ' + (extraClass || '') + '" role="img" aria-label="' + escape(vehicle.name + 'に乗った相棒') + '"><span class="av-rider" style="left:' + count(rider.x) + '%;top:' + count(rider.y) + '%">' + companion(reaction) + '</span><img class="av-vehicle-art" src="' + escape(vehicle.asset || definition.asset) + '" alt="" width="320" height="220" draggable="false"></span>';
+    return '<span class="av-mounted av-vehicle-' + escape(vehicle.id) + ' ' + (extraClass || '') + '" role="img" aria-label="' + escape(vehicle.name + 'に乗った相棒') + '"><span class="av-rider" style="left:' + count(rider.x) + '%;top:' + count(rider.y) + '%">' + companion(reaction) + '</span><img class="av-vehicle-art" src="' + escape((vehicle.asset || definition.asset) + '?v=44-art') + '" alt="" width="320" height="220" draggable="false"></span>';
   }
   function remainingText(state) {
     if (state && state.activeLeg) return 'あと' + Math.max(0, count(state.activeLeg.requiredUnits) - count(state.activeLeg.progressUnits)) + '問正解で到着';
@@ -138,7 +138,7 @@
     const vehicles = vehicleList(profile), next = vehicles.find(vehicle => !vehicle.unlocked), transport = selectedVehicle(profile);
     const placeCaption = finale.active ? '空想の物語 · ' : state && state.activeLeg ? 'この先の景色 · ' : '現在地 · ';
     const nextText = next ? '次は' + next.name + ' · あと' + count(next.remainingUnits) + '問正解' : '乗り物が全部そろった！';
-    const nextVehicle = '<div class="av-home-vehicle">' + (next ? '<img src="' + escape(next.asset) + '" width="320" height="220" alt="">' : '') + '<div><span class="av-eyebrow">' + ja('旅の乗り物') + '</span><p>' + ja(nextText) + '</p></div><button type="button" class="av-inline-button" data-home-vehicles>' + ja(next ? '乗り物を見る' : '乗りかえる') + ' →</button></div>';
+    const nextVehicle = '<div class="av-home-vehicle">' + (next ? '<img src="' + escape(next.asset + '?v=44-art') + '" width="320" height="220" alt="">' : '') + '<div><span class="av-eyebrow">' + ja('旅の乗り物') + '</span><p>' + ja(nextText) + '</p></div><button type="button" class="av-inline-button" data-home-vehicles>' + ja(next ? '乗り物を見る' : '乗りかえる') + ' →</button></div>';
     paint(container, '<div class="av-home-preview av-mode-' + modeOf(state) + '"><div class="av-home-landscape"><img class="av-scene-art" src="' + escape(art(place)) + '" alt="' + escape(place.name + 'のイラスト') + '" width="960" height="300"><span class="av-home-location">' + ja(placeCaption) + nodeLabel(place) + '</span>' + ride(profile, 'idle') + '<span class="av-home-transport">' + (transport ? ruby(transport.name, transport.reading) : ja('徒歩の旅')) + '</span></div>' + nextVehicle + goalSummary(profile) + '</div>');
     connect(container, '[data-home-vehicles]', () => { if (handlers.onJournal) handlers.onJournal('vehicles'); });
     connect(container, '[data-finale-details]', () => { if (handlers.onFinaleDetails) handlers.onFinaleDetails(); });
@@ -272,7 +272,7 @@
   }
   function vehicleCard(vehicle, profile, reward) {
     const unlocked = !!vehicle.unlocked, selected = !!vehicle.selected;
-    return '<article class="av-vehicle-card' + (unlocked ? ' is-owned' : ' is-unowned') + (selected ? ' is-selected' : '') + '"><div class="av-vehicle-picture"><img class="' + (unlocked ? '' : 'av-silhouette') + '" src="' + escape(vehicle.asset) + '" width="320" height="220" alt="' + escape(vehicle.name) + '"></div><div class="av-vehicle-copy"><p class="av-eyebrow">' + ja(reward ? '新しい乗り物' : unlocked ? '手に入れた乗り物' : 'これからの乗り物') + '</p><h3>' + ruby(vehicle.name, vehicle.reading) + '</h3><p>' + ja(unlocked ? vehicle.description || 'この乗り物で旅をしよう。' : 'あと' + count(vehicle.remainingUnits) + '問正解で手に入る') + '</p>' + (reward ? '' : '<button type="button" class="av-vehicle-select" data-vehicle="' + escape(vehicle.id) + '" data-av-focus="vehicle-' + escape(vehicle.id) + '" aria-pressed="' + selected + '"' + (unlocked && health(profile).ok ? '' : ' disabled') + '>' + ja(selected ? 'この乗り物で旅をしているよ' : unlocked ? 'この乗り物に乗る' : '正解を積み上げよう') + '</button>') + '</div></article>';
+    return '<article class="av-vehicle-card' + (unlocked ? ' is-owned' : ' is-unowned') + (selected ? ' is-selected' : '') + '"><div class="av-vehicle-picture"><img class="' + (unlocked ? '' : 'av-silhouette') + '" src="' + escape(vehicle.asset + '?v=44-art') + '" width="320" height="220" alt="' + escape(vehicle.name) + '"></div><div class="av-vehicle-copy"><p class="av-eyebrow">' + ja(reward ? '新しい乗り物' : unlocked ? '手に入れた乗り物' : 'これからの乗り物') + '</p><h3>' + ruby(vehicle.name, vehicle.reading) + '</h3><p>' + ja(unlocked ? vehicle.description || 'この乗り物で旅をしよう。' : 'あと' + count(vehicle.remainingUnits) + '問正解で手に入る') + '</p>' + (reward ? '' : '<button type="button" class="av-vehicle-select" data-vehicle="' + escape(vehicle.id) + '" data-av-focus="vehicle-' + escape(vehicle.id) + '" aria-pressed="' + selected + '"' + (unlocked && health(profile).ok ? '' : ' disabled') + '>' + ja(selected ? 'この乗り物で旅をしているよ' : unlocked ? 'この乗り物に乗る' : '正解を積み上げよう') + '</button>') + '</div></article>';
   }
   function finaleCard(profile) {
     const definition = catalog().finale;

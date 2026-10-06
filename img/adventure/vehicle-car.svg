@@ -1,20 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="220" viewBox="0 0 320 220">
-  <title>旅の車。丸い窓と荷物を載せた、青緑とクリーム色のオリジナルの車</title>
-  <defs><linearGradient id="body" x2="0" y2="1"><stop stop-color="#8eb6a7"/><stop offset="1" stop-color="#5c9291"/></linearGradient><linearGradient id="glass" x2=".7" y2="1"><stop stop-color="#e4edcc"/><stop offset="1" stop-color="#a4c9bb"/></linearGradient></defs>
-  <ellipse cx="160" cy="203" rx="129" ry="8" fill="#486f611a"/>
-  <path d="M63 115 88 80c10-15 27-24 48-24h39c21 0 36 11 51 32l22 28Z" fill="#e7d9b4" stroke="#9aa88a" stroke-width="2"/>
-  <path d="M134 69c-16 0-28 5-35 14l-21 30h70V69Zm29 0v44h66l-19-25c-11-14-19-19-36-19Z" fill="url(#glass)" stroke="#7c9a8d" stroke-width="3" stroke-linejoin="round"/>
-  <path d="m100 90 15-16m2 21 17-21m36 10 11-9m-12 25 18-22" stroke="#f2efd1" stroke-width="3" stroke-linecap="round"/>
-  <path d="M51 113c43-5 90-3 135-3l59 2c26 1 40 19 42 38v22H36v-33c0-13 5-24 15-26Z" fill="url(#body)" stroke="#537f7c" stroke-width="2.5"/>
-  <path d="M37 139h246v20H37Z" fill="#e5d8b0"/><path d="M37 142h247" stroke="#f3e5bf" stroke-width="2"/>
-  <path d="M95 171c-1-26-11-43-28-43s-29 18-29 43m250 0c-1-24-12-43-30-43-20 0-31 18-31 43" fill="none" stroke="#729b91" stroke-width="5"/>
-  <path d="M102 122v41h111v-41" fill="none" stroke="#477f7c" stroke-width="1.8"/><path d="M187 126h14" stroke="#c5d9bc" stroke-width="4" stroke-linecap="round"/>
-  <path d="M33 168h256v10H33Z" fill="#768d7d" stroke="#597c70" stroke-width="2"/><path d="M43 173h232" stroke="#c6d1b4" stroke-width="2"/>
-  <g><circle cx="78" cy="171" r="27" fill="#526d66" stroke="#42605a" stroke-width="2"/><circle cx="78" cy="171" r="18" fill="#dfd9b9"/><circle cx="78" cy="171" r="11" fill="#9eb6a1"/><circle cx="78" cy="171" r="5" fill="#c6d2b6"/><circle cx="249" cy="171" r="27" fill="#526d66" stroke="#42605a" stroke-width="2"/><circle cx="249" cy="171" r="18" fill="#dfd9b9"/><circle cx="249" cy="171" r="11" fill="#9eb6a1"/><circle cx="249" cy="171" r="5" fill="#c6d2b6"/></g>
-  <path d="M274 128h12v17h-12Z" fill="#f1dda1" stroke="#8b9c80" stroke-width="2"/><path d="M35 130h10v12H35Z" fill="#c5835c"/>
-  <path d="M239 112v-13h13c8 0 8 11 0 12Z" fill="#83afa0" stroke="#658d81" stroke-width="2"/>
-  <path d="M123 45h73m-64 1v9m55-9v9" stroke="#6f8c78" stroke-width="3" stroke-linecap="round"/>
-  <path d="M137 30h44q5 0 5 5v10h-54V35q0-5 5-5Z" fill="#bc986b" stroke="#967e5e" stroke-width="2"/><path d="M148 31v13m23-13v13" stroke="#ebd4a2" stroke-width="3"/><path d="M153 30v-5h16v5" fill="none" stroke="#a48e65" stroke-width="2"/>
-  <circle cx="151" cy="140" r="12" fill="#8ab1a0" stroke="#5a8b7e" stroke-width="1.5"/><path d="m151 130 4 7 6 3-7 3-3 7-3-7-6-3 7-3Z" fill="#e3d7a9"/>
-  <path d="M22 101h32m-39 14h22m224-30h23" stroke="#b6cbb4" stroke-width="2" stroke-linecap="round"/>
+  <title>旅の車。丸い窓と荷物を載せた、鮮やかな青とクリーム色のオリジナルの車</title>
+  <defs><linearGradient id="body" x2="0" y2="1"><stop stop-color="#548bec"/><stop offset="1" stop-color="#2e57b2"/></linearGradient><linearGradient id="glass" x2=".7" y2="1"><stop stop-color="#edf8ff"/><stop offset="1" stop-color="#90c4ee"/></linearGradient></defs>
+  <ellipse cx="160" cy="203" rx="129" ry="8" fill="#29395724"/>
+  <path d="M63 115 88 80c10-15 27-24 48-24h39c21 0 36 11 51 32l22 28Z" fill="#ffedc6" stroke="#425c86" stroke-width="2"/>
+  <path d="M134 69c-16 0-28 5-35 14l-21 30h70V69Zm29 0v44h66l-19-25c-11-14-19-19-36-19Z" fill="url(#glass)" stroke="#3f5c89" stroke-width="3" stroke-linejoin="round"/>
+  <path d="m100 90 15-16m2 21 17-21m36 10 11-9m-12 25 18-22" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <path d="M51 113c43-5 90-3 135-3l59 2c26 1 40 19 42 38v22H36v-33c0-13 5-24 15-26Z" fill="url(#body)" stroke="#293e6c" stroke-width="3"/>
+  <path d="M37 139h246v20H37Z" fill="#fff0c6"/><path d="M37 142h247" stroke="#fffbed" stroke-width="2"/>
+  <path d="M95 171c-1-26-11-43-28-43s-29 18-29 43m250 0c-1-24-12-43-30-43-20 0-31 18-31 43" fill="none" stroke="#244784" stroke-width="5"/>
+  <path d="M102 122v41h111v-41" fill="none" stroke="#233f7a" stroke-width="1.8"/><path d="M187 126h14" stroke="#d9edff" stroke-width="4" stroke-linecap="round"/>
+  <path d="M33 168h256v10H33Z" fill="#526e96" stroke="#293e6c" stroke-width="2"/><path d="M43 173h232" stroke="#e2edf8" stroke-width="2"/>
+  <g><circle cx="78" cy="171" r="27" fill="#293957" stroke="#202c45" stroke-width="2"/><circle cx="78" cy="171" r="18" fill="#fff1ce"/><circle cx="78" cy="171" r="11" fill="#729ddd"/><circle cx="78" cy="171" r="5" fill="#dceaff"/><circle cx="249" cy="171" r="27" fill="#293957" stroke="#202c45" stroke-width="2"/><circle cx="249" cy="171" r="18" fill="#fff1ce"/><circle cx="249" cy="171" r="11" fill="#729ddd"/><circle cx="249" cy="171" r="5" fill="#dceaff"/></g>
+  <path d="M274 128h12v17h-12Z" fill="#ffe183" stroke="#344972" stroke-width="2"/><path d="M35 130h10v12H35Z" fill="#ed7452"/>
+  <path d="M239 112v-13h13c8 0 8 11 0 12Z" fill="#487cd9" stroke="#2c457a" stroke-width="2"/>
+  <path d="M123 45h73m-64 1v9m55-9v9" stroke="#3e5278" stroke-width="3" stroke-linecap="round"/>
+  <path d="M137 30h44q5 0 5 5v10h-54V35q0-5 5-5Z" fill="#d78b50" stroke="#815332" stroke-width="2"/><path d="M148 31v13m23-13v13" stroke="#ffe5ae" stroke-width="3"/><path d="M153 30v-5h16v5" fill="none" stroke="#8e6339" stroke-width="2"/>
+  <circle cx="151" cy="140" r="12" fill="#3b66be" stroke="#294785" stroke-width="1.5"/><path d="m151 130 4 7 6 3-7 3-3 7-3-7-6-3 7-3Z" fill="#ffd775"/>
+  <path d="M22 101h32m-39 14h22m224-30h23" stroke="#8d9ec7" stroke-width="2" stroke-linecap="round"/>
 </svg>

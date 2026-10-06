@@ -1,24 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="220" viewBox="0 0 320 220">
-  <title>旅の自転車。緑のフレームと、小さな荷台・かごのあるオリジナルの自転車</title>
-  <defs><linearGradient id="basket" x2="0" y2="1"><stop stop-color="#e2cea0"/><stop offset="1" stop-color="#bda67a"/></linearGradient></defs>
-  <ellipse cx="160" cy="206" rx="127" ry="7" fill="#486f611a"/>
-  <g fill="none"><circle cx="79" cy="161" r="40" stroke="#526e68" stroke-width="9"/><circle cx="240" cy="161" r="40" stroke="#526e68" stroke-width="9"/><circle cx="79" cy="161" r="35" stroke="#e3dfbd" stroke-width="3"/><circle cx="240" cy="161" r="35" stroke="#e3dfbd" stroke-width="3"/></g>
-  <g stroke="#a8b9a5" stroke-width="1.5"><path d="M79 126v70m-35-35h70m-60-25 50 50m-50 0 50-50M240 126v70m-35-35h70m-60-25 50 50m-50 0 50-50"/></g>
-  <path d="M79 161 118 111l28 50H79l73-15 53-35 35 50m-122-50h87m-59 50-24-63" fill="none" stroke="#547f76" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M82 155 117 110m7 4 18 39m12-13 45-26" fill="none" stroke="#a8c4ab" stroke-width="2.5" stroke-linecap="round"/>
-  <path d="M234 148 208 89l7-18 22 2" fill="none" stroke="#587d74" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M232 72h12" stroke="#8e785a" stroke-width="7" stroke-linecap="round"/>
-  <path d="M107 98c5-6 17-5 30-4 5 1 7 5 1 8l-25 2c-6 0-9-3-6-6Z" fill="#937857" stroke="#756a51" stroke-width="2"/>
-  <path d="M206 87c-23-11-35 13-29 31m59-44c-6 13-9 32 2 57" fill="none" stroke="#7c9784" stroke-width="1.8"/>
-  <circle cx="146" cy="161" r="13" fill="#ddcfac" stroke="#85947b" stroke-width="3"/><circle cx="146" cy="161" r="5" fill="#879c85"/>
-  <path d="m145 160 11 13h12m-22-12-9-14h-10" fill="none" stroke="#6c8072" stroke-width="3" stroke-linecap="round"/><path d="M160 175h12m-46-29h12" stroke="#7f725a" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="79" cy="161" r="5" fill="#b9c3a6" stroke="#678273" stroke-width="2"/><circle cx="240" cy="161" r="5" fill="#b9c3a6" stroke="#678273" stroke-width="2"/>
-  <path d="M38 132q25-31 57-13m111 11q24-27 56-12" fill="none" stroke="#b4c5a9" stroke-width="5" stroke-linecap="round"/>
-  <path d="M46 116h51m-45 4-2 20m43-20 9 21" fill="none" stroke="#647d70" stroke-width="3" stroke-linecap="round"/>
-  <path d="M47 104h36l6 12H42Z" fill="#c08b61" stroke="#98805d" stroke-width="2"/><path d="M58 103v14m13-14v14" stroke="#e2ca96" stroke-width="3"/>
-  <path d="m221 88 49-4-8 31h-34Z" fill="url(#basket)" stroke="#a59068" stroke-width="2" stroke-linejoin="round"/>
-  <path d="m227 96 39-4m-38 12 36-3m-29-12 1 23m9-24v25m10-26-2 25" stroke="#ecddb4" stroke-width="2"/>
-  <path d="m231 86 1-18 21 4-1 13" fill="#efdfb8" stroke="#b8ad88" stroke-width="1.5"/><path d="m238 77 10 2" stroke="#91ad94" stroke-width="2"/>
-  <path d="M234 121h13l-2 6h-10Z" fill="#e7d8aa" stroke="#8c9a80" stroke-width="1.5"/>
-  <path d="M29 88h35m-27 10h15m203-44h25" stroke="#b1c8b2" stroke-width="2" stroke-linecap="round"/>
+  <title>旅の自転車。コーラルレッドの太いフレームと、紺のタイヤ・クリーム色のリムがあるオリジナルの自転車</title>
+  <defs><linearGradient id="basket" x2="0" y2="1"><stop stop-color="#f3ce77"/><stop offset="1" stop-color="#cc9143"/></linearGradient></defs>
+  <ellipse cx="160" cy="206" rx="127" ry="7" fill="#29395724"/>
+  <g fill="none"><circle cx="79" cy="161" r="40" stroke="#293957" stroke-width="10"/><circle cx="240" cy="161" r="40" stroke="#293957" stroke-width="10"/><circle cx="79" cy="161" r="35" stroke="#fff1ce" stroke-width="4"/><circle cx="240" cy="161" r="35" stroke="#fff1ce" stroke-width="4"/></g>
+  <g stroke="#7794af" stroke-width="1.8"><path d="M79 126v70m-35-35h70m-60-25 50 50m-50 0 50-50M240 126v70m-35-35h70m-60-25 50 50m-50 0 50-50"/></g>
+  <path d="M79 161 118 111l28 50H79l73-15 53-35 35 50m-122-50h87m-59 50-24-63" fill="none" stroke="#d94e49" stroke-width="11" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M82 155 117 110m7 4 18 39m12-13 45-26" fill="none" stroke="#ffd5ae" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M234 148 208 89l7-18 22 2" fill="none" stroke="#334a6c" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M232 72h12" stroke="#293957" stroke-width="8" stroke-linecap="round"/>
+  <path d="M107 98c5-6 17-5 30-4 5 1 7 5 1 8l-25 2c-6 0-9-3-6-6Z" fill="#3c4966" stroke="#25334f" stroke-width="2.5"/>
+  <path d="M206 87c-23-11-35 13-29 31m59-44c-6 13-9 32 2 57" fill="none" stroke="#657b97" stroke-width="1.8"/>
+  <circle cx="146" cy="161" r="13" fill="#fff1ce" stroke="#3b516f" stroke-width="3"/><circle cx="146" cy="161" r="5" fill="#d94e49"/>
+  <path d="m145 160 11 13h12m-22-12-9-14h-10" fill="none" stroke="#334a6c" stroke-width="3" stroke-linecap="round"/><path d="M160 175h12m-46-29h12" stroke="#293957" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="79" cy="161" r="5" fill="#f3c560" stroke="#334a6c" stroke-width="2"/><circle cx="240" cy="161" r="5" fill="#f3c560" stroke="#334a6c" stroke-width="2"/>
+  <path d="M38 132q25-31 57-13m111 11q24-27 56-12" fill="none" stroke="#f28a67" stroke-width="5" stroke-linecap="round"/>
+  <path d="M46 116h51m-45 4-2 20m43-20 9 21" fill="none" stroke="#334a6c" stroke-width="3" stroke-linecap="round"/>
+  <path d="M47 104h36l6 12H42Z" fill="#6680c9" stroke="#354b81" stroke-width="2"/><path d="M58 103v14m13-14v14" stroke="#fff1ce" stroke-width="3"/>
+  <path d="m221 88 49-4-8 31h-34Z" fill="url(#basket)" stroke="#875531" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="m227 96 39-4m-38 12 36-3m-29-12 1 23m9-24v25m10-26-2 25" stroke="#fff1c5" stroke-width="2"/>
+  <path d="m231 86 1-18 21 4-1 13" fill="#fff3d6" stroke="#ab8550" stroke-width="1.5"/><path d="m238 77 10 2" stroke="#6076b3" stroke-width="2"/>
+  <path d="M234 121h13l-2 6h-10Z" fill="#f8cc66" stroke="#4d5d77" stroke-width="1.5"/>
+  <path d="M29 88h35m-27 10h15m203-44h25" stroke="#8996ba" stroke-width="2" stroke-linecap="round"/>
 </svg>
