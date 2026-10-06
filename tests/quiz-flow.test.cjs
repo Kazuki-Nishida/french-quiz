@@ -80,6 +80,47 @@ function harness(initial, options = {}) {
   };
   const timers = new Map(); let nextTimer = 0;
   const speech = [], utterances = [];
+  const audio = { contexts: [], oscillators: [], resumeRequests: [] };
+  class FakeAudioContext {
+    constructor() {
+      this.currentTime = 12.5; this.state = options.audioState || 'running';
+      this.destination = {}; this.resumeCalls = 0; audio.contexts.push(this);
+    }
+    createOscillator() {
+      const number = audio.oscillators.length + 1;
+      const node = {
+        context: this, frequency: { value: 0 }, starts: [], stops: [], disconnected: false,
+        connect(target) { this.output = target; },
+        disconnect() { this.disconnected = true; },
+        start(time) {
+          if (options.audioStartThrowAt === number) throw new Error('simulated oscillator start failure');
+          this.starts.push(time);
+        },
+        stop(time) { this.stops.push(time); }
+      };
+      audio.oscillators.push(node); return node;
+    }
+    createGain() {
+      return {
+        disconnected: false,
+        gain: {
+          starts: [], ramps: [],
+          setValueAtTime(value, time) { this.starts.push({ value, time }); },
+          exponentialRampToValueAtTime(value, time) { this.ramps.push({ value, time }); }
+        },
+        connect(target) { this.output = target; },
+        disconnect() { this.disconnected = true; }
+      };
+    }
+    resume() {
+      this.resumeCalls++;
+      return new Promise((resolve, reject) => {
+        audio.resumeRequests.push({
+          resolve: () => { this.state = 'running'; resolve(); }, reject
+        });
+      });
+    }
+  }
   let availableVoices = options.voices || [{ name: "Audrey", lang: "fr-FR", voiceURI: "Audrey", localService: true }];
   const id = ++nextHarness; let round = 0;
   const context = vm.createContext({
@@ -87,7 +128,7 @@ function harness(initial, options = {}) {
     UIJa: { apply() {}, ruby: (base, reading) => `<ruby>${base}<rt>${reading}</rt></ruby>`, level: value => value },
     AdventureView: { renderMap() {}, renderScene() {}, renderResult() {}, renderJournal() {}, renderHomePreview() {}, renderNextStep() {} },
     crypto: { randomUUID: () => `harness-${id}-round-${++round}` },
-    console, Date, Set, Map, Blob,
+    console, Date, Set, Map, Blob, AudioContext: FakeAudioContext,
     URL: { createObjectURL(blob) { downloads.push(blob); return 'blob:test-' + downloads.length; }, revokeObjectURL() {} },
     FileReader: class { readAsText(file) { this.result = file.text; this.onload(); } },
     alert(message) { alerts.push(message); }, confirm: () => true,
@@ -130,7 +171,7 @@ function harness(initial, options = {}) {
     context.speechSynthesis.onvoiceschanged();
   }
   const pendingTimerDelays = () => [...timers.values()].map(timer => timer.delay);
-  return { context, document, storage, speech, utterances, setVoices, run, inspect, state, answer, finish, flushTimers, pendingTimerDelays, dispatchStorage, importText, downloads, createdElements, alerts };
+  return { context, document, storage, speech, utterances, setVoices, audio, run, inspect, state, answer, finish, flushTimers, pendingTimerDelays, dispatchStorage, importText, downloads, createdElements, alerts };
 }
 
 function frenchVoice(name, lang = 'fr-FR', extras = {}) {
@@ -252,6 +293,181 @@ test('an existing male automatic preference is retained over the female automati
     assertSpokenWith(h, male, 'bonsoir');
     assert.equal(JSON.parse(h.storage.raw).settings.voiceGender, 'm');
     assert.equal(JSON.parse(h.storage.raw).settings.voiceName, null);
+  }
+});
+
+const regularCorrectNotes = [[784, 0, .18, 'sine', .25], [1175, .13, .35, 'sine', .25]];
+const incorrectNotes = [[140, 0, .22, 'square', .12], [110, .24, .32, 'square', .12]];
+function soundNotes(nodes) {
+  const rounded = number => Number(number.toFixed(6));
+  return nodes.map(node => [node.frequency.value, rounded(node.starts[0] - node.context.currentTime),
+    rounded(node.stops[0] - node.starts[0]), node.type, node.output.gain.starts[0].value]);
+}
+function answerSound(h, correct = true) {
+  const before = h.audio.oscillators.length;
+  h.answer(correct);
+  return h.audio.oscillators.slice(before);
+}
+function beginSoundRound(h) {
+  h.run("prof().adventure.introCompleted=true; setup.dir='jf'; startQuiz(false)");
+}
+function assertShortCelebration(nodes) {
+  assert.ok(nodes.length > 2, 'a milestone plays a short melody rather than the ordinary two notes');
+  const notes = soundNotes(nodes);
+  assert.ok(notes.every(([frequency, start, duration, , volume]) => frequency > 0 && start >= 0 && duration > 0 && start + duration <= .58 && volume > 0 && volume <= .30));
+  assert.ok(Math.max(...notes.map(note => note[4])) >= .18, 'the milestone keeps a clearly audible main note');
+}
+
+test('real correct answers play the old two notes except distinct short celebrations at three, six and nine', () => {
+  const h = harness(); beginSoundRound(h);
+  let stars, balloons;
+  for (let count = 1; count <= 10; count++) {
+    const nodes = answerSound(h), notes = soundNotes(nodes);
+    if ([3, 6, 9].includes(count)) {
+      assertShortCelebration(nodes);
+      if (count === 3) stars = notes;
+      if (count === 6) {
+        balloons = notes; assert.notDeepEqual(balloons, stars);
+        assert.ok(Math.max(...notes.map(note => note[4])) >= .28, 'the balloon fanfare keeps its strengthened main melody');
+      }
+      if (count === 9) assert.deepEqual(notes, stars);
+    } else assert.deepEqual(notes, regularCorrectNotes);
+    assert.equal(h.run('activeCorrectTones.size'), nodes.length);
+    assert.ok(h.pendingTimerDelays().includes(650), 'answer pronunciation remains scheduled at 650 ms');
+    assert.equal(h.document.getElementById('nextwrap').style.display, 'block', 'sound never blocks the next question');
+    for (const node of nodes) node.onended();
+    assert.equal(h.run('activeCorrectTones.size'), 0, 'naturally ended tones release their tracked nodes');
+    assert.ok(nodes.every(node => node.disconnected && node.output.disconnected));
+    if (count < 10) h.run('nextQ()');
+  }
+  assert.equal(h.inspect('quiz.correct'), 10);
+  assert.equal(h.inspect('prof().adventure.earnedUnits'), 10);
+});
+
+test('incorrect answer sounds keep their original notes and do not reset the next correct celebration', () => {
+  const h = harness(); beginSoundRound(h);
+  const answers = [true, false, true, true, false, true];
+  let correct = 0;
+  answers.forEach((ok, index) => {
+    const nodes = answerSound(h, ok);
+    if (ok) {
+      correct++;
+      if (correct === 3) assertShortCelebration(nodes);
+      else assert.deepEqual(soundNotes(nodes), regularCorrectNotes);
+    } else {
+      assert.deepEqual(soundNotes(nodes), incorrectNotes);
+      assert.equal(h.run('activeCorrectTones.size'), 0, 'wrong-answer tones are not tracked as a correct effect');
+      h.run("speakText('réessayons')");
+      assert.ok(nodes.every(node => node.stops.length === 1 && !node.disconnected), 'correct-sound cleanup leaves the existing wrong-answer sound alone');
+    }
+    if (index < answers.length - 1) h.run('nextQ()');
+  });
+  assert.equal(h.inspect('quiz.correct'), 4);
+  assert.equal(h.inspect('prof().stock.length'), 2);
+});
+
+test('sound off suppresses correct, incorrect, milestone and result tones without muting French speech', () => {
+  const h = harness(); h.run('DB.settings.sound=false'); beginSoundRound(h);
+  h.finish(index => index !== 2 && index !== 5);
+  assert.equal(h.audio.oscillators.length, 0);
+  assert.equal(h.audio.contexts.length, 0);
+  assert.equal(h.run('activeCorrectTones.size'), 0);
+  assert.equal(h.inspect('quiz.correct'), 8);
+  h.run("speakText('merci')");
+  assert.equal(h.utterances.at(-1).text, 'merci');
+});
+
+test('calm and reduced motion retain only the ordinary correct notes at every milestone', () => {
+  for (const mode of ['calm', 'reduced']) {
+    const h = harness();
+    if (mode === 'calm') h.run("Adventure.ensure(prof()).effectsMode='calm'");
+    else h.context.matchMedia = () => ({ matches: true });
+    beginSoundRound(h);
+    for (let count = 1; count <= 9; count++) {
+      assert.deepEqual(soundNotes(answerSound(h)), regularCorrectNotes, mode + ' at correct ' + count);
+      if (count < 9) h.run('nextQ()');
+    }
+    assert.equal(h.inspect('quiz.correct'), 9);
+    assert.equal(h.inspect('prof().adventure.earnedUnits'), 9);
+  }
+});
+
+test('next question, manual pronunciation and navigation stop correct tones without replaying repeated answers', () => {
+  for (const action of ['nextQ()', 'speak(quiz.qs[quiz.i].w)', "go('scr-home')"]) {
+    const h = harness(); beginSoundRound(h);
+    h.answer(); h.run('nextQ()'); h.answer(); h.run('nextQ()');
+    const nodes = answerSound(h);
+    assertShortCelebration(nodes);
+    const total = h.audio.oscillators.length, saved = h.storage.raw;
+    h.answer(); h.answer(false);
+    assert.equal(h.audio.oscillators.length, total, 'a second tap cannot play another cue');
+    assert.equal(h.storage.raw, saved);
+    h.run(action);
+    assert.equal(h.run('activeCorrectTones.size'), 0, action);
+    assert.ok(nodes.every(node => node.stops.length === 2 && node.stops.at(-1) === undefined && node.disconnected && node.output.disconnected));
+    h.flushTimers();
+    assert.equal(h.audio.oscillators.length, total, 'cleared callbacks never restart a sound');
+    assert.equal(h.storage.raw, saved);
+  }
+});
+
+test('suspended audio resumes safely and cannot replay a stopped cue after resolve or rejection', async () => {
+  for (const outcome of ['resolve', 'reject']) {
+    const h = harness(undefined, { audioState: 'suspended' }); beginSoundRound(h);
+    const nodes = answerSound(h);
+    assert.deepEqual(soundNotes(nodes), regularCorrectNotes);
+    assert.equal(h.audio.contexts[0].resumeCalls, 1);
+    assert.equal(h.audio.resumeRequests.length, 1);
+    const saved = h.storage.raw;
+    h.run('nextQ()');
+    assert.equal(h.run('activeCorrectTones.size'), 0);
+    h.audio.resumeRequests[0][outcome](new Error('simulated autoplay rejection'));
+    await Promise.resolve(); await Promise.resolve();
+    assert.equal(h.audio.oscillators.length, 2, 'finishing resume does not create late notes');
+    assert.ok(nodes.every(node => node.disconnected && node.stops.at(-1) === undefined));
+    assert.equal(h.inspect('quiz.i'), 1);
+    assert.equal(h.inspect('quiz.correct'), 1);
+    assert.equal(h.storage.raw, saved);
+  }
+});
+
+test('a synchronous failure starting the second correct tone stops every created node and leaves learning usable', () => {
+  const h = harness(undefined, { audioStartThrowAt: 2 }); beginSoundRound(h);
+  assert.doesNotThrow(() => h.answer());
+  const nodes = h.audio.oscillators;
+  assert.equal(nodes.length, 2);
+  assert.equal(nodes[0].starts.length, 1, 'the first tone began before the second failed');
+  assert.equal(nodes[1].starts.length, 0);
+  assert.equal(h.run('activeCorrectTones.size'), 0);
+  assert.ok(nodes.every(node => node.stops.length > 0 && node.stops.at(-1) === undefined && node.disconnected && node.output.disconnected));
+  assert.equal(h.document.getElementById('nextwrap').style.display, 'block');
+  assert.equal(JSON.parse(h.storage.raw).profiles[0].adventure.earnedUnits, 1);
+  h.answer();
+  assert.equal(nodes.length, 2, 'retrying the already answered question cannot restart the failed cue');
+  h.run('nextQ()');
+  assert.deepEqual(soundNotes(answerSound(h)), regularCorrectNotes, 'a later answer can play normally after cleanup');
+  assert.equal(h.inspect('quiz.correct'), 2);
+  assert.equal(JSON.parse(h.storage.raw).profiles[0].adventure.earnedUnits, 2);
+});
+
+test('treasure on either sound milestone keeps the ordinary correct sound and its saved reward', () => {
+  for (const finalAnswer of [3, 6]) {
+    const h = harness(); readyForTreasure(h);
+    h.run('Adventure.startFinale(prof())');
+    for (let i = 0; i < 10 - finalAnswer; i++) h.run(`Adventure.addCorrect(prof(), 'sound-treasure-${i}')`);
+    beginSoundRound(h);
+    let nodes;
+    for (let count = 1; count <= finalAnswer; count++) {
+      nodes = answerSound(h);
+      if (count < finalAnswer) h.run('nextQ()');
+    }
+    assert.equal(h.inspect('quiz.finaleCompleted'), true);
+    assert.deepEqual(soundNotes(nodes), regularCorrectNotes);
+    assert.equal(h.inspect('prof().adventure.finale.correctCount'), 10);
+    const total = h.audio.oscillators.length, saved = h.storage.raw;
+    h.answer();
+    assert.equal(h.audio.oscillators.length, total);
+    assert.equal(h.storage.raw, saved);
   }
 });
 

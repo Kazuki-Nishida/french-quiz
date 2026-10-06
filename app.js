@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v47 · A welcoming French voice";
+const APP_VER = "v48 · A little fanfare along the way";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
@@ -82,6 +82,7 @@ function clearTransientEffects(){
   effectEpoch++;
   effectTimers.forEach(clearTimeout); effectTimers.clear();
   pendingSpeak = null;
+  stopCorrectSound();
   try { if('speechSynthesis' in window) speechSynthesis.cancel(); } catch(e) {}
   document.querySelectorAll('.confetti').forEach(el => el.remove());
   clearCorrectCelebration();
@@ -232,6 +233,7 @@ function populateVoiceSelect(frs, manual){
 }
 function speakText(text){
   try{
+    stopCorrectSound(); // 手動の発音ボタンでも祝い音と声を重ねない
     speechSynthesis.cancel();
     if(!voicesReady){ // 声リストがまだ → 届いてから読む
       pendingSpeak = text;
@@ -262,20 +264,48 @@ function toast(msg){
 
 /* ================= こうかおん ================= */
 let AC = null;
-function tone(freq, t0, dur, type, vol){
+const activeCorrectTones = new Set();
+function stopCorrectSound(){
+  activeCorrectTones.forEach(node => {
+    try { node.oscillator.stop(); } catch(e) {}
+    try { node.gain.disconnect(); node.oscillator.disconnect(); } catch(e) {}
+  });
+  activeCorrectTones.clear();
+}
+function tone(freq, t0, dur, type, vol, trackCorrect=false){
   const o = AC.createOscillator(), g = AC.createGain();
   o.type = type; o.frequency.value = freq;
   g.gain.setValueAtTime(vol, AC.currentTime + t0);
   g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + t0 + dur);
   o.connect(g); g.connect(AC.destination);
+  if(trackCorrect){
+    const node = {oscillator:o, gain:g};
+    activeCorrectTones.add(node);
+    o.onended = () => { activeCorrectTones.delete(node); o.disconnect(); g.disconnect(); };
+  }
   o.start(AC.currentTime + t0); o.stop(AC.currentTime + t0 + dur);
 }
-function sndOK(){ // ピンポーン
+function sndOK(variant='normal'){
   if(!DB.settings.sound) return;
   try{
+    stopCorrectSound();
     AC = AC || new (window.AudioContext||window.webkitAudioContext)();
-    tone(784, 0, .18, "sine", .25); tone(1175, .13, .35, "sine", .25);
-  }catch(e){}
+    if(AC.state === 'suspended') AC.resume().catch(() => {});
+    // Short, original cues: finish before the answer's pronunciation at 650ms.
+    // The milestone sounds gain a melody/chord, rather than a loud volume jump.
+    const notes = variant === 'stars' ? [
+      [1047,0,.12,'sine',.19], [1319,.08,.14,'sine',.18],
+      [1568,.16,.16,'sine',.16], [2093,.25,.23,'sine',.09],
+      [784,.25,.29,'sine',.14], [1047,.25,.29,'sine',.16]
+    ] : variant === 'balloons' ? [
+      [523,0,.12,'triangle',.28], [659,.10,.12,'triangle',.28],
+      [784,.20,.12,'triangle',.28], [1047,.32,.24,'triangle',.30],
+      [523,.32,.24,'sine',.12], [659,.32,.24,'sine',.13]
+    ] : [
+      [784,0,.18,'sine',.25], [1175,.13,.35,'sine',.25]
+    ];
+    notes.forEach(note => tone(...note, true));
+  }catch(e){ stopCorrectSound(); }
 }
 function sndNG(){ // ブブー
   if(!DB.settings.sound) return;
@@ -887,7 +917,7 @@ function answer(idx){
   renderJourneyScene(move.arrived || move.finaleCompleted ? 'arrival' : ok ? 'correct' : 'wrong', message);
   if(ok) celebrateCorrect(!!move.finaleCompleted);
   renderQuizContext();
-  ok ? sndOK() : sndNG();
+  ok ? sndOK(richEffects() ? correctCelebrationVariant(quiz.correct, !!move.finaleCompleted) : 'normal') : sndNG();
   scheduleEffect(() => speak(q.w), 650);
   document.getElementById("nextwrap").style.display = "block";
   const prog = document.getElementById("qprog").children[quiz.i];
