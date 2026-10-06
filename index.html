@@ -294,7 +294,7 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 <link rel="preload" as="image" href="img/adventure/cheer-star.svg?v=46-final">
 <link rel="preload" as="image" href="img/adventure/cheer-balloon.svg?v=46-final">
 <link rel="stylesheet" href="adventure.css?v=49">
-<link rel="stylesheet" href="learning-ui.css?v=46-final">
+<link rel="stylesheet" href="learning-ui.css?v=50">
 <link rel="stylesheet" href="play-feedback.css?v=46-final">
 </head>
 <body>
@@ -410,6 +410,7 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
     <div id="adventure-scene" data-no-next></div>
     <div id="qprog"></div>
     <div class="card qcard" id="qarea"></div>
+    <div id="retry-feedback" role="status" aria-live="polite" aria-atomic="true" data-no-next hidden></div>
     <div class="opts" id="opts"></div>
     <div class="gnote" id="gnote">🔵 <b>le</b> = おとこのことば / 🔴 <b>la</b> = おんなのことば</div>
     <div class="expl" id="expl" style="display:none">
@@ -427,6 +428,7 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
     <div class="card">
       <div class="stars" id="rstars"></div>
       <div class="scorebig" id="rscore"></div>
+      <div class="rscore-detail" id="rscore-detail"></div>
       <div class="resultmsg" id="rmsg"></div>
       <div class="stockinfo" id="rbadges" style="display:none;background:#FFF3D6;font-size:17px"></div>
       <div class="stockinfo" id="rstockinfo" style="display:none"></div>
@@ -880,8 +882,8 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
       <div id="chartwrap"></div>
       <div class="totline">
         <div><div class="n" id="totq">0</div><div class="l">こたえた かず</div></div>
-        <div><div class="n" id="totc">0</div><div class="l">せいかいした かず</div></div>
-        <div><div class="n" id="totp">-</div><div class="l">せいかいりつ</div></div>
+        <div><div class="n" id="totc">0</div><div class="l">はじめに<ruby>正解<rt>せいかい</rt></ruby>した<ruby>数<rt>かず</rt></ruby></div></div>
+        <div><div class="n" id="totp">-</div><div class="l">はじめの<ruby>正解率<rt>せいかいりつ</rt></ruby></div></div>
       </div>
     </div>
     <div class="card">
@@ -909,6 +911,6 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 <script src="ui-ja.js?v=46-final"></script>
 <script src="profile-store.js?v=46-final"></script>
 <script src="adventure-view.js?v=49"></script>
-<script src="app.js?v=49"></script>
+<script src="app.js?v=50"></script>
 </body>
 </html>

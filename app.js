@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v49 · More places to discover in Paris";
+const APP_VER = "v50 · Try again, then celebrate";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
@@ -761,6 +761,10 @@ function renderQ(){
   clearTransientEffects();
   const q = quiz.qs[quiz.i];
   quiz.answered = false;
+  q.rejectedIndices = [];
+  q.firstAttempt = null;
+  const retry = document.getElementById("retry-feedback");
+  retry.hidden = true; retry.innerHTML = "";
   renderQuizContext();
   renderJourneyScene('idle', quiz.intro ? 'まずは3問。ゆっくり考えよう。' : '自分のペースで進もう。');
   window.scrollTo(0,0); // つぎの もんだいは いつも いちばん うえから
@@ -769,7 +773,7 @@ function renderQ(){
   prog.innerHTML = "";
   quiz.qs.forEach((_, i) => {
     const s = document.createElement("span");
-    if(i < quiz.results.length) s.textContent = quiz.results[i].ok ? "⭐" : "❌";
+    if(i < quiz.results.length) s.textContent = "⭐";
     else if(i === quiz.i){ s.textContent = "🐣"; s.classList.add("cur"); }
     prog.appendChild(s);
   });
@@ -834,36 +838,63 @@ let answeredAt = 0;
 function answer(idx){
   if(current !== 'scr-quiz' || !quiz || quiz.finished || quiz.profileId !== DB.active || quiz.answered) return;
   if(!Number.isInteger(idx) || idx < 0 || idx >= quiz.qs[quiz.i].opts.length) return;
+  const q = quiz.qs[quiz.i];
+  if(q.rejectedIndices.includes(idx)) return;
+  const ok = idx === q.ansIdx;
+  const p = prof(), key = wkey(q.w);
+  // One learning record per question: retries finish the puzzle, but do not
+  // rewrite the first answer or remove a word that still needs later review.
+  if(!q.firstAttempt){
+    const s = p.words[key] || (p.words[key] = {c:0,w:0});
+    ok ? s.c++ : s.w++;
+    const d = p.daily[todayKey()] || (p.daily[todayKey()] = {q:0,c:0});
+    d.q++; if(ok) d.c++;
+    let stocked = false, unstocked = false;
+    if(!ok && !p.stock.includes(key)){ p.stock.push(key); stocked = true; }
+    if(ok){
+      const ix = p.stock.indexOf(key);
+      if(ix >= 0){ p.stock.splice(ix, 1); unstocked = true; }
+    }
+    q.firstAttempt = {ok, stocked, unstocked};
+  }
+  if(!ok){
+    q.rejectedIndices.push(idx);
+    clearTransientEffects();
+    const selected = document.querySelectorAll("#opts .opt")[idx];
+    selected.disabled = true;
+    selected.classList.add('tried');
+    selected.setAttribute('aria-describedby', 'retry-feedback');
+    const retry = document.getElementById('retry-feedback');
+    retry.innerHTML = 'もう'+UIJa.ruby('一度','いちど')+'、'+UIJa.ruby('残','のこ')+'りから'+UIJa.ruby('選','えら')+'んでみよう。'+
+      '<span class="retry-count">あと'+(q.opts.length-q.rejectedIndices.length)+'つから'+UIJa.ruby('選','えら')+'べるよ。</span>';
+    retry.hidden = false;
+    renderJourneyScene('wrong', '大丈夫。残りから、もう一度選んでみよう。');
+    renderQuizContext();
+    save();
+    sndNG();
+    // Disabled buttons leave the keyboard focus nowhere useful. Keep it on
+    // an available choice, without clicking it or scrolling the page.
+    const next = q.opts.findIndex((_, i) => !q.rejectedIndices.includes(i));
+    document.querySelectorAll("#opts .opt")[next]?.focus({preventScroll:true});
+    return;
+  }
   quiz.answered = true;
   answeredAt = Date.now();
-  // はじめの2かいだけ タップで すすめることを おしえる
+  document.getElementById('retry-feedback').hidden = true;
+  // Only a completed question can advance by tapping the background.
   if((DB.settings.tapHint || 0) < 2){
     DB.settings.tapHint = (DB.settings.tapHint || 0) + 1;
     toast("💡 がめんの あいている ところを タップしても つぎへ いけるよ");
   }
-  const q = quiz.qs[quiz.i];
-  const ok = idx === q.ansIdx;
-  const p = prof();
-  // きろく
-  const key = wkey(q.w);
-  const s = p.words[key] || (p.words[key] = {c:0,w:0});
-  ok ? s.c++ : s.w++;
-  const d = p.daily[todayKey()] || (p.daily[todayKey()] = {q:0,c:0});
-  d.q++; if(ok) d.c++;
-  let stocked = false, unstocked = false;
-  if(!ok && !p.stock.includes(key)){ p.stock.push(key); stocked = true; }
-  if(ok){ // せいかいしたら ボックスから じどうで だす
-    const ix = p.stock.indexOf(key);
-    if(ix >= 0){ p.stock.splice(ix, 1); unstocked = true; }
-  }
-  quiz.results.push({ w:q.w, ok, stocked, unstocked });
-  if(ok) quiz.correct++;
+  const retried = !q.firstAttempt.ok;
+  quiz.results.push({w:q.w, ok:true, retried, stocked:q.firstAttempt.stocked, unstocked:q.firstAttempt.unstocked});
+  quiz.correct++;
   const vehiclesBefore = new Set(Adventure.getVehicles(p).filter(v=>v.unlocked).map(v=>v.id));
-  const move = ok ? Adventure.addCorrect(p, quiz.roundId+':'+quiz.i, Date.now(), {level:q.w.lv,wordKey:key,review:quiz.review}) : {added:false,arrived:null};
+  const move = Adventure.addCorrect(p, quiz.roundId+':'+quiz.i, Date.now(), {level:q.w.lv,wordKey:key,review:quiz.review});
   if(move.added) quiz.earned++;
   if(move.arrived) quiz.arrivals.push(move.arrived);
   if(move.finaleCompleted) quiz.finaleCompleted = true;
-  if(ok) Adventure.getVehicles(p).filter(v=>v.unlocked&&!vehiclesBefore.has(v.id)).forEach(v=>quiz.vehicleUnlocks.push(v.id));
+  Adventure.getVehicles(p).filter(v=>v.unlocked&&!vehiclesBefore.has(v.id)).forEach(v=>quiz.vehicleUnlocks.push(v.id));
   if(quiz.intro && quiz.results.length === quiz.qs.length){
     const a = Adventure.ensure(p); if(a) a.introCompleted = true;
   }
@@ -873,8 +904,8 @@ function answer(idx){
   q.opts.forEach((w, i) => {
     const el = optEls[i];
     el.disabled = true;
+    el.classList.remove("tried");
     if(i === q.ansIdx){ el.classList.add("good"); el.insertAdjacentHTML("beforeend", '<span class="mark" style="color:#FF5A5A">⭕</span>'); }
-    else if(i === idx){ el.classList.add("bad"); el.insertAdjacentHTML("beforeend", '<span class="mark" style="color:#4D7CFE">❌</span>'); }
     else el.classList.add("dim");
     // ほかのことばの いみも みせる (ぶんぽうもんだいは のぞく)
     if(q.dir === "gram"){
@@ -909,19 +940,19 @@ function answer(idx){
     document.getElementById("expl").style.display = "block";
   }
   const n = quiz.qs.length, answered = quiz.results.length;
-  let message = ok ? ['すごい！','いいね！','その調子！'][quiz.i % 3] : '答えと解説を見てみよう。';
+  let message = retried ? 'できたね！ 選び直して正解！' : ['すごい！','いいね！','その調子！'][quiz.i % 3];
   if(move.finaleCompleted) message = '宝を発見！ ことばの王冠を手に入れた！';
-  else if(ok && move.arrived) message = '到着！ 続きも自分のペースで。';
-  else if(ok && n === 10 && answered === 5) message = 'すごい！ 半分まで来たよ。';
-  else if(ok && n > 1 && answered === n-1) message = 'あと1問！ ゆっくりで大丈夫。';
-  renderJourneyScene(move.arrived || move.finaleCompleted ? 'arrival' : ok ? 'correct' : 'wrong', message);
-  if(ok) celebrateCorrect(!!move.finaleCompleted);
+  else if(move.arrived) message = '到着！ 続きも自分のペースで。';
+  else if(n === 10 && answered === 5) message = 'すごい！ 半分まで来たよ。';
+  else if(n > 1 && answered === n-1) message = 'あと1問！ ゆっくりで大丈夫。';
+  renderJourneyScene(move.arrived || move.finaleCompleted ? 'arrival' : 'correct', message);
+  celebrateCorrect(!!move.finaleCompleted);
   renderQuizContext();
-  ok ? sndOK(richEffects() ? correctCelebrationVariant(quiz.correct, !!move.finaleCompleted) : 'normal') : sndNG();
+  sndOK(richEffects() ? correctCelebrationVariant(quiz.correct, !!move.finaleCompleted) : 'normal');
   scheduleEffect(() => speak(q.w), 650);
   document.getElementById("nextwrap").style.display = "block";
   const prog = document.getElementById("qprog").children[quiz.i];
-  prog.textContent = ok ? "⭐" : "❌"; prog.classList.remove("cur");
+  prog.textContent = "⭐"; prog.classList.remove("cur");
 }
 function nextQ(){
   if(current !== 'scr-quiz' || !quiz || quiz.profileId !== DB.active || quiz.finished || !quiz.answered) return;
@@ -956,22 +987,21 @@ function showResult(){
   quiz.finished = true;
   go('scr-result');
   const n = quiz.qs.length, c = quiz.correct;
-  const pct = Math.round(100 * c / n);
-  document.getElementById("rscore").innerHTML = c + ' <small>/ ' + n + ' もん せいかい (' + pct + '%)</small>';
-  let stars, msg;
-  if(pct === 100){ stars = "🌟🌟🌟"; msg = "パーフェクト!! てんさい!!"; }
-  else if(pct >= 80){ stars = "🌟🌟🌟"; msg = "すごーい!! そのちょうし!"; }
-  else if(pct >= 60){ stars = "🌟🌟"; msg = "いいかんじ! もうすこしで マスター!"; }
-  else if(pct >= 40){ stars = "🌟"; msg = "がんばったね! つぎは もっと できるよ!"; }
-  else { stars = "🐣"; msg = "はじめは みんな こうだよ! もういちど やってみよう!"; }
-  document.getElementById("rstars").textContent = stars;
-  document.getElementById("rmsg").textContent = msg;
-  const nStocked = quiz.results.filter(r => r.stocked).length;
+  const nRetried = quiz.results.filter(r => r.retried).length;
+  const firstCorrect = c - nRetried;
+  document.getElementById("rscore").innerHTML = c + ' <small>/ ' + n + ' '+UIJa.ruby('問','もん')+'クリア</small>';
+  document.getElementById('rscore-detail').innerHTML =
+    'はじめに'+UIJa.ruby('正解','せいかい')+' '+firstCorrect+UIJa.ruby('問','もん')+' · '+
+    UIJa.ruby('選','えら')+'び'+UIJa.ruby('直','なお')+'して'+UIJa.ruby('正解','せいかい')+' '+nRetried+UIJa.ruby('問','もん');
+  document.getElementById("rstars").textContent = "🌟🌟🌟";
+  document.getElementById("rmsg").innerHTML = nRetried
+    ? UIJa.ruby('選','えら')+'び'+UIJa.ruby('直','なお')+'して、'+UIJa.ruby('全部','ぜんぶ')+'できたね！'
+    : 'パーフェクト!! てんさい!!';
   const nUnstocked = quiz.results.filter(r => r.unstocked).length;
   const info = document.getElementById("rstockinfo");
   const lines = [];
   if(nUnstocked > 0) lines.push("🎉 せいかいした " + nUnstocked + " この ことばが ボックスから でたよ!");
-  if(nStocked > 0) lines.push("📦 まちがえた " + nStocked + " この ことばを ふくしゅうボックスに いれたよ");
+  if(nRetried > 0) lines.push('📦 '+UIJa.ruby('選','えら')+'び'+UIJa.ruby('直','なお')+'した '+nRetried+' '+UIJa.ruby('問','もん')+'は、'+UIJa.ruby('復習','ふくしゅう')+'ボックスでもう'+UIJa.ruby('一度','いちど')+'。');
   if(lines.length){ info.style.display = "block"; info.innerHTML = lines.join("<br>"); }
   else info.style.display = "none";
   const list = document.getElementById("rlist");
@@ -985,7 +1015,7 @@ function showResult(){
       (DB.settings.kana ? ' <span style="color:var(--sub);font-size:12.5px">' + esc(r.w.kana) + '</span>' : '') +
       '</div><div class="ja">' + esc(r.w.ja) + '</div></div>' +
       '<button class="rspeak">🔊</button>' +
-      '<span class="rmark ' + (r.ok ? "ok\">⭕" : "ng\">❌") + '</span>';
+      '<span class="rmark ' + (r.retried ? 'retry' : 'ok') + '" role="img" aria-label="' + (r.retried ? '選び直して正解' : 'はじめに正解') + '">' + (r.retried ? '↻' : '⭕') + '</span>';
     row.querySelector(".rspeak").addEventListener("click", () => speak(r.w));
     list.appendChild(row);
   });
@@ -1020,7 +1050,7 @@ function showResult(){
   });
   renderResultGuide();
   document.getElementById('btnresultreview').hidden = prof().stock.length === 0;
-  if(firstShow && (pct >= 80 || badgeQueue.length || quiz.finaleCompleted || quiz.vehicleUnlocks.length)){ sndTada(); if(richEffects()) confetti(); }
+  if(firstShow && (c === n || badgeQueue.length || quiz.finaleCompleted || quiz.vehicleUnlocks.length)){ sndTada(); if(richEffects()) confetti(); }
   quiz.resultEffectsPlayed = true;
   UIJa.apply(document.getElementById('scr-result'));
 }
@@ -1126,7 +1156,7 @@ function renderStats(){
     }
     svg += '<text x="' + (x+bw/2) + '" y="' + (y0+18) + '" font-size="11" fill="#8B87A0" text-anchor="middle">' + day.label + '</text>';
   });
-  svg += '<text x="' + x0 + '" y="' + (H-4) + '" font-size="11.5" fill="#8B87A0">みどり = せいかいした かず / むらさき = こたえた かず</text>';
+  svg += '<text x="' + x0 + '" y="' + (H-4) + '" font-size="11.5" fill="#8B87A0">みどり = はじめに せいかい / むらさき = とりくんだ もんだい</text>';
   svg += '</svg>';
   document.getElementById("chartwrap").innerHTML = svg;
   // ごうけい
@@ -1300,7 +1330,8 @@ function setEffects(mode){
     document.querySelectorAll('.confetti').forEach(el => el.remove());
     clearCorrectCelebration();
     renderQuizContext();
-    renderJourneyScene(quiz.answered ? (quiz.results.at(-1).ok ? 'correct' : 'wrong') : 'idle', quiz.sceneMessage || '自分のペースで進もう。', false);
+    const reaction = quiz.answered ? 'correct' : quiz.qs[quiz.i].rejectedIndices.length ? 'wrong' : 'idle';
+    renderJourneyScene(reaction, quiz.sceneMessage || '自分のペースで進もう。', false);
   }
 }
 document.getElementById('btnmap').addEventListener('click', showMap);

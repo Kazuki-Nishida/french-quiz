@@ -29,6 +29,40 @@ button:focus-visible,select:focus-visible,input:focus-visible,[role=button]:focu
 .option-wrap>.ospeak{align-self:center;min-width:64px;min-height:44px;padding:6px 18px;border:1px solid #c8d8d0;border-radius:99px;background:#edf4ee;color:#29423e;font-size:20px;line-height:1.4}
 .option-wrap>.ospeak:focus-visible{outline:3px solid #277d70;outline-offset:3px}
 .opt .ofr{overflow-wrap:anywhere}
+/* A tried answer stays readable while the remaining choices stay available.
+   Disabled is set by the quiz logic; sibling audio buttons remain usable. */
+#opts .opt.tried{
+  border:2px dashed #a6b49e;background:#f0f1e5;color:#40554a;
+  box-shadow:none;opacity:1;cursor:default;
+  animation:none!important;transition:none;transform:none;
+}
+#opts .opt.tried:disabled{opacity:1;-webkit-text-fill-color:currentColor}
+#opts .opt.tried:active{transform:none}
+#opts .opt.tried .ofr,#opts .opt.tried .oja{color:#40554a}
+#opts .opt.tried .okana{color:#566453}
+#opts .opt.tried .reveal{background:#e5e9da;color:#40554a}
+#opts .opt.tried .mark{display:none}
+#retry-feedback{
+  margin:14px 0 0;padding:12px 14px;max-width:100%;
+  border:1px solid #c6d0bc;border-left:4px solid #91a689;border-radius:13px;
+  background:#f4f3e8;color:#40584c;font-size:15px;font-weight:700;
+  line-height:1.95;overflow-wrap:anywhere;animation:none;
+}
+#retry-feedback p{margin:0}
+#retry-feedback .retry-hint,#retry-feedback .retry-count{
+  display:block;margin-top:4px;color:#536450;font-size:13px;font-weight:600;line-height:1.9;
+}
+#scr-result .rscore-detail{
+  display:block;max-width:100%;margin:7px 0 11px;color:#536750;
+  font-size:14px;font-weight:600;line-height:1.95;text-align:center;overflow-wrap:anywhere;
+}
+#scr-result .rscore-detail strong{color:#356c55;font-weight:800}
+.rrow .rmark.retry{
+  display:inline-flex;align-items:center;justify-content:center;flex:0 0 32px;
+  width:32px;height:32px;border:1px solid #c2d8c4;border-radius:50%;
+  background:#edf5e9;color:#317357;font-size:25px;line-height:1;
+  animation:none;transform:none;
+}
 .expl,.gramfull,.rrow .fr,.srow .fr{overflow-wrap:anywhere}
 #scr-quiz[data-effects="calm"] .opt{animation:none!important}
 @media(max-width:420px){.quiz-context{gap:5px}#quiz-subject{font-size:11px}.quiz-context label{gap:3px}.unit-choice{font-size:13px;gap:6px}.unit-progress{font-size:11px}.home-journey{padding:18px}#scr-result .row{flex-wrap:wrap}#scr-result .row>*{min-width:125px}}

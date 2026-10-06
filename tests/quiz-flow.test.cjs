@@ -41,7 +41,12 @@ class Element {
     if (!this.selectorNodes.has(selector)) this.selectorNodes.set(selector, new Element("button"));
     return this.selectorNodes.get(selector);
   }
-  querySelectorAll(selector) { return this.children.filter(el => selector[0] === "." && el.classList.contains(selector.slice(1))); }
+  querySelectorAll(selector) {
+    return this.children.flatMap(el => [
+      ...(selector[0] === "." && el.classList.contains(selector.slice(1)) ? [el] : []),
+      ...el.querySelectorAll(selector)
+    ]);
+  }
   addEventListener(type, callback) { (this.listeners[type] ||= []).push(callback); }
   setAttribute(name, value) { this[name] = String(value); }
   remove() { if (this.parentNode) this.parentNode.children = this.parentNode.children.filter(el => el !== this); }
@@ -63,7 +68,7 @@ function harness(initial, options = {}) {
     createElement(tag) { const element = new Element(tag); createdElements.push(element); return element; },
     querySelector(selector) { return this.getElementById('selector:' + selector); },
     querySelectorAll(selector) {
-      if (selector === "#opts .opt") return this.getElementById("opts").children;
+      if (selector === "#opts .opt") return this.getElementById("opts").querySelectorAll('.opt');
       if (selector === ".confetti") return this.body.querySelectorAll(selector);
       return [];
     },
@@ -153,7 +158,10 @@ function harness(initial, options = {}) {
   function answer(ok = true) { run(ok ? "answer(quiz.qs[quiz.i].ansIdx)" : "answer((quiz.qs[quiz.i].ansIdx+1)%quiz.qs[quiz.i].opts.length)"); }
   function finish(correct = true) {
     const n = inspect("quiz.qs.length");
-    for (let i = 0; i < n; i++) { answer(typeof correct === "function" ? correct(i) : correct); run("nextQ()"); }
+    for (let i = 0; i < n; i++) {
+      if (!(typeof correct === "function" ? correct(i) : correct)) answer(false);
+      answer(true); run("nextQ()");
+    }
   }
   function flushTimers() {
     const pending = [...timers.values()]; timers.clear();
@@ -349,20 +357,21 @@ test('incorrect answer sounds keep their original notes and do not reset the nex
   const answers = [true, false, true, true, false, true];
   let correct = 0;
   answers.forEach((ok, index) => {
-    const nodes = answerSound(h, ok);
-    if (ok) {
-      correct++;
-      if (correct === 3) assertShortCelebration(nodes);
-      else assert.deepEqual(soundNotes(nodes), regularCorrectNotes);
-    } else {
+    if (!ok) {
+      const nodes = answerSound(h, false);
       assert.deepEqual(soundNotes(nodes), incorrectNotes);
       assert.equal(h.run('activeCorrectTones.size'), 0, 'wrong-answer tones are not tracked as a correct effect');
-      h.run("speakText('réessayons')");
+      assert.equal(h.inspect('quiz.correct'), correct, 'an unsuccessful retry does not advance the celebration count');
+      h.run('stopCorrectSound()');
       assert.ok(nodes.every(node => node.stops.length === 1 && !node.disconnected), 'correct-sound cleanup leaves the existing wrong-answer sound alone');
     }
+    const nodes = answerSound(h);
+    correct++;
+    if (correct === 3 || correct === 6) assertShortCelebration(nodes);
+    else assert.deepEqual(soundNotes(nodes), regularCorrectNotes);
     if (index < answers.length - 1) h.run('nextQ()');
   });
-  assert.equal(h.inspect('quiz.correct'), 4);
+  assert.equal(h.inspect('quiz.correct'), 6);
   assert.equal(h.inspect('prof().stock.length'), 2);
 });
 
@@ -372,7 +381,8 @@ test('sound off suppresses correct, incorrect, milestone and result tones withou
   assert.equal(h.audio.oscillators.length, 0);
   assert.equal(h.audio.contexts.length, 0);
   assert.equal(h.run('activeCorrectTones.size'), 0);
-  assert.equal(h.inspect('quiz.correct'), 8);
+  assert.equal(h.inspect('quiz.correct'), 10);
+  assert.equal(h.inspect('prof().daily[todayKey()].c'), 8, 'only first-choice answers count as learned correctly');
   h.run("speakText('merci')");
   assert.equal(h.utterances.at(-1).text, 'merci');
 });
@@ -523,6 +533,178 @@ test("incorrect answers add stock without travel; one-question review clears it 
   assert.equal(h.inspect("quiz.qs.length"), 3);
 });
 
+test('wrong choices stay on the question, reject duplicate taps and record only the first attempt', () => {
+  const h = harness(); h.run("setup.dir='jf'; startQuiz(false)");
+  const key = h.inspect('wkey(quiz.qs[0].w)'), answerIndex = h.inspect('quiz.qs[0].ansIdx');
+  const buttons = h.document.querySelectorAll('#opts .opt');
+  const wrongIndices = buttons.map((_, index) => index).filter(index => index !== answerIndex);
+  const originalQuestion = h.document.getElementById('qarea').innerHTML;
+  const originalSpeech = h.utterances.length;
+  for (let attempt = 0; attempt < wrongIndices.length; attempt++) {
+    const chosen = wrongIndices[attempt];
+    h.run('answer(' + chosen + ')');
+    assert.equal(h.inspect('quiz.answered'), false);
+    assert.equal(h.inspect('quiz.results.length'), 0);
+    assert.equal(h.inspect('quiz.correct'), 0);
+    assert.equal(h.inspect('prof().adventure.earnedUnits'), 0);
+    assert.equal(h.document.getElementById('nextwrap').style.display, 'none');
+    assert.equal(buttons[chosen].disabled, true);
+    assert.ok(buttons[chosen].classList.contains('tried'));
+    assert.equal(buttons.filter(button => button.disabled).length, attempt + 1);
+    assert.equal(h.document.getElementById('retry-feedback').hidden, false);
+    assert.match(h.document.getElementById('retry-feedback').innerHTML, new RegExp('あと' + (buttons.length - attempt - 1) + 'つ'));
+    assert.notEqual(buttons[answerIndex].disabled, true, 'the correct choice stays available');
+    assert.ok(buttons.every(button => !button.classList.contains('good') && !button.innerHTML.includes('class="reveal"')));
+    assert.equal(h.document.getElementById('qarea').innerHTML, originalQuestion);
+    assert.equal(h.document.getElementById('expl').style.display, 'none');
+    assert.equal(h.pendingTimerDelays().includes(650), false, 'a wrong choice never schedules the correct pronunciation');
+    assert.deepEqual(h.inspect('prof().words[' + JSON.stringify(key) + ']'), { c: 0, w: 1 });
+    assert.deepEqual(h.inspect('prof().daily[todayKey()]'), { q: 1, c: 0 });
+    assert.deepEqual(h.inspect('prof().stock'), [key]);
+    const afterWrong = h.state(), saved = h.storage.raw, writes = h.storage.writes, tones = h.audio.oscillators.length;
+    h.run('answer(' + chosen + '); answer(-1); answer(99); answer(1.5); nextQ(); showResult()');
+    h.document.getElementById('btnnext').click();
+    for (const listener of h.document.listeners.keydown || []) listener({ key: 'Enter', repeat: false, target: h.document.body, preventDefault() {} });
+    h.document.getElementById('scr-quiz').click();
+    assert.deepEqual(h.state(), afterWrong, 'disabled, invalid and next-question input cannot bypass a pending retry');
+    assert.equal(h.storage.raw, saved);
+    assert.equal(h.storage.writes, writes);
+    assert.equal(h.audio.oscillators.length, tones, 'duplicate wrong taps do not repeat the error sound');
+  }
+  assert.equal(h.utterances.length, originalSpeech);
+  h.answer();
+  assert.equal(h.document.getElementById('retry-feedback').hidden, true);
+  assert.equal(h.inspect('quiz.answered'), true);
+  assert.equal(h.inspect('quiz.correct'), 1);
+  assert.equal(h.inspect('quiz.results.length'), 1);
+  assert.equal(h.inspect('quiz.results[0].ok'), true);
+  assert.equal(h.inspect('quiz.results[0].retried'), true);
+  assert.equal(h.inspect('prof().adventure.earnedUnits'), 1);
+  assert.deepEqual(h.inspect('prof().words[' + JSON.stringify(key) + ']'), { c: 0, w: 1 });
+  assert.deepEqual(h.inspect('prof().daily[todayKey()]'), { q: 1, c: 0 });
+  assert.deepEqual(h.inspect('prof().stock'), [key]);
+  const saved = h.storage.raw, toneCount = h.audio.oscillators.length;
+  h.answer(); h.answer(false);
+  assert.equal(h.storage.raw, saved);
+  assert.equal(h.audio.oscillators.length, toneCount);
+  h.run('nextQ()');
+  assert.equal(h.inspect('quiz.i'), 1);
+  assert.deepEqual(h.inspect('quiz.qs[1].rejectedIndices'), []);
+  assert.equal(h.inspect('quiz.qs[1].firstAttempt'), null);
+});
+
+test('grammar retries hide the completed sentence, explanation and pronunciation until the answer is correct', () => {
+  const h = harness();
+  h.run("setup={dir:'jf',lv:'ぶんぽう3',unitId:'grammar-3-subjunctive'}; startQuiz(false)");
+  const originalQuestion = h.document.getElementById('qarea').innerHTML;
+  const expectedSpeech = h.inspect('frDisplay(quiz.qs[0].w)');
+  h.answer(false); h.flushTimers();
+  assert.equal(h.document.getElementById('qarea').innerHTML, originalQuestion);
+  assert.doesNotMatch(h.document.getElementById('qarea').innerHTML, /gramfull/);
+  assert.equal(h.document.getElementById('expl').style.display, 'none');
+  assert.equal(h.utterances.length, 0);
+  assert.equal(h.inspect('quiz.results.length'), 0);
+  h.answer();
+  assert.match(h.document.getElementById('qarea').innerHTML, /gramfull/);
+  if (h.inspect('Boolean(quiz.qs[0].w.note)')) assert.equal(h.document.getElementById('expl').style.display, 'block');
+  assert.ok(h.pendingTimerDelays().includes(650));
+  h.flushTimers();
+  assert.equal(h.utterances.at(-1).text, expectedSpeech);
+  assert.equal(h.inspect('quiz.results[0].retried'), true);
+});
+
+test('a corrected mistake remains in review until a later question is right on the first choice', () => {
+  const h = harness(); h.run("setup.dir='jf'; startQuiz(false)");
+  const key = h.inspect('wkey(quiz.qs[0].w)');
+  h.answer(false); h.answer();
+  assert.equal(h.inspect('quiz.results[0].stocked'), true);
+  assert.equal(h.inspect('quiz.results[0].unstocked'), false);
+  assert.deepEqual(h.inspect('prof().stock'), [key]);
+  h.run("go('scr-home'); startQuiz(true)");
+  assert.equal(h.inspect('quiz.qs.length'), 1);
+  h.answer(false); h.answer(); h.run('nextQ()');
+  assert.deepEqual(h.inspect('prof().stock'), [key]);
+  assert.deepEqual(h.inspect('prof().words[' + JSON.stringify(key) + ']'), { c: 0, w: 2 });
+  assert.equal(h.inspect('quiz.results[0].unstocked'), false);
+  h.run('startQuiz(true)'); h.answer();
+  assert.equal(h.inspect('quiz.results[0].retried'), false);
+  assert.equal(h.inspect('quiz.results[0].unstocked'), true);
+  assert.deepEqual(h.inspect('prof().stock'), []);
+  assert.deepEqual(h.inspect('prof().words[' + JSON.stringify(key) + ']'), { c: 1, w: 2 });
+  assert.deepEqual(h.inspect('prof().daily[todayKey()]'), { q: 3, c: 1 });
+  assert.equal(h.inspect('prof().adventure.earnedUnits'), 3);
+});
+
+test('an unfinished retry survives reload as a mistake and cannot score for a different active profile', () => {
+  const initial = JSON.stringify({ profiles: [legacyProfile(1), legacyProfile(2)], active: 1, settings: {} });
+  const h = harness(initial); h.run("setup.dir='jf'; startQuiz(false)");
+  const key = h.inspect('wkey(quiz.qs[0].w)');
+  h.answer(false);
+  const saved = h.storage.raw;
+  h.run('DB.active=2');
+  const before = h.state(), tones = h.audio.oscillators.length;
+  h.answer(); h.answer(false); h.run('nextQ(); showResult()');
+  assert.deepEqual(h.state(), before);
+  assert.equal(h.audio.oscillators.length, tones);
+  assert.equal(h.storage.raw, saved);
+  const fresh = harness(saved);
+  assert.equal(fresh.inspect('quiz'), null);
+  assert.deepEqual(fresh.inspect('prof().words[' + JSON.stringify(key) + ']'), { c: 0, w: 1 });
+  assert.deepEqual(fresh.inspect('prof().stock'), [key]);
+  assert.equal(fresh.inspect('prof().adventure.earnedUnits'), 0);
+  fresh.run('startQuiz(true)'); fresh.answer();
+  assert.deepEqual(fresh.inspect('prof().words[' + JSON.stringify(key) + ']'), { c: 1, w: 1 });
+  assert.equal(fresh.inspect('prof().adventure.earnedUnits'), 1);
+  assert.deepEqual(fresh.inspect('DB.profiles[1].words'), {});
+  assert.equal(fresh.inspect('DB.profiles[1].adventure.earnedUnits'), 0);
+});
+
+test('a save failure during retry can recover the original mistake and one travel reward without rescoring', () => {
+  const h = harness(); h.run("setup.dir='jf'; startQuiz(false); save()");
+  const initial = h.storage.raw, key = h.inspect('wkey(quiz.qs[0].w)');
+  h.storage.fail = true;
+  h.answer(false); h.answer(false); h.answer();
+  assert.equal(h.storage.raw, initial);
+  assert.ok(h.inspect('storageProblem'));
+  assert.equal(h.inspect('quiz.results.length'), 1);
+  assert.equal(h.document.getElementById('nextwrap').style.display, 'block');
+  assert.deepEqual(h.inspect('prof().words[' + JSON.stringify(key) + ']'), { c: 0, w: 1 });
+  assert.equal(h.inspect('prof().adventure.earnedUnits'), 1);
+  h.storage.fail = false; h.run('save(); save()');
+  const persisted = JSON.parse(h.storage.raw).profiles[0];
+  assert.deepEqual(persisted.words[key], { c: 0, w: 1 });
+  assert.deepEqual(persisted.stock, [key]);
+  assert.equal(persisted.adventure.earnedUnits, 1);
+  assert.equal(Object.values(persisted.daily).reduce((sum, day) => sum + day.q, 0), 1);
+  assert.equal(h.inspect('storageProblem'), null);
+});
+
+test('results distinguish first-choice mastery from retry completion and reserve perfect for first-choice success', () => {
+  for (const mistakes of [0, 1, 3]) {
+    const h = harness(); h.run('startQuiz(false)');
+    h.finish(index => index >= mistakes);
+    assert.equal(h.inspect('quiz.correct'), 3);
+    assert.equal(h.inspect('quiz.results.length'), 3);
+    assert.equal(h.inspect('quiz.results.filter(result=>result.retried).length'), mistakes);
+    assert.equal(h.inspect('quiz.results.every(result=>result.ok)'), true);
+    assert.equal(h.inspect('prof().adventure.introCompleted'), true);
+    assert.equal(h.inspect('prof().adventure.earnedUnits'), 3);
+    assert.deepEqual(h.inspect('prof().daily[todayKey()]'), { q: 3, c: 3 - mistakes });
+    const plain = html => html.replace(/<rt>[\s\S]*?<\/rt>/g, '').replace(/<[^>]+>/g, '');
+    const summary = h.document.getElementById('rscore').innerHTML + h.document.getElementById('rmsg').innerHTML;
+    assert.match(plain(h.document.getElementById('rscore').innerHTML), /3\s*\/\s*3\s*問クリア/);
+    const detail = plain(h.document.getElementById('rscore-detail').innerHTML);
+    assert.match(detail, new RegExp('はじめに正解\\s*' + (3 - mistakes) + '\\s*問'));
+    assert.match(detail, new RegExp('選び直して正解\\s*' + mistakes + '\\s*問'));
+    if (mistakes) assert.doesNotMatch(summary, /パーフェクト/);
+    else assert.match(summary, /パーフェクト/);
+    const saved = h.storage.raw, tones = h.audio.oscillators.length;
+    h.run('showResult(); nextQ()');
+    assert.equal(h.storage.raw, saved);
+    assert.equal(h.audio.oscillators.length, tones, 'result revisits never repeat the completion sound');
+  }
+});
+
 test("a saved interrupted round retains partial travel but starts a new question sequence", () => {
   const h = harness();
   h.run("prof().adventure.introCompleted=true; Adventure.selectPath(prof(),'trocadero--seine'); startQuiz(false)");
@@ -530,7 +712,7 @@ test("a saved interrupted round retains partial travel but starts a new question
   const fresh = harness(h.storage.raw);
   assert.equal(fresh.inspect("quiz"), null);
   assert.equal(fresh.inspect("prof().adventure.activeLeg.progressUnits"), 2);
-  assert.equal(fresh.inspect("totalAnswered(prof())"), 3);
+  assert.equal(fresh.inspect("totalAnswered(prof())"), 2, 'correcting the same question does not add a second learning attempt');
   assert.equal(fresh.inspect("prof().stock.length"), 1);
   fresh.run("startQuiz(false)");
   assert.equal(fresh.inspect("quiz.i"), 0);
@@ -580,20 +762,24 @@ test("advanced grammar is immediately selectable and a three-question intro does
   assert.equal(h.inspect("quiz.qs.length"), 3);
   assert.ok(h.inspect("quiz.qs.every(q=>q.w.lv==='ぶんぽう3' && q.w.cat==='せつぞくほう' && q.dir==='gram')"));
   h.finish(false);
-  assert.equal(h.inspect("prof().adventure.earnedUnits"), 0);
+  assert.equal(h.inspect("prof().adventure.earnedUnits"), 3, 'clearing each question after retry still advances the journey');
   assert.deepEqual(h.inspect("StudyGuide.progress(prof(),'grammar-3-subjunctive',WORDS)"), { attempted: 3, total: 10, complete: false });
   h.run("startQuiz(false)");
   assert.equal(h.inspect("quiz.qs.length"), 10);
 });
 
 test("changing visual intensity never redraws or re-scores the current question", () => {
-  const h = harness();
-  h.run("startQuiz(false)");
-  h.answer();
-  const question = h.inspect("({i:quiz.i,correct:quiz.correct,results:quiz.results,qs:quiz.qs,answered:quiz.answered})");
-  h.run("setEffects('calm'); setEffects('rich')");
-  assert.deepEqual(h.inspect("({i:quiz.i,correct:quiz.correct,results:quiz.results,qs:quiz.qs,answered:quiz.answered})"), question);
-  assert.equal(h.inspect("prof().adventure.earnedUnits"), 1);
+  for (const correct of [false, true]) {
+    const h = harness();
+    h.run("startQuiz(false)");
+    h.answer(correct);
+    const question = h.inspect("({i:quiz.i,correct:quiz.correct,results:quiz.results,qs:quiz.qs,answered:quiz.answered})");
+    const disabled = h.document.querySelectorAll('#opts .opt').map(button => !!button.disabled);
+    h.run("setEffects('calm'); setEffects('rich')");
+    assert.deepEqual(h.inspect("({i:quiz.i,correct:quiz.correct,results:quiz.results,qs:quiz.qs,answered:quiz.answered})"), question);
+    assert.deepEqual(h.document.querySelectorAll('#opts .opt').map(button => !!button.disabled), disabled);
+    assert.equal(h.inspect("prof().adventure.earnedUnits"), correct ? 1 : 0);
+  }
 });
 
 test("leaving the quiz cancels the previous answer's pending pronunciation", () => {
@@ -771,24 +957,26 @@ test('incorrect answers neither trigger a milestone nor reset the accumulated co
   h.run('prof().adventure.introCompleted=true; startQuiz(false)');
   const panel = h.document.getElementById('correct-celebration');
   const answers = [true, true, false, true, false, true, true, true];
-  const expected = ['peek', 'clap', 'stars', 'hop', 'peek', 'balloons'];
+  const expected = ['peek', 'clap', 'stars', 'hop', 'peek', 'balloons', 'clap', 'hop'];
   let correct = 0;
   for (const ok of answers) {
-    h.answer(ok);
-    if (ok) correct++;
-    assert.equal(h.inspect('quiz.correct'), correct);
-    if (ok) assert.match(panel.innerHTML, new RegExp('data-variant="' + expected[correct - 1] + '"'));
     if (!ok) {
+      h.answer(false);
+      assert.equal(h.inspect('quiz.correct'), correct);
       assert.equal(panel.hidden, true);
       assert.equal(panel.innerHTML, '');
       assert.equal(h.pendingTimerDelays().includes(1350), false);
-    } else if (correct === 3 || correct === 6) {
+    }
+    h.answer(); correct++;
+    assert.equal(h.inspect('quiz.correct'), correct);
+    assert.match(panel.innerHTML, new RegExp('data-variant="' + expected[correct - 1] + '"'));
+    if (correct === 3 || correct === 6) {
       assert.match(panel.innerHTML, new RegExp(correct === 3 ? 'correct-special-stars' : 'correct-special-balloons'));
     } else assert.doesNotMatch(panel.innerHTML, /correct-special-(stars|balloons)/);
     h.run('nextQ()');
   }
   assert.equal(h.inspect('totalAnswered(prof())'), 8);
-  assert.equal(h.inspect('prof().adventure.earnedUnits'), 6);
+  assert.equal(h.inspect('prof().adventure.earnedUnits'), 8);
   assert.equal(h.inspect('prof().stock.length'), 2);
 });
 
@@ -957,7 +1145,10 @@ test("the final treasure counts new real answers, preserves mistakes and resumes
   assert.equal(h.inspect('Adventure.getFinaleStatus(prof()).unlocked'),true);
   h.run('Adventure.startFinale(prof()); startQuiz(false)');
   assert.equal(h.inspect('quiz.qs.length'),10);
-  h.finish(i=>i!==4);
+  for (let i = 0; i < 9; i++) { h.answer(); h.run('nextQ()'); }
+  h.answer(false);
+  h.run('nextQ()');
+  assert.equal(h.inspect('quiz.results.length'), 9, 'the last wrong answer is not a completed question');
   assert.equal(h.inspect('prof().adventure.finale.correctCount'),9);
   assert.equal(h.inspect('prof().adventure.finale.completedAt'),null);
   assert.equal(h.inspect('prof().stock.length'),1);
