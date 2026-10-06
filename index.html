@@ -294,7 +294,7 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 <link rel="preload" as="image" href="img/adventure/cheer-star.svg?v=46-final">
 <link rel="preload" as="image" href="img/adventure/cheer-balloon.svg?v=46-final">
 <link rel="stylesheet" href="adventure.css?v=49">
-<link rel="stylesheet" href="learning-ui.css?v=51">
+<link rel="stylesheet" href="learning-ui.css?v=52">
 <link rel="stylesheet" href="play-feedback.css?v=46-final">
 </head>
 <body>
@@ -415,8 +415,10 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
     <div id="correct-celebration" class="correct-celebration" aria-hidden="true" hidden></div>
     <div class="quiz-context" data-no-next><div id="quiz-subject"></div><label><ruby>演出<rt>えんしゅつ</rt></ruby><select id="quiz-effects"><option value="rich">たっぷり</option><option value="calm">ひかえめ</option></select></label></div>
     <div id="adventure-scene" data-no-next></div>
-    <div id="qprog"></div>
-    <div id="quiz-xp" role="status" aria-live="polite" aria-atomic="true" data-no-next><span><ruby>今回<rt>こんかい</rt></ruby> <b>0 XP</b></span></div>
+    <div class="quiz-progress">
+      <div id="qprog"></div>
+      <div id="quiz-xp" role="status" aria-live="polite" aria-atomic="true" data-no-next><span><ruby>今回<rt>こんかい</rt></ruby> <b>0 XP</b></span></div>
+    </div>
     <div class="card qcard" id="qarea"></div>
     <div id="retry-feedback" role="status" aria-live="polite" aria-atomic="true" data-no-next hidden></div>
     <div class="opts" id="opts"></div>
@@ -925,6 +927,6 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 <script src="ui-ja.js?v=46-final"></script>
 <script src="profile-store.js?v=51"></script>
 <script src="adventure-view.js?v=49"></script>
-<script src="app.js?v=51"></script>
+<script src="app.js?v=52"></script>
 </body>
 </html>

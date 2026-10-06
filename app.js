@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v51 · XP for every step";
+const APP_VER = "v52 · Room for every answer";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
@@ -780,6 +780,8 @@ function renderQ(){
   });
   // もんだい
   const qa = document.getElementById("qarea");
+  qa.dataset.direction = q.dir;
+  qa.dataset.kind = q.w.pos;
   if(q.dir === "gram"){
     qa.innerHTML = '<div class="qfr small">' + esc(q.w.q) + '</div>' +
       '<div class="qja" style="font-size:19px;color:var(--sub)">' + esc(q.w.ja) + '</div>' +
