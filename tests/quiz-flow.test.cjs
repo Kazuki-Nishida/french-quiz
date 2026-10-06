@@ -91,7 +91,7 @@ function harness(initial) {
     FileReader: class { readAsText(file) { this.result = file.text; this.onload(); } },
     alert(message) { alerts.push(message); }, confirm: () => true,
     addEventListener(type, callback) { (windowListeners[type] ||= []).push(callback); },
-    setTimeout(callback) { const timer = ++nextTimer; timers.set(timer, callback); return timer; },
+    setTimeout(callback, delay) { const timer = ++nextTimer; timers.set(timer, { callback, delay }); return timer; },
     clearTimeout(timer) { timers.delete(timer); },
     SpeechSynthesisUtterance: class { constructor(text) { this.text = text; } },
     speechSynthesis: { getVoices: () => [{ name: "Audrey", lang: "fr-FR", voiceURI: "Audrey", localService: true }], cancel() {}, speak: value => speech.push(value.text) },
@@ -115,7 +115,7 @@ function harness(initial) {
   }
   function flushTimers() {
     const pending = [...timers.values()]; timers.clear();
-    for (const callback of pending) callback();
+    for (const timer of pending) timer.callback();
   }
   function dispatchStorage(event = {}) {
     for (const listener of windowListeners.storage || []) listener({ key: KEY, storageArea: localStorage, ...event });
@@ -124,7 +124,8 @@ function harness(initial) {
     const target = { files: [{ text }], value: 'selected.json' };
     for (const listener of document.getElementById('importfile').listeners.change || []) listener({ target });
   }
-  return { context, document, storage, speech, run, inspect, state, answer, finish, flushTimers, dispatchStorage, importText, downloads, createdElements, alerts };
+  const pendingTimerDelays = () => [...timers.values()].map(timer => timer.delay);
+  return { context, document, storage, speech, run, inspect, state, answer, finish, flushTimers, pendingTimerDelays, dispatchStorage, importText, downloads, createdElements, alerts };
 }
 
 test("actual quiz starts with three questions, saves intro completion before results, then starts ten", () => {
@@ -381,6 +382,163 @@ test("calm and reduced-motion settings suppress the richer correct effect withou
     assert.equal(h.document.body.querySelectorAll('.confetti').length,0,mode);
     assert.equal(h.inspect('prof().adventure.earnedUnits'),1,mode);
   }
+});
+
+test('round correct totals 3, 6 and 9 alternate stars, balloons and stars without changing scoring', () => {
+  const h = harness();
+  h.run('prof().adventure.introCompleted=true; startQuiz(false)');
+  const panel = h.document.getElementById('correct-celebration');
+  panel.className = 'correct-celebration';
+  for (let total = 1; total <= 10; total++) {
+    h.answer();
+    const special = total % 3 === 0;
+    assert.equal(panel.hidden, false);
+    assert.equal(panel.classList.contains('correct-celebration'), true, 'the existing overlay class remains available');
+    if (special) {
+      assert.match(panel.innerHTML, new RegExp(total === 6 ? 'correct-special-balloons' : 'correct-special-stars'));
+      assert.doesNotMatch(panel.innerHTML, new RegExp(total === 6 ? 'correct-special-stars' : 'correct-special-balloons'));
+      assert.equal(h.document.body.querySelectorAll('.confetti').length, 0, 'special visuals do not stack the ordinary confetti');
+    } else {
+      assert.match(panel.innerHTML, /BRAVO/);
+      assert.doesNotMatch(panel.innerHTML, /correct-special-(stars|balloons)/);
+    }
+    assert.ok(h.pendingTimerDelays().includes(special ? 1350 : 1100), 'the celebration schedules its short cleanup');
+    assert.equal(h.inspect('quiz.correct'), total);
+    assert.equal(h.inspect('totalAnswered(prof())'), total);
+    assert.equal(JSON.parse(h.storage.raw).profiles[0].adventure.earnedUnits, total);
+    h.run('nextQ()');
+    assert.equal(panel.hidden, true, 'next question/result never waits for the effect');
+    assert.equal(panel.innerHTML, '');
+    assert.equal(h.pendingTimerDelays().includes(1350), false, 'the special cleanup timer is cancelled on navigation');
+  }
+});
+
+test('incorrect answers neither trigger a milestone nor reset the accumulated correct total', () => {
+  const h = harness();
+  h.run('prof().adventure.introCompleted=true; startQuiz(false)');
+  const panel = h.document.getElementById('correct-celebration');
+  const answers = [true, true, false, true, false, true, true, true];
+  let correct = 0;
+  for (const ok of answers) {
+    h.answer(ok);
+    if (ok) correct++;
+    assert.equal(h.inspect('quiz.correct'), correct);
+    if (!ok) {
+      assert.equal(panel.hidden, true);
+      assert.equal(panel.innerHTML, '');
+      assert.equal(h.pendingTimerDelays().includes(1350), false);
+    } else if (correct === 3 || correct === 6) {
+      assert.match(panel.innerHTML, new RegExp(correct === 3 ? 'correct-special-stars' : 'correct-special-balloons'));
+    } else assert.doesNotMatch(panel.innerHTML, /correct-special-(stars|balloons)/);
+    h.run('nextQ()');
+  }
+  assert.equal(h.inspect('totalAnswered(prof())'), 8);
+  assert.equal(h.inspect('prof().adventure.earnedUnits'), 6);
+  assert.equal(h.inspect('prof().stock.length'), 2);
+});
+
+test('repeating a milestone answer cannot duplicate or restart its celebration or saved reward', () => {
+  const h = harness(); h.run('startQuiz(false)');
+  h.answer(); h.run('nextQ()'); h.answer(); h.run('nextQ()'); h.answer();
+  const panel = h.document.getElementById('correct-celebration');
+  assert.match(panel.innerHTML, /correct-special-stars/);
+  const saved = h.storage.raw, html = panel.innerHTML, delays = h.pendingTimerDelays();
+  const confetti = h.document.body.querySelectorAll('.confetti').length;
+  h.answer(); h.answer(false);
+  assert.equal(panel.innerHTML, html);
+  assert.deepEqual(h.pendingTimerDelays(), delays);
+  assert.equal(h.document.body.querySelectorAll('.confetti').length, confetti);
+  assert.equal(h.storage.raw, saved);
+  assert.equal(h.inspect('quiz.correct'), 3);
+  h.flushTimers();
+  assert.equal(panel.hidden, true);
+  assert.equal(panel.innerHTML, '');
+  h.answer();
+  assert.equal(panel.hidden, true, 'an expired celebration cannot be replayed by repeating the answer');
+  assert.equal(h.storage.raw, saved);
+});
+
+test('a new round restarts celebration milestones while lifetime travel remains cumulative', () => {
+  const h = harness(); h.run('startQuiz(false)'); h.finish();
+  h.document.getElementById('btnagain').click();
+  const panel = h.document.getElementById('correct-celebration');
+  assert.equal(h.inspect('quiz.correct'), 0);
+  for (let total = 1; total <= 3; total++) {
+    h.answer();
+    if (total === 3) {
+      assert.match(panel.innerHTML, /correct-special-stars/);
+      assert.doesNotMatch(panel.innerHTML, /correct-special-balloons/);
+    } else assert.doesNotMatch(panel.innerHTML, /correct-special-(stars|balloons)/);
+    if (total < 3) h.run('nextQ()');
+  }
+  assert.equal(h.inspect('prof().adventure.earnedUnits'), 6);
+  assert.equal(h.inspect('quiz.correct'), 3);
+});
+
+test('calm and reduced motion suppress both special variants while preserving the six correct answers', () => {
+  for (const mode of ['calm', 'reduced']) {
+    const h = harness();
+    h.run("prof().adventure.introCompleted=true; " + (mode === 'calm' ? "prof().adventure.effectsMode='calm'" : "window.matchMedia=()=>({matches:true})"));
+    h.run('startQuiz(false)');
+    const panel = h.document.getElementById('correct-celebration');
+    for (let total = 1; total <= 6; total++) {
+      h.answer();
+      assert.equal(panel.hidden, true, mode);
+      assert.equal(panel.innerHTML, '', mode);
+      assert.equal(h.document.body.querySelectorAll('.confetti').length, 0, mode);
+      assert.equal(h.pendingTimerDelays().includes(1350), false, mode);
+      h.run('nextQ()');
+    }
+    assert.equal(h.inspect('quiz.correct'), 6, mode);
+    assert.equal(JSON.parse(h.storage.raw).profiles[0].adventure.earnedUnits, 6, mode);
+  }
+});
+
+test('mode changes and profile navigation cancel special effects without replaying them', () => {
+  const h = harness();
+  h.run('prof().adventure.introCompleted=true; startQuiz(false)');
+  h.answer(); h.run('nextQ()'); h.answer(); h.run('nextQ()'); h.answer();
+  const panel = h.document.getElementById('correct-celebration');
+  assert.match(panel.innerHTML, /correct-special-stars/);
+  h.run("setEffects('calm')");
+  assert.equal(panel.hidden, true);
+  assert.equal(panel.innerHTML, '');
+  assert.equal(h.pendingTimerDelays().includes(1350), false);
+  h.run("setEffects('rich')"); h.flushTimers();
+  assert.equal(panel.hidden, true, 'restoring rich mode does not replay the answered question');
+  for (let i = 0; i < 3; i++) { h.run('nextQ()'); h.answer(); }
+  assert.match(panel.innerHTML, /correct-special-balloons/);
+  h.document.getElementById('btnback').click();
+  h.document.getElementById('whochip').click();
+  assert.equal(h.inspect('current'), 'scr-profile');
+  assert.equal(panel.hidden, true);
+  assert.equal(panel.innerHTML, '');
+  assert.equal(h.pendingTimerDelays().includes(1350), false);
+  assert.equal(h.document.body.querySelectorAll('.confetti').length, 0);
+  h.run("DB.profiles.push(newProfile('別の人','🐰')); renderProfiles()");
+  h.document.getElementById('pgrid').children[1].click();
+  h.run('startQuiz(false)'); h.answer();
+  assert.doesNotMatch(panel.innerHTML, /correct-special-(stars|balloons)/);
+  h.flushTimers();
+  assert.equal(panel.hidden, true);
+  assert.equal(h.inspect('DB.profiles[0].adventure.earnedUnits'), 6);
+  assert.equal(h.inspect('prof().adventure.earnedUnits'), 1);
+});
+
+test('treasure completion takes priority when it coincides with the round’s third correct answer', () => {
+  const h = harness(); readyForTreasure(h);
+  h.run("Adventure.startFinale(prof()); for(let i=0;i<7;i++) Adventure.addCorrect(prof(),'prior-treasure-'+i); save(); startQuiz(false)");
+  h.answer(); h.run('nextQ()'); h.answer(); h.run('nextQ()'); h.answer();
+  const panel = h.document.getElementById('correct-celebration');
+  assert.equal(h.inspect('quiz.correct'), 3);
+  assert.equal(h.inspect('quiz.finaleCompleted'), true);
+  assert.equal(h.inspect('prof().adventure.finale.correctCount'), 10);
+  assert.match(panel.innerHTML, /TRÉSOR/);
+  assert.doesNotMatch(panel.innerHTML, /correct-special-(stars|balloons)/);
+  assert.ok(h.pendingTimerDelays().includes(1100));
+  const saved = h.storage.raw;
+  h.answer();
+  assert.equal(h.storage.raw, saved);
 });
 
 test("the third real correct answer unlocks a bicycle once and its selection survives reload", () => {

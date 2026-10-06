@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v41 · Your next adventure";
+const APP_VER = "v42 · Stars and balloons";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
@@ -106,11 +106,26 @@ function celebrateCorrect(treasure=false){
   if(!richEffects()) return;
   const panel = document.getElementById('correct-celebration');
   if(!panel) return;
-  const sparks = Array.from({length:16},(_,i)=>'<i style="--angle:'+(i*22.5)+'deg;--reach:'+(i%2 ? 134 : 104)+'px;--tone:'+(i%3 ? '#ffcc5f' : '#73c9ba')+'">'+(i%2 ? '✦' : '●')+'</i>').join('');
-  panel.innerHTML='<div class="correct-burst"><span class="correct-ring"></span><span class="correct-ring second"></span>'+sparks+'<div class="correct-word"><span>'+(treasure?'👑':'★')+'</span><strong>'+(treasure?'TRÉSOR !':'BRAVO !')+'</strong><small>'+(treasure?UIJa.ruby('宝','たから')+'を'+UIJa.ruby('発見','はっけん')+'！':UIJa.ruby('正解','せいかい')+'！')+'</small></div></div>';
+  // Count correct answers within this round, not a streak. Mistakes never
+  // reset the milestone, and the final treasure keeps its own celebration.
+  const correct = quiz ? quiz.correct : 0;
+  const special = !treasure && correct > 0 && correct % 3 === 0
+    ? (correct / 3 % 2 === 1 ? 'stars' : 'balloons') : null;
+  if(special){
+    const tones = ['#eaa33e','#66b6ab','#db8075','#a597cc','#e8c968'];
+    const art = special === 'stars'
+      ? Array.from({length:7},(_,i)=>'<i class="correct-comet" style="--slot:'+i+'"></i>').join('')
+      : tones.map((tone,i)=>'<i class="correct-balloon" style="--slot:'+i+';--tone:'+tone+'"><b></b><span></span></i>').join('');
+    const label = special === 'stars' ? 'MAGNIFIQUE !' : 'EN AVANT !';
+    const message = special === 'stars' ? 'すごい！' : 'いい'+UIJa.ruby('調子','ちょうし')+'！';
+    panel.innerHTML='<div class="correct-special correct-special-'+special+'"><div class="correct-special-art" aria-hidden="true">'+art+'</div><div class="correct-special-message"><strong>'+label+'</strong><small>'+message+'</small></div></div>';
+  }else{
+    const sparks = Array.from({length:16},(_,i)=>'<i style="--angle:'+(i*22.5)+'deg;--reach:'+(i%2 ? 134 : 104)+'px;--tone:'+(i%3 ? '#ffcc5f' : '#73c9ba')+'">'+(i%2 ? '✦' : '●')+'</i>').join('');
+    panel.innerHTML='<div class="correct-burst"><span class="correct-ring"></span><span class="correct-ring second"></span>'+sparks+'<div class="correct-word"><span>'+(treasure?'👑':'★')+'</span><strong>'+(treasure?'TRÉSOR !':'BRAVO !')+'</strong><small>'+(treasure?UIJa.ruby('宝','たから')+'を'+UIJa.ruby('発見','はっけん')+'！':UIJa.ruby('正解','せいかい')+'！')+'</small></div></div>';
+    confetti();
+  }
   panel.hidden=false;
-  confetti();
-  correctCelebrationTimer=scheduleEffect(()=>{ panel.hidden=true; panel.innerHTML=''; correctCelebrationTimer=null; },1100);
+  correctCelebrationTimer=scheduleEffect(()=>{ panel.hidden=true; panel.innerHTML=''; correctCelebrationTimer=null; },special ? 1350 : 1100);
 }
 function prof(){ return DB.profiles.find(p => p.id === DB.active) || null; }
 function todayKey(){
