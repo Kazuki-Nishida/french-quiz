@@ -7,6 +7,32 @@ button:focus-visible,select:focus-visible,input:focus-visible,[role=button]:focu
 .home-journey h1{font-size:clamp(22px,4vw,30px);line-height:1.7;margin:3px 0 5px;font-family:Georgia,'Hiragino Mincho ProN',serif}
 .journey-eyebrow{font-size:11px;font-weight:800;letter-spacing:.2em;color:#497b79}
 .home-journey p{line-height:2;font-size:15px;margin:8px 0 15px}
+/* XP records learning, with round gains separate from the profile total.
+   Values may wrap instead of forcing a wide card when totals grow. */
+.xp-home{margin:15px 0 12px;padding:12px 14px;border:1px solid #d6ddc8;border-radius:15px;background:#fff9e8}
+.xp-home-line{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:5px 14px}
+.xp-label{color:#4d6b5c;font-size:13px;font-weight:700;line-height:1.9}
+.xp-value{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;min-width:0;max-width:100%;color:#286c5c;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.25}
+.xp-value>span:first-child{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.xp-unit{font-size:14px;font-weight:800;letter-spacing:.04em;white-space:nowrap}
+#home-xp-total{font-size:28px}
+.home-journey .xp-rule{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 9px;margin:8px 0 0;color:#586b56;font-size:12px;line-height:2.05}
+.xp-rule>span{max-width:100%;overflow-wrap:anywhere}.xp-rule b{color:#876126;white-space:nowrap}
+.xp-rule-separator{margin-right:9px;color:#899476}
+#quiz-xp{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px 10px;min-height:40px;margin:0 0 9px;padding:1px 3px;color:#356a59;font-size:14px;font-weight:700;line-height:1.8;font-variant-numeric:tabular-nums}
+#quiz-xp>span{min-width:0;max-width:100%;overflow-wrap:anywhere}
+#quiz-xp .xp-gain{padding:3px 11px;border:1px solid #d9bc79;border-radius:99px;background:#fff0c5;color:#78551f;font-size:16px;font-weight:900;line-height:1.6;white-space:nowrap}
+#quiz-xp b{font-weight:900}
+.xp-summary{margin:0 0 18px;padding:21px 22px 15px;border:1px solid #dec78d;border-radius:22px;background:radial-gradient(ellipse at 50% 0,#fff2c8,transparent 65%),#fffaf0;box-shadow:0 5px 15px #8b764014;text-align:center;overflow-wrap:anywhere}
+.xp-summary h2{margin:0;color:#506953;font-size:17px;font-weight:800;line-height:1.95}
+.xp-earned{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:5px 9px;max-width:100%;margin:7px 0 8px;color:#8d601f;font-size:54px;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
+#result-xp-earned{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.xp-earned .xp-unit{font-size:22px}
+.xp-breakdown{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 17px;min-width:0;max-width:100%;color:#667051;font-size:13px;line-height:1.95}
+.xp-breakdown>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.xp-summary-total{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:6px 13px;margin-top:13px;padding-top:12px;border-top:1px solid #e0dcc0;color:#4c6c5c;font-size:13px;font-weight:700;line-height:1.8}
+.xp-summary-total .xp-value{font-size:23px}
+@media(max-width:420px){.xp-home{padding:11px 12px}.xp-home-line{gap:3px 10px}#home-xp-total{font-size:25px}.home-journey .xp-rule{font-size:11px;gap:1px 7px}.xp-summary{padding:18px 15px 13px}.xp-earned{font-size:48px}.xp-earned .xp-unit{font-size:19px}.xp-breakdown{gap:3px 11px;font-size:14px;flex-direction:column}.xp-summary-total .xp-value{font-size:21px}}
 .study-context,.study-freedom{font-size:14px;line-height:2;color:#4c655e;margin:12px 0}
 #grammar-guide{margin-top:16px;scroll-margin-top:16px}
 #grammar-guide h2{font-size:21px;margin:0 0 7px}

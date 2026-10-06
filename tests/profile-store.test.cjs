@@ -109,11 +109,55 @@ test("old profiles preserve every existing field while adding defaults without c
   assert.equal(result.active, 101);
   assert.equal(result.settings.voiceGender, "f");
   assert.equal(result.settings.voiceName, null);
+  assert.equal(result.profiles[0].xp, 0, "past quiz scores never become estimated XP");
+  assert.equal(Object.hasOwn(raw.profiles[0], "xp"), false, "legacy input remains untouched");
   assert.equal(result.profiles[0].adventure.earnedUnits, 0, "legacy correct counts are not newly awarded travel progress");
   assert.equal(result.profiles[0].adventure.introCompleted, false);
   assert.ok(Adventure.status(result.profiles[0]).ok);
   assert.deepEqual(result.profiles[0].studyGuide, { schemaVersion: 1, lastGrammarUnitId: null });
   assert.deepEqual(StudyGuide.progress(result.profiles[0], firstUnit, WORDS), { attempted: 2, total: 10, complete: false });
+});
+
+test("existing XP survives load and repeated preparation without changing other profile or journey fields", () => {
+  for (const xp of [0, 1, 37, Number.MAX_SAFE_INTEGER]) {
+    const raw = ProfileStore.prepare(legacyData(), Adventure);
+    const p = raw.profiles[0];
+    p.xp = xp;
+    p.adventure = legacyV38Journeys()[0];
+    p.extraProfile.push({ xp: "unknown nested metadata stays untouched" });
+    const before = JSON.stringify(raw);
+    const loaded = ProfileStore.prepare(raw, Adventure);
+    assert.deepEqual(loaded, raw);
+    assert.equal(loaded.profiles[0].xp, xp);
+    assert.equal(JSON.stringify(raw), before);
+    assert.deepEqual(ProfileStore.prepare(loaded, Adventure), loaded);
+    const storage = memoryStorage({ [LS_KEY]: "previous" });
+    const imported = ProfileStore.importData(JSON.stringify(loaded), storage, LS_KEY, Adventure);
+    assert.deepEqual(imported, loaded);
+    assert.deepEqual(JSON.parse(storage.getItem(LS_KEY)), loaded);
+  }
+});
+
+test("a mixed old and XP-aware two-profile backup initializes only the missing XP and keeps progress independent", () => {
+  const raw = legacyData(), journeys = legacyV38Journeys();
+  raw.profiles[0].adventure = journeys[0];
+  const second = clone(raw.profiles[0]);
+  second.id = 102; second.xp = 73; second.adventure = journeys[1];
+  raw.profiles.push(second);
+  const original = JSON.stringify(raw), storage = memoryStorage({ [LS_KEY]: "previous" });
+  const imported = ProfileStore.importData(original, storage, LS_KEY, Adventure);
+  assert.equal(JSON.stringify(raw), original);
+  assert.deepEqual(imported.profiles.map(p => p.xp), [0, 73]);
+  for (let i = 0; i < 2; i++) {
+    assert.equal(JSON.stringify(imported.profiles[i].adventure), JSON.stringify(journeys[i]));
+    for (const field of ["words", "daily", "stock", "extraProfile"]) assert.deepEqual(imported.profiles[i][field], raw.profiles[i][field]);
+  }
+  const secondBefore = JSON.stringify(imported.profiles[1]);
+  imported.profiles[0].xp += 2;
+  const roundTrip = ProfileStore.importData(JSON.stringify(imported), storage, LS_KEY, Adventure);
+  assert.deepEqual(roundTrip, imported);
+  assert.deepEqual(ProfileStore.prepare(JSON.parse(storage.getItem(LS_KEY)), Adventure), imported);
+  assert.equal(JSON.stringify(roundTrip.profiles[1]), secondBefore);
 });
 
 test("JSON export/import round trip preserves current progress, preferences, visits, and unknown JSON fields", () => {
@@ -128,7 +172,7 @@ test("JSON export/import round trip preserves current progress, preferences, vis
   profile.adventure.visited["trocadero"].extraVisit = true;
   profile.studyGuide.lastGrammarUnitId = StudyGuide.forLevel("ぶんぽう3")[0].id;
   profile.studyGuide.extraGuide = "keep";
-  db.profiles.push({ id: "second", name: "もう一人", avatar: "🐰", words: {}, daily: {}, stock: [], extraProfile: 2 });
+  db.profiles.push({ id: "second", name: "もう一人", avatar: "🐰", xp: 0, words: {}, daily: {}, stock: [], extraProfile: 2 });
   Adventure.ensure(db.profiles[1], NOW);
   db.profiles[1].studyGuide = { schemaVersion: 1, lastGrammarUnitId: null };
   const exported = JSON.stringify(db, null, 1);
@@ -166,6 +210,7 @@ test("a failed import save leaves both the live DB reference and previous storag
   const storage = memoryStorage({ [LS_KEY]: before }, true);
   const incoming = clone(liveDB);
   incoming.profiles[0].name = "読み込み候補";
+  incoming.profiles[0].xp = 27;
   incoming.profiles[0].words[wordKey(firstQuestions[0])].c = 999;
   assert.throws(() => { liveDB = ProfileStore.importData(JSON.stringify(incoming), storage, LS_KEY, Adventure); }, /QuotaExceededError/);
   assert.equal(liveDB, beforeReference);
@@ -226,6 +271,10 @@ const invalidCases = [
   ["missing profile name", db => { delete db.profiles[0].name; }],
   ["settings as array", db => { db.settings = []; }]
 ];
+
+for (const [label, xp] of [["negative", -1], ["fractional", 0.5], ["string", "2"], ["null", null], ["boolean", false], ["object", {}], ["array", []], ["unsafe integer", Number.MAX_SAFE_INTEGER + 1], ["infinite", Infinity], ["not a number", NaN]]) {
+  invalidCases.push([label + " XP", db => { db.profiles[0].xp = xp; }]);
+}
 
 for (const [label, mutate] of invalidCases) {
   test("invalid learning/profile data is rejected without writes: " + label, () => {
@@ -332,7 +381,7 @@ test("character collection and mixed learning footprints round trip with pending
   for (let i = 0; i < 11; i++) Adventure.addCorrect(p, "visit:" + i, NOW + i, { level: i % 2 ? "A1" : "C2", review: i % 3 === 0, wordKey: "word-" + i });
   p.adventure.characters.lumie.extraCharacter = "keep";
   p.adventure.visited.eiffel.learning.extraLearning = "keep";
-  const second = clone(legacyData().profiles[0]); second.id = 102;
+  const second = clone(legacyData().profiles[0]); second.id = 102; second.xp = 0;
   db.profiles.push(second);
   Adventure.ensure(second, NOW);
   second.studyGuide = { schemaVersion: 1, lastGrammarUnitId: null };
@@ -397,7 +446,7 @@ test("actual v38 two-profile backup preserves all schema-two journey bytes on lo
 
 test("new Versailles and Marseille discoveries, carryover, and learning remain independent across backup", () => {
   const db = ProfileStore.prepare(legacyData(), Adventure);
-  const second = clone(legacyData().profiles[0]); second.id = 102;
+  const second = clone(legacyData().profiles[0]); second.id = 102; second.xp = 0;
   Adventure.ensure(second, NOW); second.studyGuide = { schemaVersion: 1, lastGrammarUnitId: null };
   db.profiles.push(second);
   const a = db.profiles[0], b = db.profiles[1];
@@ -423,7 +472,7 @@ test("new Versailles and Marseille discoveries, carryover, and learning remain i
 
 test("selected vehicles and active or paused finale progress round trip independently for two profiles", () => {
   const db = ProfileStore.prepare(legacyData(), Adventure);
-  const second = clone(legacyData().profiles[0]); second.id = 102;
+  const second = clone(legacyData().profiles[0]); second.id = 102; second.xp = 0;
   Adventure.ensure(second, NOW); second.studyGuide = { schemaVersion: 1, lastGrammarUnitId: null };
   db.profiles.push(second);
   db.profiles.forEach(collectFinaleRequirements);

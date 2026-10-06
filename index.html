@@ -294,7 +294,7 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 <link rel="preload" as="image" href="img/adventure/cheer-star.svg?v=46-final">
 <link rel="preload" as="image" href="img/adventure/cheer-balloon.svg?v=46-final">
 <link rel="stylesheet" href="adventure.css?v=49">
-<link rel="stylesheet" href="learning-ui.css?v=50">
+<link rel="stylesheet" href="learning-ui.css?v=51">
 <link rel="stylesheet" href="play-feedback.css?v=46-final">
 </head>
 <body>
@@ -328,6 +328,13 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
       <div class="journey-eyebrow">BONJOUR, FRANCE</div>
       <h1>ことばと<ruby>歩<rt>ある</rt></ruby>く、フランス。</h1>
       <button class="btn home-study-start" id="btnquiz">🎮 クイズで あそぶ</button>
+      <div class="xp-home">
+        <div class="xp-home-line">
+          <span class="xp-label">これまでの<ruby>経験値<rt>けいけんち</rt></ruby></span>
+          <span class="xp-value"><span id="home-xp-total">0</span><span class="xp-unit">XP</span></span>
+        </div>
+        <p class="xp-rule"><span><ruby>一発正解<rt>いっぱつせいかい</rt></ruby> <b>2 XP</b></span><span><span class="xp-rule-separator" aria-hidden="true">/</span><ruby>選<rt>えら</rt></ruby>び<ruby>直<rt>なお</rt></ruby>して<ruby>正解<rt>せいかい</rt></ruby> <b>1 XP</b></span></p>
+      </div>
       <p id="home-journey-status"></p>
       <div id="home-journey-visual"></div>
       <div class="home-journey-actions"><button class="btn teal" id="btnmap">地図から出発</button><button class="btn ghost" id="btnjournal">旅の図鑑を見る <span id="journal-count"></span></button></div>
@@ -409,6 +416,7 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
     <div class="quiz-context" data-no-next><div id="quiz-subject"></div><label><ruby>演出<rt>えんしゅつ</rt></ruby><select id="quiz-effects"><option value="rich">たっぷり</option><option value="calm">ひかえめ</option></select></label></div>
     <div id="adventure-scene" data-no-next></div>
     <div id="qprog"></div>
+    <div id="quiz-xp" role="status" aria-live="polite" aria-atomic="true" data-no-next><span><ruby>今回<rt>こんかい</rt></ruby> <b>0 XP</b></span></div>
     <div class="card qcard" id="qarea"></div>
     <div id="retry-feedback" role="status" aria-live="polite" aria-atomic="true" data-no-next hidden></div>
     <div class="opts" id="opts"></div>
@@ -423,6 +431,12 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 
   <!-- けっか -->
   <section class="screen" id="scr-result">
+    <section id="result-xp" class="xp-summary" aria-labelledby="result-xp-title">
+      <h2 id="result-xp-title"><ruby>今回<rt>こんかい</rt></ruby>の<ruby>経験値<rt>けいけんち</rt></ruby></h2>
+      <div class="xp-earned"><span id="result-xp-earned">+0</span><span class="xp-unit">XP</span></div>
+      <div id="result-xp-breakdown" class="xp-breakdown"></div>
+      <div class="xp-summary-total"><span><ruby>累計<rt>るいけい</rt></ruby></span><span class="xp-value"><span id="result-xp-total">0</span><span class="xp-unit">XP</span></span></div>
+    </section>
     <div id="result-next-step"></div>
     <div id="adventure-result"></div>
     <div class="card">
@@ -909,8 +923,8 @@ button{font-family:inherit;border:none;cursor:pointer;color:inherit;background:n
 <script src="adventure.js?v=49"></script>
 <script src="study-guide.js?v=46-final"></script>
 <script src="ui-ja.js?v=46-final"></script>
-<script src="profile-store.js?v=46-final"></script>
+<script src="profile-store.js?v=51"></script>
 <script src="adventure-view.js?v=49"></script>
-<script src="app.js?v=50"></script>
+<script src="app.js?v=51"></script>
 </body>
 </html>

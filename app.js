@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v50 · Try again, then celebrate";
+const APP_VER = "v51 · XP for every step";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
@@ -352,7 +352,7 @@ document.getElementById("whochip").addEventListener("click", () => {
 
 /* ================= プロフィール ================= */
 function newProfile(name, avatar){
-  const p = { id: Date.now(), name, avatar, daily:{}, words:{}, stock:[], studyGuide:{schemaVersion:1,lastGrammarUnitId:null} };
+  const p = { id: Date.now(), name, avatar, xp:0, daily:{}, words:{}, stock:[], studyGuide:{schemaVersion:1,lastGrammarUnitId:null} };
   Adventure.ensure(p); return p;
 }
 function activeLevels(){ return LEVELS.filter(lv => WORDS.some(w => w.lv === lv)); }
@@ -515,6 +515,7 @@ function tblHTML(tb){
 /* ================= ホーム ================= */
 function renderHome(){
   const p = prof(); if(!p) return;
+  document.getElementById('home-xp-total').textContent = p.xp.toLocaleString('ja-JP');
   const a = Adventure.ensure(p);
   AdventureView.renderHomePreview(document.getElementById('home-journey-visual'), p, {
     onFinaleDetails:showFinaleDetails,
@@ -737,7 +738,7 @@ function startQuiz(review){
   quiz = {
     review, intro, questionLimit, profileId:p.id,
     roundId:typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random(),
-    settings:{...setup}, earned:0, arrivals:[], vehicleUnlocks:[], finaleCompleted:false, resultEffectsPlayed:false, finished:false,
+    settings:{...setup}, earned:0, xpEarned:0, arrivals:[], vehicleUnlocks:[], finaleCompleted:false, resultEffectsPlayed:false, finished:false,
     qs: words.map(w => {
       if(w.pos === "gram"){ // ぶんぽう: あなうめ4たく (せんたくしは もんだいに ついてくる)
         const opts = shuffle([w, ...w.d.map(t => ({ fr: t, pos: "gram", e: w.e, ja: "" }))]);
@@ -887,7 +888,12 @@ function answer(idx){
     toast("💡 がめんの あいている ところを タップしても つぎへ いけるよ");
   }
   const retried = !q.firstAttempt.ok;
-  quiz.results.push({w:q.w, ok:true, retried, stocked:q.firstAttempt.stocked, unstocked:q.firstAttempt.unstocked});
+  const gainedXP = retried ? 1 : 2;
+  // Award on completion, once, alongside the saved learning and travel record.
+  // Result rendering never awards XP; leaving a round keeps completed answers.
+  p.xp = Math.min(Number.MAX_SAFE_INTEGER, p.xp + gainedXP);
+  quiz.xpEarned += gainedXP;
+  quiz.results.push({w:q.w, ok:true, retried, xp:gainedXP, stocked:q.firstAttempt.stocked, unstocked:q.firstAttempt.unstocked});
   quiz.correct++;
   const vehiclesBefore = new Set(Adventure.getVehicles(p).filter(v=>v.unlocked).map(v=>v.id));
   const move = Adventure.addCorrect(p, quiz.roundId+':'+quiz.i, Date.now(), {level:q.w.lv,wordKey:key,review:quiz.review});
@@ -989,6 +995,11 @@ function showResult(){
   const n = quiz.qs.length, c = quiz.correct;
   const nRetried = quiz.results.filter(r => r.retried).length;
   const firstCorrect = c - nRetried;
+  document.getElementById('result-xp-earned').textContent = '+' + quiz.xpEarned;
+  document.getElementById('result-xp-total').textContent = prof().xp.toLocaleString('ja-JP');
+  document.getElementById('result-xp-breakdown').innerHTML =
+    '<span>'+UIJa.ruby('一発正解','いっぱつせいかい')+' '+firstCorrect+UIJa.ruby('問','もん')+' × 2 XP</span>'+
+    '<span>'+UIJa.ruby('選','えら')+'び'+UIJa.ruby('直','なお')+'して'+UIJa.ruby('正解','せいかい')+' '+nRetried+UIJa.ruby('問','もん')+' × 1 XP</span>';
   document.getElementById("rscore").innerHTML = c + ' <small>/ ' + n + ' '+UIJa.ruby('問','もん')+'クリア</small>';
   document.getElementById('rscore-detail').innerHTML =
     'はじめに'+UIJa.ruby('正解','せいかい')+' '+firstCorrect+UIJa.ruby('問','もん')+' · '+
@@ -1398,6 +1409,8 @@ document.getElementById('btnrecommended').addEventListener('click',()=>{
 function renderQuizContext(){
   if(!quiz) return;
   const q=quiz.qs[quiz.i];
+  const gain = quiz.answered ? '<span class="xp-gain">+'+quiz.results.at(-1).xp+' XP</span>' : '';
+  document.getElementById('quiz-xp').innerHTML = gain+'<span>'+UIJa.ruby('今回','こんかい')+' <b>'+quiz.xpEarned+' XP</b></span>';
   const unit=!quiz.review && StudyGuide.getUnit(quiz.settings.unitId);
   const recommendation=!quiz.review && WorldData.getRecommendation(quiz.settings.recommendationId);
   document.getElementById('quiz-subject').innerHTML=(Adventure.getFinaleStatus(prof()).active ? '👑 '+UIJa.ruby('宝探し','たからさがし')+' · ' : '')+(quiz.review?UIJa.ruby('復習','ふくしゅう')+' · ':'')+UIJa.level(q.w.lv)+(unit?' · '+UIJa.ruby(unit.title,unit.reading):'')+(recommendation?' · '+UIJa.ruby(recommendation.label,recommendation.labelReading):'')+' <span>'+(quiz.i+1)+' / '+quiz.qs.length+'</span>';

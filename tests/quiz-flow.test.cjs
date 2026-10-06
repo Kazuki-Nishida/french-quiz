@@ -705,6 +705,172 @@ test('results distinguish first-choice mastery from retry completion and reserve
   }
 });
 
+function visibleMarkup(html) {
+  return html.replace(/<rt>[\s\S]*?<\/rt>/g, '').replace(/<[^>]+>/g, '');
+}
+
+test('new and legacy profiles start at zero XP without estimating it from earlier learning or travel', () => {
+  const fresh = harness(null);
+  fresh.document.getElementById('nameinput').value = 'XPの確認';
+  fresh.document.getElementById('btnpcreate').click();
+  assert.equal(fresh.inspect('prof().xp'), 0);
+  assert.equal(JSON.parse(fresh.storage.raw).profiles[0].xp, 0);
+  fresh.run('renderHome()');
+  assert.equal(fresh.document.getElementById('home-xp-total').textContent, '0');
+
+  const old = legacyProfile(), word = curriculum.WORDS[0], key = word.fr + '::' + word.ja;
+  old.words[key] = { c: 40, w: 5 };
+  old.daily['2026-10-05'] = { q: 45, c: 40 };
+  Adventure.ensure(old);
+  for (let i = 0; i < 40; i++) Adventure.addCorrect(old, 'old-xp:' + i);
+  const source = JSON.stringify({ profiles: [old], active: old.id, settings: { voiceName: 'Thomas' } });
+  const h = harness(source);
+  h.run('renderHome()');
+  assert.equal(h.inspect('prof().xp'), 0);
+  assert.equal(h.document.getElementById('home-xp-total').textContent, '0');
+  assert.equal(h.inspect('prof().adventure.earnedUnits'), 40);
+  assert.deepEqual(h.inspect('prof().words'), old.words);
+  assert.deepEqual(h.inspect('prof().daily'), old.daily);
+  assert.equal(h.inspect('DB.settings.voiceName'), 'Thomas');
+  assert.equal(h.storage.raw, source, 'viewing an older profile does not silently overwrite its source');
+});
+
+test('the three-question intro awards six XP for first choices or three XP for corrected mistakes', () => {
+  for (const retry of [false, true]) {
+    const h = harness(); h.run("setup.dir='jf'; startQuiz(false)");
+    const gain = retry ? 1 : 2;
+    for (let index = 0; index < 3; index++) {
+      if (retry) {
+        h.answer(false);
+        assert.equal(h.inspect('prof().xp'), index * gain);
+        assert.equal(h.inspect('quiz.xpEarned'), index * gain);
+        assert.doesNotMatch(h.document.getElementById('quiz-xp').innerHTML, /xp-gain/);
+      }
+      h.answer();
+      assert.equal(h.inspect('quiz.results.at(-1).xp'), gain);
+      assert.equal(h.inspect('quiz.xpEarned'), (index + 1) * gain);
+      assert.equal(JSON.parse(h.storage.raw).profiles[0].xp, (index + 1) * gain);
+      assert.match(visibleMarkup(h.document.getElementById('quiz-xp').innerHTML), new RegExp('\\+' + gain + ' XP'));
+      assert.match(visibleMarkup(h.document.getElementById('quiz-xp').innerHTML), new RegExp('今回\\s*' + ((index + 1) * gain) + ' XP'));
+      h.run('nextQ()');
+      if (index < 2) assert.doesNotMatch(h.document.getElementById('quiz-xp').innerHTML, /xp-gain/, 'the previous question reward does not flash on the next question');
+    }
+    const earned = 3 * gain;
+    assert.equal(h.document.getElementById('result-xp-earned').textContent, '+' + earned);
+    assert.equal(h.document.getElementById('result-xp-total').textContent, String(earned));
+    const breakdown = visibleMarkup(h.document.getElementById('result-xp-breakdown').innerHTML);
+    assert.match(breakdown, new RegExp('一発正解 ' + (retry ? 0 : 3) + '問 × 2 XP'));
+    assert.match(breakdown, new RegExp('選び直して正解 ' + (retry ? 3 : 0) + '問 × 1 XP'));
+    const saved = h.storage.raw, writes = h.storage.writes;
+    h.run('showResult(); showResult(); nextQ(); answer(0); renderHome()');
+    assert.equal(h.document.getElementById('home-xp-total').textContent, String(earned));
+    assert.equal(h.storage.raw, saved);
+    assert.equal(h.storage.writes, writes);
+    assert.equal(h.inspect('prof().adventure.earnedUnits'), 3, 'XP does not accelerate travel');
+  }
+});
+
+test('eight first answers plus two retries earn eighteen XP and completed and interrupted rounds accumulate', () => {
+  const h = harness(); beginSoundRound(h);
+  h.finish(index => index !== 2 && index !== 7);
+  assert.equal(h.inspect('quiz.xpEarned'), 18);
+  assert.equal(h.inspect('prof().xp'), 18);
+  assert.equal(h.document.getElementById('result-xp-earned').textContent, '+18');
+  assert.equal(h.inspect('quiz.results.reduce((sum,result)=>sum+result.xp,0)'), 18);
+  h.run('startQuiz(false)');
+  assert.equal(h.inspect('quiz.xpEarned'), 0);
+  h.finish();
+  assert.equal(h.inspect('prof().xp'), 38);
+  assert.equal(h.document.getElementById('result-xp-total').textContent, '38');
+  h.run('startQuiz(false)'); h.answer();
+  assert.equal(h.inspect('prof().xp'), 40);
+  h.run("go('scr-home'); renderHome()");
+  assert.equal(h.inspect('quiz'), null);
+  assert.equal(h.document.getElementById('home-xp-total').textContent, '40');
+  const reloaded = harness(h.storage.raw);
+  reloaded.run('renderHome(); startQuiz(false)');
+  assert.equal(reloaded.inspect('prof().xp'), 40, 'leaving an unfinished round retains XP already earned');
+  assert.equal(reloaded.inspect('quiz.xpEarned'), 0);
+  assert.equal(reloaded.inspect('prof().adventure.earnedUnits'), 21);
+});
+
+test('wrong attempts and duplicate inputs never add XP and switching profiles keeps separate totals', () => {
+  const h = harness(JSON.stringify({ profiles: [legacyProfile(1), legacyProfile(2)], active: 1, settings: {} }));
+  h.run("setup.dir='jf'; startQuiz(false)");
+  for (const offset of [1, 2, 3]) {
+    h.run('answer((quiz.qs[quiz.i].ansIdx+' + offset + ')%quiz.qs[quiz.i].opts.length)');
+    assert.equal(h.inspect('prof().xp'), 0);
+    assert.equal(h.inspect('quiz.xpEarned'), 0);
+  }
+  h.answer(false); h.run('nextQ(); showResult()');
+  assert.equal(h.inspect('prof().xp'), 0);
+  h.answer();
+  const saved = h.storage.raw;
+  assert.equal(h.inspect('prof().xp'), 1);
+  h.answer(); h.answer(false);
+  assert.equal(h.storage.raw, saved);
+  h.run("go('scr-profile'); renderProfiles()");
+  h.document.getElementById('pgrid').children[1].click();
+  assert.equal(h.inspect('DB.active'), 2);
+  assert.equal(h.document.getElementById('home-xp-total').textContent, '0');
+  h.run('startQuiz(false)'); h.answer();
+  assert.equal(h.inspect('prof().xp'), 2);
+  h.run("go('scr-profile'); renderProfiles()");
+  h.document.getElementById('pgrid').children[0].click();
+  assert.equal(h.document.getElementById('home-xp-total').textContent, '1');
+  const reloaded = harness(h.storage.raw);
+  assert.deepEqual(reloaded.inspect('DB.profiles.map(p=>p.xp)'), [1, 2]);
+  assert.equal(reloaded.inspect('prof().id'), 1);
+});
+
+test('saving after an XP write failure recovers the latest total without repeating awards', () => {
+  const h = harness(); h.run("setup.dir='jf'; startQuiz(false); save()");
+  const initial = h.storage.raw;
+  h.storage.fail = true;
+  h.answer(false); h.answer();
+  h.run('nextQ()'); h.answer();
+  assert.equal(h.inspect('prof().xp'), 3);
+  assert.equal(h.inspect('quiz.xpEarned'), 3);
+  assert.equal(h.storage.raw, initial);
+  assert.equal(JSON.parse(h.storage.raw).profiles[0].xp, 0);
+  assert.ok(h.inspect('storageProblem'));
+  h.storage.fail = false; h.run('save()');
+  assert.equal(JSON.parse(h.storage.raw).profiles[0].xp, 3);
+  const saved = h.storage.raw, writes = h.storage.writes;
+  h.answer(); h.run('save(); save()');
+  assert.equal(h.storage.raw, saved);
+  assert.equal(h.storage.writes, writes);
+  assert.equal(h.inspect('storageProblem'), null);
+  const fresh = harness(saved);
+  assert.equal(fresh.inspect('prof().xp'), 3);
+  assert.equal(fresh.inspect('prof().adventure.earnedUnits'), 2);
+  assert.equal(fresh.inspect('totalAnswered(prof())'), 2);
+});
+
+test('the real export and import controls preserve XP with every profile and the existing records', async () => {
+  const data = { profiles: [legacyProfile(1), { ...legacyProfile(2), xp: 1234 }], active: 1, settings: { voiceName: 'Thomas', sound: false } };
+  const h = harness(JSON.stringify(data));
+  h.run('startQuiz(false)'); h.finish(index => index !== 1);
+  assert.equal(h.inspect('prof().xp'), 5);
+  h.document.getElementById('btnexport').click();
+  assert.equal(h.downloads.length, 1);
+  const backup = await h.downloads[0].text();
+  assert.deepEqual(JSON.parse(backup).profiles.map(p => p.xp), [5, 1234]);
+  const receiver = harness(null);
+  receiver.importText(backup);
+  assert.deepEqual(receiver.alerts, []);
+  assert.deepEqual(receiver.inspect('DB'), JSON.parse(backup), 'import keeps learning, travel and settings alongside XP');
+  assert.deepEqual(JSON.parse(receiver.storage.raw).profiles.map(p => p.xp), [5, 1234]);
+  receiver.run('renderProfiles()');
+  receiver.document.getElementById('pgrid').children[1].click();
+  assert.equal(receiver.document.getElementById('home-xp-total').textContent, '1,234');
+  assert.equal(receiver.inspect('DB.settings.voiceName'), 'Thomas');
+  assert.equal(receiver.inspect('DB.settings.sound'), false);
+  const reloaded = harness(receiver.storage.raw);
+  assert.equal(reloaded.inspect('prof().xp'), 1234);
+  assert.deepEqual(reloaded.inspect('DB.profiles[0].stock'), h.inspect('DB.profiles[0].stock'));
+});
+
 test("a saved interrupted round retains partial travel but starts a new question sequence", () => {
   const h = harness();
   h.run("prof().adventure.introCompleted=true; Adventure.selectPath(prof(),'trocadero--seine'); startQuiz(false)");

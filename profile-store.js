@@ -18,6 +18,10 @@
       if (!object(p) || !['string', 'number'].includes(typeof p.id) || ids.has(p.id) ||
           typeof p.name !== 'string' || typeof p.avatar !== 'string') throw new Error('プロフィールを確認してください。');
       ids.add(p.id);
+      // XP starts when this feature is introduced. Existing quiz and journey
+      // counts are preserved, never converted into historical XP estimates.
+      if (!Object.prototype.hasOwnProperty.call(p, 'xp')) p.xp = 0;
+      if (!count(p.xp)) throw new Error('XPの記録を確認してください。');
       if (!object(p.words) || !object(p.daily) || !Array.isArray(p.stock) || p.stock.some(k => typeof k !== 'string'))
         throw new Error('学習記録の形式が違います。');
       Object.values(p.words).forEach(s => {
