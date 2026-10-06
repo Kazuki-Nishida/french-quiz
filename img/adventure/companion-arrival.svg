@@ -1,20 +1,63 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="144" viewBox="0 0 128 144">
-  <title>新しい景色を見つけて羽を上げる旅の相棒</title>
-  <ellipse cx="66" cy="132" rx="33" ry="5" fill="#563B4520"/>
-  <path d="M49 119v10l-11 3m40-13v10l11 3" stroke="#563B45" stroke-width="5" stroke-linecap="round" fill="none"/>
-  <path d="m90 92 18 16-20 4Z" fill="#CB763B" stroke="#563B45" stroke-width="2.2" stroke-linejoin="round"/>
-  <path d="M42 67c-10 12-14 25-10 40 3 15 17 22 33 22 20 0 36-14 35-34-1-12-7-23-17-31Z" fill="#E8A04B" stroke="#563B45" stroke-width="2.4"/>
-  <path d="M51 79c-10 9-14 19-11 30 4 12 22 18 35 11 11-6 15-21 5-34Z" fill="#FFF4D6"/>
-  <path d="M36 74c-7 5-12 17-8 24 2 4 8 5 15 0" fill="#D8873F" stroke="#563B45" stroke-width="2.2" stroke-linecap="round"/>
-  <path d="M89 79c13-4 22-15 24-29 0-7-6-8-9-1l-2 7c-1-9-6-9-8-4-4 8-7 11-14 17" fill="#E8A04B" stroke="#563B45" stroke-width="2.4"/>
-  <path d="M49 58 74 55l22 42" stroke="#986642" stroke-width="5" fill="none"/>
-  <path d="m77 97 22-4 3 20-22 4Z" fill="#BD8B5B" stroke="#705044" stroke-width="1.8"/><path d="m77 97 22-4 1 8-22 4Z" fill="#DBAE7B"/><path d="m88 99 5-1v5l-5 1Z" fill="#FFE3A0" stroke="#705044"/>
-  <path d="M43 67c-10-6-15-18-10-31 3-10 13-17 26-16 17-3 32 5 35 18 6 15-2 27-14 32Z" fill="#F0AD58" stroke="#563B45" stroke-width="2.4"/>
-  <path d="M46 33c-13 5-13 28-1 35 12 9 37 5 43-9 5-10-5-28-17-29-11-3-16-1-25 3Z" fill="#FFF4D6"/>
-  <path d="M43 23 43 12l12 9m1-1 7-12 5 13" fill="#F0AD58" stroke="#563B45" stroke-width="2.4" stroke-linejoin="round"/>
-  <ellipse cx="45" cy="56" rx="4.3" ry="2.7" fill="#ED9B82" opacity=".7"/><ellipse cx="85" cy="56" rx="4.3" ry="2.7" fill="#ED9B82" opacity=".7"/><ellipse cx="54" cy="48" rx="3.3" ry="4.2" fill="#563B45"/><circle cx="53" cy="46.6" r="1.1" fill="#FFFFFF"/><ellipse cx="79" cy="48" rx="3.3" ry="4.2" fill="#563B45"/><circle cx="78" cy="46.6" r="1.1" fill="#FFFFFF"/>
-  <path d="m62 53 12 1-7 6Z" fill="#CF753C" stroke="#704637" stroke-width="1.1" stroke-linejoin="round"/><path d="M59 61q8 12 17-1Z" fill="#563B45"/><path d="M63 65q4 2 8-1" stroke="#F3A48B" stroke-width="2.3" stroke-linecap="round"/>
-  <path d="M40 69c13 9 30 9 44 1l-2 11c-16 6-28 4-41-2Z" fill="#5F65C2" stroke="#454B90" stroke-width="1.7"/>
-  <path d="m42 76-22 8 9 5-1 8 27-17Z" fill="#7178D4" stroke="#454B90" stroke-width="1.5" stroke-linejoin="round"/><path d="m26 85 6 9" stroke="#D7DAFF" stroke-width="2"/>
-  <path d="m108 22 2 6 6 2-6 2-2 6-2-6-6-2 6-2Z" fill="#F6C658" stroke="#936339" stroke-width="1.2" stroke-linejoin="round"/>
+  <title>新しい景色にわくわくし、羽を振る金色の旅の相棒</title>
+  <defs>
+    <linearGradient id="feather-gold" x1="0" y1="0" x2="0.25" y2="1">
+      <stop stop-color="#FFD17A"/><stop offset=".48" stop-color="#F3B452"/><stop offset="1" stop-color="#E99A43"/>
+    </linearGradient>
+    <linearGradient id="face-cream" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#FFFAE9"/><stop offset="1" stop-color="#FFEDC7"/>
+    </linearGradient>
+    <linearGradient id="scarf-blue" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#8586DC"/><stop offset="1" stop-color="#5B58AD"/>
+    </linearGradient>
+    <linearGradient id="eye-brown" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#49313B"/><stop offset="1" stop-color="#744D46"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="65" cy="137" rx="31" ry="4" fill="#593D45" opacity=".13"/>
+  <path d="M48 124c-2 4-4 7-8 9-3 2-1 4 2 3l9-2m27-10c2 4 4 7 8 9 3 2 1 4-2 3l-9-2" fill="#D88749" stroke="#593D45" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M87 109c7-1 14-5 18-2 3 3-2 6-7 7 8 1 7 6 2 7l-13-1Z" fill="#DF9449" stroke="#593D45" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M42 79c-7 9-10 23-5 36 4 11 15 15 28 15 15 0 25-7 28-19 3-13-2-25-10-32Z" fill="url(#feather-gold)" stroke="#593D45" stroke-width="2.8"/>
+  <path d="M42 116c11 10 29 13 46 1-5 10-15 13-25 13-10 0-17-4-21-14Z" fill="#D88749" opacity=".35"/>
+  <path d="M51 93c-8 4-11 16-5 24 7 9 25 10 33 0 6-8 3-21-6-25Z" fill="url(#face-cream)"/>
+  <path d="M45 80c11 7 29 17 43 30" fill="none" stroke="#825B4B" stroke-width="5" stroke-linecap="round"/>
+  <path d="M46 80c12 8 27 17 41 29" fill="none" stroke="#D7A573" stroke-width="2" stroke-linecap="round"/>
+  <g id="companion-satchel" stroke="#765447" stroke-width="2" stroke-linejoin="round">
+    <path d="m83 105 18-4c3 0 4 2 4 5l2 16c0 3-2 5-5 5l-16 1c-3 0-4-2-4-5l-1-13c0-2 0-4 2-5Z" fill="#B78055"/>
+    <path d="m83 105 18-4c3 0 4 2 4 5l1 6c-6 4-16 6-24 3l-1-5c0-2 0-4 2-5Z" fill="#DFB37D"/>
+    <circle cx="95" cy="112" r="5.2" fill="#FFECC3" stroke-width="1.3"/>
+    <path d="m95 108 1.1 3 2.9 1-2.9 1-1.1 3-1.1-3-2.9-1 2.9-1Z" fill="#6766C4" stroke="none"/>
+  </g>
+  <path d="M37 88c-10 1-16 15-10 23 3 4 8 5 11 1 3 0 6-2 7-6" fill="url(#feather-gold)" stroke="#593D45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m31 105 5 3" fill="none" stroke="#C48248" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M88 95c17-5 29-19 31-34 1-8-4-10-8-3l-4 7c2-12-4-14-8-4-3 8-8 13-16 17Z" fill="url(#feather-gold)" stroke="#593D45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m112 72-6 7" fill="none" stroke="#C48248" stroke-width="1.8" stroke-linecap="round"/>
+  <g id="buddy-head">
+    <path d="M48 23c-7-3-9-9-5-13 5-5 14-2 14 4 0 4-4 6-8 3 1 6 12 3 17 3 23-2 40 14 40 34 0 21-18 33-41 33-24 1-44-13-43-34 0-16 10-26 26-30Z" fill="url(#feather-gold)" stroke="#593D45" stroke-width="2.8" stroke-linejoin="round"/>
+    <path d="M32 41c6-10 18-12 27-5l5 4 5-4c9-7 22-5 27 6 7 15-2 32-17 37-10 4-21 4-31 0-16-5-25-24-16-38Z" fill="url(#face-cream)"/>
+    <path d="M68 26c11-1 20 5 25 12" fill="none" stroke="#FFE5AE" stroke-width="3.5" stroke-linecap="round" opacity=".8"/>
+    <ellipse cx="36.5" cy="65" rx="7.2" ry="4.4" fill="#EFA184" opacity=".7"/>
+    <ellipse cx="92" cy="65" rx="7.2" ry="4.4" fill="#EFA184" opacity=".7"/>
+    <path d="M40 39q6-3 12-1m23 0q6-2 12 1" fill="none" stroke="#A57953" stroke-width="1.8" stroke-linecap="round"/>
+    <g fill="url(#eye-brown)">
+      <ellipse cx="47" cy="51.5" rx="6.3" ry="8.6"/><ellipse cx="81" cy="51.5" rx="6.3" ry="8.6"/>
+    </g>
+    <g fill="#FFFFFF">
+      <circle cx="45" cy="48.5" r="2.15"/><circle cx="49.4" cy="54.9" r="1.15"/>
+      <circle cx="79" cy="48.5" r="2.15"/><circle cx="83.4" cy="54.9" r="1.15"/>
+    </g>
+    <path d="M59 62q5-4 10 0c2 2-1 4-4 6h-2c-3-2-6-4-4-6Z" fill="#EE9775" stroke="#A65F4F" stroke-width="1.4" stroke-linejoin="round"/>
+    <path d="M62 62q2-1 4 0" fill="none" stroke="#FFD1A9" stroke-width="1.2" stroke-linecap="round"/>
+    <path d="M56 71q8 2 16-1c-1 9-15 11-16 1Z" fill="#67414A"/>
+    <path d="M61 76q4-2 7-1" fill="none" stroke="#F5AD97" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+  <g id="companion-scarf" stroke="#49477F" stroke-width="2" stroke-linejoin="round">
+    <path d="M35 81c15 8 36 10 56 1l-3 12c-15 7-35 6-49-1Z" fill="url(#scarf-blue)"/>
+    <path d="M43 87c11 6 29 7 39 3" fill="none" stroke="#BCBEF2" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M43 92c-6 5-13 5-20 4l5 7-3 6c12 2 21-4 30-15Z" fill="url(#scarf-blue)"/>
+    <path d="m29 100 4 6" stroke="#CBCDF6" stroke-width="2"/>
+    <path d="M42 87c3-3 9-2 12 1l-1 8c-4 3-8 1-11-2Z" fill="#8182D8"/>
+    <path d="m47 89 2 4" stroke="#CDCEF7" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+  <path d="m112 27 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#FFD276" stroke="#AE784B" stroke-width="1.2" stroke-linejoin="round"/>
 </svg>

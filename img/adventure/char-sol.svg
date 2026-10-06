@@ -1,29 +1,50 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="230" height="270" viewBox="0 0 230 270">
-  <title>ソル。帆の飾りの帽子と風になびくスカーフが目印の、空想の旅キャラ</title>
-  <defs><linearGradient id="coat" x2=".8" y2="1"><stop stop-color="#86aaa0"/><stop offset="1" stop-color="#497e81"/></linearGradient><linearGradient id="hat" x2=".7" y2="1"><stop stop-color="#ead8a3"/><stop offset="1" stop-color="#c4ae79"/></linearGradient></defs>
-  <ellipse cx="113" cy="254" rx="67" ry="8" fill="#486f6120"/>
-  <path d="m85 208 1 36 21 0 6-34m9 0 5 34 21-2-7-34" fill="#b7c1a3" stroke="#879b85" stroke-width="2"/>
-  <path d="M84 241c-10 1-19 7-21 14 12 5 28 3 44 0v-15m21 0v15c12 4 28 2 39-4-2-6-10-10-20-12" fill="#866f55" stroke="#6c6452" stroke-width="2"/>
-  <path d="M79 119c-15 17-21 43-28 69l24 8-2 21c17 14 68 16 85 0l-5-48 21-20-19-24Z" fill="url(#coat)" stroke="#4d7e7b" stroke-width="2" stroke-linejoin="round"/>
-  <path d="m99 125-10 93c12 7 24 7 37 4l6-96" fill="#f0e2bd"/>
-  <path d="m97 146 34 1m-37 13 36 1m-37 13 37 1m-39 13 38 1m-39 13 36 1" stroke="#89aaa0" stroke-width="5"/>
-  <path d="m82 123 18 13-17 61m61-73-17 14 13 73" fill="none" stroke="#aac4ad" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M72 205h80v13H72Z" fill="#b68d5e"/><path d="M108 204h16v15h-16Z" fill="#e2c783" stroke="#947953" stroke-width="2"/><path d="M114 210h5v4h-5Z" fill="#947953"/>
-  <path d="M103 102v24c8 7 18 7 27-1v-24" fill="#cea67a"/>
-  <path d="M75 65c-7 9-5 35 8 45 17 17 46 18 63 0 12-13 13-34 5-48-12-20-61-17-76 3Z" fill="#ddb88b" stroke="#a59471" stroke-width="1.5"/>
-  <path d="M76 82c-11-6-14-21-4-29-3-17 15-29 29-25 13-13 33-6 36 2 22-1 33 14 26 29 11 15 0 28-10 31l-5-25c-8 3-20-5-19-12-10 11-22 12-32 5-1 15-9 18-21 16Z" fill="#75614e" stroke="#665747" stroke-width="1.5"/>
-  <path d="M86 41q14-11 26-3m14 0q13-3 21 9" stroke="#998064" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <path d="M67 48c0-32 75-41 94-10l4 18c-27 16-70 18-98-8Z" fill="url(#hat)" stroke="#a9966c" stroke-width="2"/>
-  <path d="M69 41c26 14 64 11 90-7l4 10c-20 18-63 22-94 7Z" fill="#649695"/>
-  <path d="M52 53c30-14 94-16 127-5 10 4 8 12-2 14-35 10-93 12-122 4-13-3-14-9-3-13Z" fill="#dfcca0" stroke="#ad9a72" stroke-width="2"/>
-  <path d="M58 59c33-4 81-7 111-6" fill="none" stroke="#f2e2b8" stroke-width="3" stroke-linecap="round"/>
-  <path d="M149 38V14m-3 5-13 18h13m7-19v19h16Z" fill="#f2e7c8" stroke="#87967d" stroke-width="1.2"/><path d="m132 40 34-2-7 6h-20Z" fill="#bd845f"/>
-  <path d="M84 81q7-4 13-1m27 0q6-2 11 1" stroke="#886e52" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="94" cy="89" rx="3" ry="4" fill="#365a53"/><ellipse cx="128" cy="89" rx="3" ry="4" fill="#365a53"/>
-  <path d="m111 92-2 8 6 1m-14 9q11 6 21-1" stroke="#a77e5c" stroke-width="2" fill="none" stroke-linecap="round"/>
-  <path d="M81 115c20 11 46 13 66 0l-4 16c-26 8-44 4-61-3Z" fill="#c88460" stroke="#a86f50" stroke-width="1.5"/>
-  <path d="m88 128-28 6-23-13-17 1 17 12 9 14 25-3 27-11" fill="#c88460" stroke="#a86f50" stroke-width="1.5" stroke-linejoin="round"/>
-  <path d="m73 148-13 35 15 5 18-31m51-13 15 16 22-16" fill="#82aaa0" stroke="#4d7e7b" stroke-width="2" stroke-linejoin="round"/>
-  <path d="m62 184 1 11 9 4 10-7-5-8m100-45 5-9 9-3 8 6-1 8-13 8-8-4" fill="#ddb88b" stroke="#a59471" stroke-width="1.5"/>
-  <path d="M179 134q13-20 31-11m-15 21q9-5 17-1M26 100q10-5 17 0t15 0" stroke="#93b7aa" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-  <path d="M153 186h18v23h-18Z" fill="#b5996e" stroke="#7c886e" stroke-width="2"/><path d="M157 187v-11q4-6 8 0v11" fill="none" stroke="#7c886e" stroke-width="2"/>
+  <title>ソル。帆の帽子と風になびくスカーフで、片目をつむって港へ案内する空想の旅キャラ</title>
+  <defs>
+    <linearGradient id="sol-coat" x2=".8" y2="1"><stop stop-color="#69c5c3"/><stop offset="1" stop-color="#379697"/></linearGradient>
+    <linearGradient id="sol-face" x2="0" y2="1"><stop stop-color="#edb987"/><stop offset="1" stop-color="#d99871"/></linearGradient>
+    <linearGradient id="sol-hat" x2=".7" y2="1"><stop stop-color="#ffedb6"/><stop offset="1" stop-color="#e7b76a"/></linearGradient>
+  </defs>
+  <ellipse cx="113" cy="254" rx="64" ry="8" fill="#55405420"/>
+  <g stroke="#583d46" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m83 213-2 32 23 1 10-29m14-1 15 14 22-18-14-15" fill="#7286bc"/>
+    <path d="M81 239c-11 2-25 9-20 15 11 6 30 5 43 0l2-15m54-27c7-11 18-16 23-10 4 11-3 27-15 35l-22-11Z" fill="#65739a"/>
+    <path d="M72 246h25m70-23 9-15" fill="none" stroke="#fff0cb" stroke-width="3"/>
+    <path d="M82 147c-23 9-32 35-26 61 15 24 77 27 106 4 6-21-3-53-27-63Z" fill="url(#sol-coat)"/>
+    <path d="m96 161-13 52q22 13 44 5l9-51" fill="#fff0cf" stroke-width="2.5"/>
+    <path d="m93 175 39 4m-42 9 39 4m-42 10 37 4" stroke="#79aabb" stroke-width="5"/>
+    <path d="M74 156 50 174l-11-20-17 12c5 28 26 36 40 21l22-13m56-21 29-14 9 17-28 28" fill="url(#sol-coat)"/>
+    <path d="M37 158c-8-1-18-9-18-17 0-5 7-6 9 0l3 5-1-16c1-7 9-7 10 0l1 10 7-5c7-2 11 4 6 9l-8 8" fill="url(#sol-face)" stroke-width="2.8"/>
+    <path d="M166 140c1-7 10-16 18-14l16-6c6-2 8 4 3 7l-9 5 12 1c7 1 6 8-1 8l-13 2-11 13" fill="url(#sol-face)" stroke-width="2.8"/>
+    <path d="m92 155-28-11-16-19-25 1 16 14 4 18 30 5 17 4" fill="#e57b64"/>
+    <path d="m52 140 16 9" stroke="#ffc7a1" stroke-width="3"/>
+    <g transform="rotate(-5 112 103)">
+      <path d="M60 65c-17 5-20 26-9 37-11 13-4 31 10 31-5 14 9 23 20 16l65 5c15 8 34-4 28-20 15-5 19-26 5-35 6-22-15-48-42-48Z" fill="#785040"/>
+      <ellipse cx="60" cy="116" rx="11" ry="14" fill="#d89b75"/>
+      <ellipse cx="169" cy="116" rx="11" ry="14" fill="#d89b75"/>
+      <path d="M59 85c4-28 28-43 59-42 34 1 55 21 57 51l-5 24c-4 28-26 42-55 42-33-1-53-19-56-44Z" fill="url(#sol-face)"/>
+      <path d="M55 93c-11-14-4-32 13-36-2-20 21-29 34-19 14-17 34-12 39 2 22-4 38 11 30 25 15 9 12 26-1 32l-9-22c-9 5-24-3-22-14-13 14-27 11-29 1-9 14-20 14-29 8-1 13-7 18-20 16Z" fill="#785040"/>
+      <path d="M68 64q10-8 17-1m15-10q9-6 15 2m21-2q8-3 14 5" fill="none" stroke="#ac7651" stroke-width="4"/>
+      <path d="M66 44c-3-21 13-34 41-34 29-1 52 11 51 35l4 16c-29 13-72 12-98-1Z" fill="url(#sol-hat)"/>
+      <path d="M66 39q42 11 91-2l4 15q-49 15-97 0Z" fill="#639baf" stroke-width="2.5"/>
+      <path d="M43 58c32-14 99-17 132-4 17 6 12 18-4 21-38 6-91 7-126-3-12-4-13-11-2-14Z" fill="#ffe5a6"/>
+      <path d="M50 64q54-10 115-2" fill="none" stroke="#fff5cf" stroke-width="4"/>
+      <path d="M145 43V5m-5 3-18 30h18m10-26v25h19Z" fill="#fff9dd" stroke="#695d74" stroke-width="2.3"/>
+      <path d="m120 42 53-1-9 8h-34Z" fill="#e78164" stroke-width="2"/>
+      <path d="M75 101q9-5 17-1m37-4q9-1 15 6" fill="none" stroke-width="2.8"/>
+      <ellipse cx="88" cy="118" rx="10.5" ry="13.5" fill="#46374e" stroke="none"/>
+      <ellipse cx="90" cy="123" rx="5" ry="5.5" fill="#aa7080" stroke="none"/>
+      <circle cx="85" cy="113" r="4.2" fill="#fff9e8" stroke="none"/><circle cx="92" cy="120" r="1.8" fill="#fff9e8" stroke="none"/>
+      <path d="M128 118q11-12 22-1" fill="none" stroke="#4a3347" stroke-width="4"/>
+      <ellipse cx="72" cy="137" rx="11" ry="6.5" fill="#d77871" stroke="none" opacity=".8"/><ellipse cx="156" cy="135" rx="11" ry="6.5" fill="#d77871" stroke="none" opacity=".8"/>
+      <path d="M102 137q12 4 26-1c-2 17-23 21-26 1Z" fill="#8c4957" stroke-width="2"/>
+      <path d="M109 147q7-6 13-1" fill="#f2a095" stroke="none"/>
+      <path d="M111 129q4 2 7-1" fill="none" stroke="#b77863" stroke-width="2"/>
+    </g>
+    <path d="M84 153q28 14 56-2l5 16c-18 14-47 9-64-1Z" fill="#e77f66"/>
+    <path d="m96 165 13 5-7 27-11-12-12 3Z" fill="#f19a75" stroke-width="2.5"/>
+    <path d="M60 210q46 13 97 0l-2 11q-47 14-93 0Z" fill="#ab794e" stroke-width="2.5"/>
+    <path d="M106 212h18v15h-18Z" fill="#ffdc83" stroke-width="2.3"/><path d="M111 217h8v5h-8Z" fill="#9d7454" stroke="none"/>
+  </g>
+  <g fill="none" stroke="#91b8cd" stroke-width="2.8" stroke-linecap="round"><path d="M184 88q21-5 25 3c4 8-7 11-12 5m-175 1h18m147 81h18"/></g>
 </svg>

@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v44 · Vivid travel companions";
+const APP_VER = "v45 · A lovable traveling cast";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
@@ -111,7 +111,7 @@ function celebrateCorrect(treasure=false){
   const correct = quiz ? quiz.correct : 0;
   const special = !treasure && correct > 0 && correct % 3 === 0
     ? (correct / 3 % 2 === 1 ? 'stars' : 'balloons') : null;
-  const buddy = '<img class="correct-buddy" src="img/adventure/companion-correct.svg?v=44-art" width="128" height="144" alt="" draggable="false">';
+  const buddy = '<img class="correct-buddy" src="img/adventure/companion-correct.svg?v=45-final" width="128" height="144" alt="" draggable="false">';
   if(special){
     const tones = ['#eaa33e','#66b6ab','#db8075','#a597cc','#e8c968'];
     const art = special === 'stars'

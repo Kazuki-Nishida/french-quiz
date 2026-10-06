@@ -1,19 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="230" height="270" viewBox="0 0 230 270"><title>マレ。青いケープと潮を見る小さな観測道具を持つ、空想の旅キャラ</title><defs><linearGradient id="cape" x2=".9" y2="1"><stop stop-color="#77afad"/><stop offset=".55" stop-color="#4d8f97"/><stop offset="1" stop-color="#386e7e"/></linearGradient><linearGradient id="glass" x2=".7" y2="1"><stop stop-color="#e4f2d7"/><stop offset="1" stop-color="#7bb4ac"/></linearGradient></defs>
-<ellipse cx="115" cy="253" rx="66" ry="8" fill="#486f6120"/>
-<path d="m88 222-2 21 22 3 5-27m17 1 5 24 21-6-10-21" fill="#5d7b79"/><path d="M87 239c-9 3-20 8-19 15 10 5 24 5 38 0l1-13m29-1v15c11 3 25 2 33-4 0-7-8-11-17-12" fill="#4c6260" stroke="#3c5454" stroke-width="2"/>
-<path d="M80 115c-23 28-14 51-39 80-9 11-17 9-22 11 24 11 22 28 47 18 16 23 33 5 48 9 19 24 37 0 52 3 22 11 33-12 49-10-21-10-32-20-33-51-1-28-14-48-34-60Z" fill="url(#cape)" stroke="#4b7c80" stroke-width="2"/>
-<path d="M72 202c-15 3-25 17-39 7 12 18 17 22 31 13 17 20 31 5 46 8 20 17 28 5 43 5 20 5 32-2 43-10-17 1-21-8-36-5-15 3-25 14-38 3-16-13-27 3-50-5Z" fill="#7aafb1"/>
-<path d="M72 202q12 12 24 2t25 2 24 0 28 5" fill="none" stroke="#c5d7c2" stroke-width="2" opacity=".7"/>
-<path d="m93 122-14 98c18 10 45 13 68-1l-13-99" fill="#c9d6bd"/><path d="M103 142v77m18-78v79" stroke="#adbea8" stroke-width="2"/><path d="M104 101v23c8 8 17 8 25 0v-24" fill="#e4cba0"/>
-<path d="M78 64c-11 7-8 34 4 43 13 17 47 20 64 3 11-12 16-39 8-49-9-13-62-15-76 3Z" fill="#eedab4" stroke="#a3a180" stroke-width="1.5"/>
-<path d="M73 77c-17-32 8-53 28-54 21-14 54-3 60 17 16 8 16 34 0 41l-7-18c-17 5-27-7-23-17-16 24-32 16-30 9-2 13-10 20-28 22Z" fill="#d3dfc9" stroke="#a6bba9" stroke-width="1.5"/>
-<path d="M87 42c8-8 19-12 33-9m22 1c8 3 13 10 14 20" fill="none" stroke="#eef0d9" stroke-width="4" stroke-linecap="round"/>
-<path d="m83 50 17-21 28-5 33 21-1-16c-22-26-54-31-76-7L68 45Z" fill="#5c9292" stroke="#4d7e7c" stroke-width="2"/>
-<path d="m86 34 22-15 25 4 15 14" fill="none" stroke="#a5c7b6" stroke-width="3" stroke-linecap="round"/>
-<path d="M85 76q6-3 11-1m29 0q6-1 10 2" stroke="#8a9475" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="94" cy="84" rx="3" ry="4" fill="#355b58"/><ellipse cx="128" cy="85" rx="3" ry="4" fill="#355b58"/><path d="m109 89-2 9 6 1m-14 10q10 4 20-1" fill="none" stroke="#b59e77" stroke-width="2" stroke-linecap="round"/>
-<path d="M76 113c19 16 52 16 72 0l-1 20-30 23-35-22Z" fill="#50898d" stroke="#42777d" stroke-width="1.5"/><path d="m115 136 9 0 1 10-11 1Z" fill="#dcc283" stroke="#a58e5b" stroke-width="1.5"/>
-<path d="M79 147 60 178l17 12 26-34m41-12 14 26 23-17" fill="#6eaaa7" stroke="#4b7e81" stroke-width="2" stroke-linejoin="round"/>
-<path d="m70 179 8-5 13 2 5 6-6 9-12 1-7-5m102-36 10-4 9 5-1 8-10 2-6-4" fill="#e7d2a7" stroke="#b6aa82" stroke-width="1.5"/>
-<g transform="translate(94 183)"><path d="M-14-20h29l3 33c-4 9-31 9-35 0Z" fill="url(#glass)" stroke="#648f84" stroke-width="2"/><path d="M-14-17h29M-13-9q7-4 14 0t14 0M-15 8q7-4 14 0t16 0" fill="none" stroke="#d7e7cc" stroke-width="2"/><path d="M-15-24h32v6h-32Z" fill="#c7af79" stroke="#8f885d" stroke-width="1.5"/><path d="M-6-23v-9h13v9" fill="none" stroke="#96a789" stroke-width="2"/></g>
-<path d="M33 126q4-5 8 0t8 0m138-27q4-5 8 0t8 0" fill="none" stroke="#8db3a3" stroke-width="2.5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="230" height="270" viewBox="0 0 230 270">
+  <title>マレ。波のような青いケープをまとい、潮の小瓶を大切に抱く空想の旅キャラ</title>
+  <defs>
+    <linearGradient id="mare-cape" x2=".8" y2="1"><stop stop-color="#70b9e9"/><stop offset=".65" stop-color="#4b83ca"/><stop offset="1" stop-color="#5865b1"/></linearGradient>
+    <linearGradient id="mare-hair" x2="0" y2="1"><stop stop-color="#e0edf7"/><stop offset="1" stop-color="#9cbada"/></linearGradient>
+    <linearGradient id="mare-face" x2="0" y2="1"><stop stop-color="#fff0dd"/><stop offset="1" stop-color="#f0cfb9"/></linearGradient>
+    <linearGradient id="mare-water" x2=".8" y2="1"><stop stop-color="#b0efe9"/><stop offset="1" stop-color="#57abc5"/></linearGradient>
+  </defs>
+  <ellipse cx="116" cy="253" rx="66" ry="8" fill="#55405420"/>
+  <g stroke="#514355" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M85 221v23h24l5-23m18-1 3 24h22l-8-26" fill="#839cc0"/>
+    <path d="M86 238c-12 1-23 9-19 15 12 6 30 4 42 0v-14m26 0-1 14c13 5 31 5 36-1 1-6-8-12-21-15" fill="#52678d"/>
+    <path d="M78 148c-27 14-27 43-43 57-8 7-17 7-21 14 19-6 21 15 36 14 15-2 23-13 35-5 21 20 34 7 49 7 20 12 26-7 44-3 17 9 25-5 37-7-29-18-22-63-61-77Z" fill="url(#mare-cape)"/>
+    <path d="M83 174q-5 29-7 45 35 15 71 2l-6-47Z" fill="#eee8fb" stroke-width="2.5"/>
+    <path d="M43 216q12 10 24 0t24 4m53 0q12 10 24 0t24 4" fill="none" stroke="#bde3f3" stroke-width="3"/>
+    <path d="M64 57c-18 10-23 37-12 60-6 18 7 34 25 32l73 5c18 1 32-11 25-26 11-9 15-25 5-37 4-23-14-40-34-44Z" fill="url(#mare-hair)"/>
+    <ellipse cx="61" cy="112" rx="11" ry="15" fill="#f4d7c3"/>
+    <ellipse cx="170" cy="112" rx="11" ry="15" fill="#f4d7c3"/>
+    <path d="M59 87c5-29 28-46 60-43 33 2 52 23 54 51l-2 21c-4 29-28 45-58 43-31-2-50-20-53-44Z" fill="url(#mare-face)"/>
+    <path d="M54 100c-9-28 12-58 48-60 38-6 66 12 74 41-18 6-29-7-31-19-6 18-23 29-32 21-5-4-4-10-2-15-14 17-32 23-44 18l-5 17Z" fill="url(#mare-hair)"/>
+    <path d="M75 57q21-15 38-7m35 3 12 12" fill="none" stroke="#f7fbff" stroke-width="4"/>
+    <path d="M59 52c5-22 23-37 44-39 15-12 40-5 48 12 17 3 27 16 26 32-22-10-44-15-61-8-22 9-37 11-57 3Z" fill="#648bca"/>
+    <path d="M70 46q22-17 42-13c19-13 38-3 48 10" fill="none" stroke="#a8d9f4" stroke-width="5"/>
+    <path d="M98 20q15-12 25 1-13 1-19 10" fill="#c4e5f2" stroke-width="2.5"/>
+    <path d="M81 101q7-3 14 0m36 0q7-3 14 0" fill="none" stroke-width="2.6"/>
+    <ellipse cx="91" cy="117" rx="9.5" ry="13" fill="#334963" stroke="none"/>
+    <ellipse cx="139" cy="115" rx="9.5" ry="13" fill="#334963" stroke="none"/>
+    <ellipse cx="93" cy="122" rx="4.8" ry="5.5" fill="#659fae" stroke="none"/><ellipse cx="141" cy="120" rx="4.8" ry="5.5" fill="#659fae" stroke="none"/>
+    <circle cx="88" cy="112" r="4" fill="#fffdf5" stroke="none"/><circle cx="136" cy="110" r="4" fill="#fffdf5" stroke="none"/>
+    <circle cx="95" cy="118" r="1.8" fill="#fffdf5" stroke="none"/><circle cx="143" cy="116" r="1.8" fill="#fffdf5" stroke="none"/>
+    <ellipse cx="75" cy="135" rx="11" ry="6" fill="#eba5a4" stroke="none" opacity=".8"/><ellipse cx="156" cy="132" rx="11" ry="6" fill="#eba5a4" stroke="none" opacity=".8"/>
+    <path d="M108 139q9 7 18-2" fill="none" stroke="#a96870" stroke-width="2.7"/>
+    <path d="M111 129q3 2 6-1" fill="none" stroke="#c99a8b" stroke-width="2"/>
+    <path d="M78 153q35 17 71-1l9 17-40 24-47-24Z" fill="#5084c5"/>
+    <path d="M82 159q34 18 61-1" fill="none" stroke="#a5d9f0" stroke-width="3"/>
+    <path d="M117 172c-13 13-9 23 1 23s14-10-1-23Z" fill="#f4cf77" stroke-width="2.5"/>
+    <path d="M70 177q-22 16-9 28l22 8 13-19m56-17q17 15 6 30l-21 4-11-18" fill="#72a7dc"/>
+    <path d="M93 186h45l5 32c1 22-58 22-57 0Z" fill="url(#mare-water)" stroke-width="3"/>
+    <path d="M89 207q12-9 25 0t26 0v12c-4 17-46 17-50-1Z" fill="#6ebdd6" stroke="none"/>
+    <path d="M93 200q12-8 22 0t23 0" fill="none" stroke="#e5fcff" stroke-width="2.5"/>
+    <path d="M91 181h49v10H91Z" fill="#efc581" stroke-width="2.5"/>
+    <path d="M106 180v-11h16v11" fill="none" stroke="#b58354" stroke-width="3"/>
+    <circle cx="120" cy="216" r="4" fill="#d3f8f5" stroke="none"/><circle cx="109" cy="205" r="2.8" fill="#f4fffa" stroke="none"/>
+    <path d="M79 201c-8-6-17-3-18 5-2 8 9 14 17 13l16-5c5-3 2-9-3-8Zm70-2c9-5 17-1 17 7 0 9-10 14-17 12l-14-6c-5-4-1-9 4-7Z" fill="url(#mare-face)" stroke-width="2.8"/>
+  </g>
+  <g fill="none" stroke="#82b6d5" stroke-width="3" stroke-linecap="round"><path d="M20 130q6-7 12 0t12 0m142-41q6-7 12 0t12 0"/><circle cx="194" cy="112" r="4"/></g>
 </svg>

@@ -274,3 +274,64 @@ test("an explicit map details callback takes precedence over local focus and doe
   assert.equal(h.document.scrollCalls.length, 0);
   assert.equal(JSON.stringify(p), before);
 });
+
+test("the bicycle uses a fitted, existing pose on the vehicle canvas for all four reactions", () => {
+  const p = profile(), h = harness(), container = h.container();
+  correct(p, 3);
+  Adventure.setVehicle(p, "bicycle");
+  p.words["bonjour::こんにちは"] = { c: 2, w: 1 };
+  p.daily["2026-10-06"] = { q: 3, c: 2 };
+  p.stock.push("bonjour::こんにちは");
+  const before = JSON.stringify(p);
+  for (const reaction of ["idle", "correct", "wrong", "arrival"]) {
+    h.view.renderScene(container, p, { reaction });
+    const poses = container.querySelectorAll(".av-bicycle-rider");
+    assert.equal(poses.length, 1, "one seated pose replaces the upright companion");
+    assert.equal(container.querySelector(".av-rider"), null);
+    assert.equal(container.querySelector(".av-companion"), null);
+    const pose = poses[0], vehicle = container.querySelector(".av-vehicle-art");
+    const [posePath, poseVersion] = pose.getAttribute("src").split("?");
+    const [vehiclePath, vehicleVersion] = vehicle.getAttribute("src").split("?");
+    assert.equal(posePath, "img/adventure/rider-bicycle-" + reaction + ".svg");
+    assert.equal(vehiclePath, WorldData.getVehicle("bicycle").asset);
+    assert.ok(poseVersion, "the new pose has a cache version");
+    assert.equal(poseVersion, vehicleVersion, "the fitted pose and vehicle refresh together");
+    for (const [element, asset] of [[pose, posePath], [vehicle, vehiclePath]]) {
+      assert.equal(element.getAttribute("width"), "320");
+      assert.equal(element.getAttribute("height"), "220");
+      const svg = readFileSync(join(__dirname, "..", asset), "utf8").match(/<svg\b[^>]*>/)?.[0];
+      assert.ok(svg, asset + " exists and has an SVG root");
+      assert.match(svg, /\bviewBox="0 0 320 220"/, "both layers share the same coordinate system");
+    }
+    assert.equal(JSON.stringify(p), before, "posing never changes learning or the selected vehicle");
+  }
+});
+
+test("switching from the bicycle removes its fitted pose from every shared journey view", () => {
+  const p = profile(), h = harness();
+  correct(p, 120);
+  const screens = [
+    { render: container => h.view.renderScene(container, p, { reaction: "idle" }) },
+    { render: container => h.view.renderHomePreview(container, p) },
+    { render: container => h.view.renderMap(container, p) },
+    { render: container => h.view.renderResult(container, p, { earned: 0, arrivals: [] }) }
+  ].map(screen => ({ ...screen, container: h.container() }));
+  for (const destination of ["car", "balloon", "dragon", "walk"]) {
+    for (const vehicleId of ["bicycle", destination]) {
+      assert.equal(Adventure.setVehicle(p, vehicleId).changed, true);
+      const before = JSON.stringify(p);
+      for (const { render, container } of screens) {
+        render(container);
+        if (vehicleId === "bicycle") {
+          assert.ok(container.querySelector(".av-bicycle-rider"));
+        } else {
+          assert.equal(container.querySelector(".av-bicycle-rider"), null, "the previous pose is removed");
+          assert.ok(container.querySelector(".av-companion"), "ordinary companions remain available");
+          if (vehicleId === "walk") assert.equal(container.querySelector(".av-mounted"), null);
+          else assert.ok(container.querySelector(".av-vehicle-" + vehicleId));
+        }
+        assert.equal(JSON.stringify(p), before, "redrawing does not change the saved profile");
+      }
+    }
+  }
+});

@@ -6,10 +6,10 @@
   <g stroke="#7794af" stroke-width="1.8"><path d="M79 126v70m-35-35h70m-60-25 50 50m-50 0 50-50M240 126v70m-35-35h70m-60-25 50 50m-50 0 50-50"/></g>
   <path d="M79 161 118 111l28 50H79l73-15 53-35 35 50m-122-50h87m-59 50-24-63" fill="none" stroke="#d94e49" stroke-width="11" stroke-linejoin="round" stroke-linecap="round"/>
   <path d="M82 155 117 110m7 4 18 39m12-13 45-26" fill="none" stroke="#ffd5ae" stroke-width="3.5" stroke-linecap="round"/>
-  <path d="M234 148 208 89l7-18 22 2" fill="none" stroke="#334a6c" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M232 72h12" stroke="#293957" stroke-width="8" stroke-linecap="round"/>
+  <path d="M234 148 211 91l-9-19h-21" fill="none" stroke="#334a6c" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M180 72h18" stroke="#293957" stroke-width="8" stroke-linecap="round"/>
   <path d="M107 98c5-6 17-5 30-4 5 1 7 5 1 8l-25 2c-6 0-9-3-6-6Z" fill="#3c4966" stroke="#25334f" stroke-width="2.5"/>
-  <path d="M206 87c-23-11-35 13-29 31m59-44c-6 13-9 32 2 57" fill="none" stroke="#657b97" stroke-width="1.8"/>
+  <path d="M184 75c-15 3-18 22-8 40m24-40c15 10 20 29 29 53" fill="none" stroke="#657b97" stroke-width="1.8"/>
   <circle cx="146" cy="161" r="13" fill="#fff1ce" stroke="#3b516f" stroke-width="3"/><circle cx="146" cy="161" r="5" fill="#d94e49"/>
   <path d="m145 160 11 13h12m-22-12-9-14h-10" fill="none" stroke="#334a6c" stroke-width="3" stroke-linecap="round"/><path d="M160 175h12m-46-29h12" stroke="#293957" stroke-width="5" stroke-linecap="round"/>
   <circle cx="79" cy="161" r="5" fill="#f3c560" stroke="#334a6c" stroke-width="2"/><circle cx="240" cy="161" r="5" fill="#f3c560" stroke="#334a6c" stroke-width="2"/>

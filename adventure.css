@@ -190,6 +190,9 @@ body{background:radial-gradient(ellipse at 15% 0,#fff9eb 0,transparent 55%),line
 .av-mounted .av-vehicle-art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;z-index:2;filter:drop-shadow(1.5px 0 0 #fffdf3) drop-shadow(-1.5px 0 0 #fffdf3) drop-shadow(0 -1.5px 0 #fffdf3) drop-shadow(0 2px 0 #fffdf3) drop-shadow(0 4px 3px #33364d40)}
 .av-mounted .av-rider{position:absolute;display:block;width:28%;aspect-ratio:128/144;transform:translate(-50%,-100%);z-index:1}
 .av-mounted .av-companion{position:static;display:block;width:100%;height:100%;animation:none!important;filter:none}
+.av-vehicle-bicycle{filter:drop-shadow(1px 0 0 #fffdf3) drop-shadow(-1px 0 0 #fffdf3) drop-shadow(0 -1px 0 #fffdf3) drop-shadow(0 2px 1px #fffdf3) drop-shadow(0 4px 3px #33364d30)}
+.av-vehicle-bicycle>.av-vehicle-art{filter:none}
+.av-mounted>.av-bicycle-rider{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;z-index:3;pointer-events:none}
 .av-vehicle-car .av-rider{width:15%;z-index:3;clip-path:inset(0 0 25% 0)}.av-vehicle-balloon .av-rider{width:16%;z-index:3}.av-vehicle-dragon .av-rider{width:24%;z-index:3}
 .av-mounted.av-summary-buddy{width:112px;height:77px;flex:0 0 112px}
 .av-traveler>.av-mounted.av-marker-ride{position:absolute;bottom:8px;left:50%;width:61px;height:42px;transform:translateX(-50%);z-index:1}
