@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="220" viewBox="0 0 320 220">
-  <title>旅の自転車。コーラルレッドの太いフレームと、紺のタイヤ・クリーム色のリムがあるオリジナルの自転車</title>
+  <title>旅の自転車。コーラルレッドのフレームと、相棒がちょこんと入れる大きな前カゴ</title>
   <defs><linearGradient id="basket" x2="0" y2="1"><stop stop-color="#f3ce77"/><stop offset="1" stop-color="#cc9143"/></linearGradient></defs>
   <ellipse cx="160" cy="206" rx="127" ry="7" fill="#29395724"/>
   <g fill="none"><circle cx="79" cy="161" r="40" stroke="#293957" stroke-width="10"/><circle cx="240" cy="161" r="40" stroke="#293957" stroke-width="10"/><circle cx="79" cy="161" r="35" stroke="#fff1ce" stroke-width="4"/><circle cx="240" cy="161" r="35" stroke="#fff1ce" stroke-width="4"/></g>
@@ -16,9 +16,16 @@
   <path d="M38 132q25-31 57-13m111 11q24-27 56-12" fill="none" stroke="#f28a67" stroke-width="5" stroke-linecap="round"/>
   <path d="M46 116h51m-45 4-2 20m43-20 9 21" fill="none" stroke="#334a6c" stroke-width="3" stroke-linecap="round"/>
   <path d="M47 104h36l6 12H42Z" fill="#6680c9" stroke="#354b81" stroke-width="2"/><path d="M58 103v14m13-14v14" stroke="#fff1ce" stroke-width="3"/>
-  <path d="m221 88 49-4-8 31h-34Z" fill="url(#basket)" stroke="#875531" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="m227 96 39-4m-38 12 36-3m-29-12 1 23m9-24v25m10-26-2 25" stroke="#fff1c5" stroke-width="2"/>
-  <path d="m231 86 1-18 21 4-1 13" fill="#fff3d6" stroke="#ab8550" stroke-width="1.5"/><path d="m238 77 10 2" stroke="#6076b3" stroke-width="2"/>
-  <path d="M234 121h13l-2 6h-10Z" fill="#f8cc66" stroke="#4d5d77" stroke-width="1.5"/>
-  <path d="M29 88h35m-27 10h15m203-44h25" stroke="#8996ba" stroke-width="2" stroke-linecap="round"/>
+  <path d="m224 122 10 20m41-20-14 22" fill="none" stroke="#334a6c" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="250" cy="90" rx="39" ry="8" fill="#a8723d" stroke="#875531" stroke-width="2.6"/>
+  <!-- The rider generator reuses this front so the small body sits inside the basket. -->
+  <g id="bicycle-basket-front" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M211 90q38 10 78-1l-8 37q-31 13-61 1Z" fill="url(#basket)" stroke="#875531" stroke-width="2.6"/>
+    <path d="m221 102q29 9 58-1m-55 13q27 8 52-1m-45-17 4 32m10-30 1 32m14-32-1 32m14-35-4 32" fill="none" stroke="#fff1c5" stroke-width="2.1" opacity=".85"/>
+    <path d="M211 90q38 10 78-1" fill="none" stroke="#875531" stroke-width="7"/>
+    <path d="M211 90q38 10 78-1" fill="none" stroke="#f8d994" stroke-width="4"/>
+    <circle cx="250" cy="114" r="7" fill="#fff0c8" stroke="#a16f3e" stroke-width="1.6"/>
+    <path d="m250 109 1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5Z" fill="#6766c4"/>
+  </g>
+  <path d="M29 88h35m-27 10h15" stroke="#8996ba" stroke-width="2" stroke-linecap="round"/>
 </svg>

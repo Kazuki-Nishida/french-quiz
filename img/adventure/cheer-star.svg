@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="220" viewBox="0 0 320 220">
-  <title>自転車の前カゴから、新しい景色にわくわくする相棒</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+  <title>大きな星をぎゅっと抱えて空をすべる、金色の旅の相棒</title>
   <defs>
     <linearGradient id="feather-gold" x1="0" y1="0" x2="0.25" y2="1">
       <stop stop-color="#FFD17A" />
@@ -18,20 +18,16 @@
       <stop stop-color="#49313B" />
       <stop offset="1" stop-color="#744D46" />
     </linearGradient>
-    <linearGradient id="basket" x2="0" y2="1">
-      <stop stop-color="#f3ce77" />
-      <stop offset="1" stop-color="#cc9143" />
-    </linearGradient>
   </defs>
-  <g id="basket-passenger-body" stroke="#593D45" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M224 80q23-12 45 0c10 11 9 29-1 35-12 8-31 8-43-1-9-7-10-23-1-34Z" fill="url(#feather-gold)" stroke-width="2.8" />
-    <ellipse cx="247" cy="101" rx="17" ry="14" fill="#FFF4D6" stroke="none" />
-    <path d="M223 83q24 10 48-1l-2 11q-21 9-44 0Z" fill="url(#scarf-blue)" stroke="#49477F" stroke-width="2.1" />
-    <path d="M225 88q-6 7-13 9l7 2 1 6q10-5 14-13Z" fill="#7877D6" stroke="#49477F" stroke-width="2" />
-    <path d="M225 86q6-3 10 2l-2 8q-7 2-10-3Z" fill="#9190E3" stroke="#49477F" stroke-width="2" />
-    <path d="m228 88 3 3" fill="none" stroke="#D8D6FF" stroke-width="1.7" />
+  <g>
+    <path d="M31 133q-12 0-20 8m21 0-15 10m29-1-13 12" fill="none" stroke="#B4AADF" stroke-width="4" stroke-linecap="round" />
+    <g stroke="#593D45" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M68 82c-13 14-14 31-1 42 10 8 33 9 45-1 11-10 8-30-3-42Z" fill="url(#feather-gold)" />
+      <path d="M76 96q-10 17 4 25c12 7 28-6 18-23Z" fill="url(#face-cream)" stroke="none" />
+      <path d="M113 103q15-8 18-3 1 4-7 8 9 0 7 4l-17 6" fill="#E8A04D" />
+    </g>
   </g>
-  <g transform="translate(181 -2) scale(1.04)">
+  <g transform="translate(26 -1) scale(.94)">
     <g id="buddy-head">
       <path d="M48 23c-7-3-9-9-5-13 5-5 14-2 14 4 0 4-4 6-8 3 1 6 12 3 17 3 23-2 40 14 40 34 0 21-18 33-41 33-24 1-44-13-43-34 0-16 10-26 26-30Z" fill="url(#feather-gold)" stroke="#593D45" stroke-width="2.8" stroke-linejoin="round" />
       <path d="M32 41c6-10 18-12 27-5l5 4 5-4c9-7 22-5 27 6 7 15-2 32-17 37-10 4-21 4-31 0-16-5-25-24-16-38Z" fill="url(#face-cream)" />
@@ -54,19 +50,25 @@
       <path d="M56 71q8 2 16-1c-1 9-15 11-16 1Z" fill="#67414A" />
       <path d="M61 76q4-2 7-1" fill="none" stroke="#F5AD97" stroke-width="2.5" stroke-linecap="round" />
     </g>
+    <g id="companion-scarf" stroke="#49477F" stroke-width="2" stroke-linejoin="round">
+      <path d="M35 81c15 8 36 10 56 1l-3 12c-15 7-35 6-49-1Z" fill="url(#scarf-blue)" />
+      <path d="M43 87c11 6 29 7 39 3" fill="none" stroke="#BCBEF2" stroke-width="2.2" stroke-linecap="round" />
+      <path d="M43 92c-6 5-13 5-20 4l5 7-3 6c12 2 21-4 30-15Z" fill="url(#scarf-blue)" />
+      <path d="m29 100 4 6" stroke="#CBCDF6" stroke-width="2" />
+      <path d="M42 87c3-3 9-2 12 1l-1 8c-4 3-8 1-11-2Z" fill="#8182D8" />
+      <path d="m47 89 2 4" stroke="#CDCEF7" stroke-width="1.8" stroke-linecap="round" />
+    </g>
   </g>
-  <g id="bicycle-basket-front" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M211 90q38 10 78-1l-8 37q-31 13-61 1Z" fill="url(#basket)" stroke="#875531" stroke-width="2.6" />
-    <path d="m221 102q29 9 58-1m-55 13q27 8 52-1m-45-17 4 32m10-30 1 32m14-32-1 32m14-35-4 32" fill="none" stroke="#fff1c5" stroke-width="2.1" opacity=".85" />
-    <path d="M211 90q38 10 78-1" fill="none" stroke="#875531" stroke-width="7" />
-    <path d="M211 90q38 10 78-1" fill="none" stroke="#f8d994" stroke-width="4" />
-    <circle cx="250" cy="114" r="7" fill="#fff0c8" stroke="#a16f3e" stroke-width="1.6" />
-    <path d="m250 109 1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5Z" fill="#6766c4" />
-  </g>
-  <g id="basket-passenger-paws" stroke="#593D45" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M216 88c4-4 11-3 13 2 2 4 0 11-5 12-5 1-10-3-10-7 0-3 0-5 2-7Z" fill="url(#feather-gold)" stroke-width="2.5" />
-    <path d="M273 87c4-3 10-2 13 2 3 5 0 12-5 13-5 0-10-4-10-8 0-3 0-5 2-7Z" fill="url(#feather-gold)" stroke-width="2.5" />
-    <path d="m220 96 1 3m4-4 1 3m51-3 1 3m4-3 1 3" fill="none" stroke="#CC8C4A" stroke-width="1.4" />
-    <path d="m219 91 5-1m52 0h5" fill="none" stroke="#FFE0A0" stroke-width="2" />
+  <g>
+    <path d="m93 87 18 26 33 2-22 25 7 31-34-14-28 16 1-33-23-23 33-5Z" fill="#FFD775" stroke="#A86D48" stroke-width="3.5" stroke-linejoin="round" />
+    <path d="m94 96 9 19-15-3Z" fill="#FFF3C6" />
+    <path d="m54 121 18 18-1 26 23-15 28 12-6-24 18-17-29-1-11-24 2 42Z" fill="#F1B754" opacity=".65" />
+    <path d="m91 141 3 10 10 3-10 3-3 10-3-10-10-3 10-3Z" fill="#FFF1B7" />
+    <g stroke="#593D45" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M62 94c-8 1-12 8-9 17l9 10c6 4 11-1 8-6l-5-7c6 5 11 2 8-3Z" fill="url(#feather-gold)" />
+      <path d="M117 94c9 1 14 8 10 17l-8 9c-6 5-11 1-9-4l5-8c-6 5-11 2-8-3Z" fill="url(#feather-gold)" />
+      <path d="m59 106 5 7m57-7-5 6" fill="none" stroke="#CB843E" stroke-width="1.8" />
+    </g>
+    <path d="m151 82 3 6 7 2-7 3-3 6-2-6-7-3 7-2m-114-41 2 4 5 2-5 1-2 5-1-5-5-1 5-2" fill="#E9BA58" />
   </g>
 </svg>

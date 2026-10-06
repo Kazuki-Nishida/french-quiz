@@ -275,7 +275,7 @@ test("an explicit map details callback takes precedence over local focus and doe
   assert.equal(JSON.stringify(p), before);
 });
 
-test("the bicycle uses a fitted, existing pose on the vehicle canvas for all four reactions", () => {
+test("the bicycle uses a basket passenger on the shared vehicle canvas for all four reactions", () => {
   const p = profile(), h = harness(), container = h.container();
   correct(p, 3);
   Adventure.setVehicle(p, "bicycle");
@@ -286,7 +286,7 @@ test("the bicycle uses a fitted, existing pose on the vehicle canvas for all fou
   for (const reaction of ["idle", "correct", "wrong", "arrival"]) {
     h.view.renderScene(container, p, { reaction });
     const poses = container.querySelectorAll(".av-bicycle-rider");
-    assert.equal(poses.length, 1, "one seated pose replaces the upright companion");
+    assert.equal(poses.length, 1, "one basket passenger replaces the upright companion");
     assert.equal(container.querySelector(".av-rider"), null);
     assert.equal(container.querySelector(".av-companion"), null);
     const pose = poses[0], vehicle = container.querySelector(".av-vehicle-art");
@@ -295,7 +295,7 @@ test("the bicycle uses a fitted, existing pose on the vehicle canvas for all fou
     assert.equal(posePath, "img/adventure/rider-bicycle-" + reaction + ".svg");
     assert.equal(vehiclePath, WorldData.getVehicle("bicycle").asset);
     assert.ok(poseVersion, "the new pose has a cache version");
-    assert.equal(poseVersion, vehicleVersion, "the fitted pose and vehicle refresh together");
+    assert.equal(poseVersion, vehicleVersion, "the basket passenger and vehicle refresh together");
     for (const [element, asset] of [[pose, posePath], [vehicle, vehiclePath]]) {
       assert.equal(element.getAttribute("width"), "320");
       assert.equal(element.getAttribute("height"), "220");
@@ -307,7 +307,7 @@ test("the bicycle uses a fitted, existing pose on the vehicle canvas for all fou
   }
 });
 
-test("switching from the bicycle removes its fitted pose from every shared journey view", () => {
+test("switching from the bicycle removes its basket passenger from every shared journey view", () => {
   const p = profile(), h = harness();
   correct(p, 120);
   const screens = [

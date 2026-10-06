@@ -85,7 +85,7 @@
   }
   function companion(reaction, extraClass) {
     const variant = ['idle', 'correct', 'wrong', 'arrival'].includes(reaction) ? reaction : 'idle';
-    return '<img class="av-companion ' + (extraClass || '') + '" src="' + ASSETS + 'companion-' + variant + '.svg?v=45-final" alt="" width="128" height="144" draggable="false">';
+    return '<img class="av-companion ' + (extraClass || '') + '" src="' + ASSETS + 'companion-' + variant + '.svg?v=46-final" alt="" width="128" height="144" draggable="false">';
   }
   function ride(profile, reaction, extraClass) {
     const vehicle = selectedVehicle(profile);
@@ -93,12 +93,13 @@
     const definition = (catalog().vehicles || []).find(item => item.id === vehicle.id) || vehicle;
     const rider = vehicle.rider || definition.rider || { x: 50, y: 65 };
     const variant = ['idle', 'correct', 'wrong', 'arrival'].includes(reaction) ? reaction : 'idle';
-    // A fitted pose shares the bicycle's coordinate system, keeping hands,
-    // saddle and pedals together at every responsive size and reaction.
+    // The basket passenger shares the bicycle's canvas, so its round paws
+    // and basket rim stay aligned at every responsive size and reaction.
     const riderArt = vehicle.id === 'bicycle'
-      ? '<img class="av-bicycle-rider" src="' + ASSETS + 'rider-bicycle-' + variant + '.svg?v=45-final" alt="" width="320" height="220" draggable="false">'
+      ? '<img class="av-bicycle-rider" src="' + ASSETS + 'rider-bicycle-' + variant + '.svg?v=46-final" alt="" width="320" height="220" draggable="false">'
       : '<span class="av-rider" style="left:' + count(rider.x) + '%;top:' + count(rider.y) + '%">' + companion(reaction) + '</span>';
-    return '<span class="av-mounted av-vehicle-' + escape(vehicle.id) + ' ' + (extraClass || '') + '" role="img" aria-label="' + escape(vehicle.name + 'に乗った相棒') + '">' + riderArt + '<img class="av-vehicle-art" src="' + escape((vehicle.asset || definition.asset) + '?v=45-final') + '" alt="" width="320" height="220" draggable="false"></span>';
+    const description = vehicle.id === 'bicycle' ? '自転車の前カゴに入った相棒' : vehicle.name + 'に乗った相棒';
+    return '<span class="av-mounted av-vehicle-' + escape(vehicle.id) + ' ' + (extraClass || '') + '" role="img" aria-label="' + escape(description) + '">' + riderArt + '<img class="av-vehicle-art" src="' + escape((vehicle.asset || definition.asset) + '?v=46-final') + '" alt="" width="320" height="220" draggable="false"></span>';
   }
   function remainingText(state) {
     if (state && state.activeLeg) return 'あと' + Math.max(0, count(state.activeLeg.requiredUnits) - count(state.activeLeg.progressUnits)) + '問正解で到着';
@@ -144,7 +145,7 @@
     const vehicles = vehicleList(profile), next = vehicles.find(vehicle => !vehicle.unlocked), transport = selectedVehicle(profile);
     const placeCaption = finale.active ? '空想の物語 · ' : state && state.activeLeg ? 'この先の景色 · ' : '現在地 · ';
     const nextText = next ? '次は' + next.name + ' · あと' + count(next.remainingUnits) + '問正解' : '乗り物が全部そろった！';
-    const nextVehicle = '<div class="av-home-vehicle">' + (next ? '<img src="' + escape(next.asset + '?v=45-final') + '" width="320" height="220" alt="">' : '') + '<div><span class="av-eyebrow">' + ja('旅の乗り物') + '</span><p>' + ja(nextText) + '</p></div><button type="button" class="av-inline-button" data-home-vehicles>' + ja(next ? '乗り物を見る' : '乗りかえる') + ' →</button></div>';
+    const nextVehicle = '<div class="av-home-vehicle">' + (next ? '<img src="' + escape(next.asset + '?v=46-final') + '" width="320" height="220" alt="">' : '') + '<div><span class="av-eyebrow">' + ja('旅の乗り物') + '</span><p>' + ja(nextText) + '</p></div><button type="button" class="av-inline-button" data-home-vehicles>' + ja(next ? '乗り物を見る' : '乗りかえる') + ' →</button></div>';
     paint(container, '<div class="av-home-preview av-mode-' + modeOf(state) + '"><div class="av-home-landscape"><img class="av-scene-art" src="' + escape(art(place)) + '" alt="' + escape(place.name + 'のイラスト') + '" width="960" height="300"><span class="av-home-location">' + ja(placeCaption) + nodeLabel(place) + '</span>' + ride(profile, 'idle') + '<span class="av-home-transport">' + (transport ? ruby(transport.name, transport.reading) : ja('徒歩の旅')) + '</span></div>' + nextVehicle + goalSummary(profile) + '</div>');
     connect(container, '[data-home-vehicles]', () => { if (handlers.onJournal) handlers.onJournal('vehicles'); });
     connect(container, '[data-finale-details]', () => { if (handlers.onFinaleDetails) handlers.onFinaleDetails(); });
@@ -278,7 +279,7 @@
   }
   function vehicleCard(vehicle, profile, reward) {
     const unlocked = !!vehicle.unlocked, selected = !!vehicle.selected;
-    return '<article class="av-vehicle-card' + (unlocked ? ' is-owned' : ' is-unowned') + (selected ? ' is-selected' : '') + '"><div class="av-vehicle-picture"><img class="' + (unlocked ? '' : 'av-silhouette') + '" src="' + escape(vehicle.asset + '?v=45-final') + '" width="320" height="220" alt="' + escape(vehicle.name) + '"></div><div class="av-vehicle-copy"><p class="av-eyebrow">' + ja(reward ? '新しい乗り物' : unlocked ? '手に入れた乗り物' : 'これからの乗り物') + '</p><h3>' + ruby(vehicle.name, vehicle.reading) + '</h3><p>' + ja(unlocked ? vehicle.description || 'この乗り物で旅をしよう。' : 'あと' + count(vehicle.remainingUnits) + '問正解で手に入る') + '</p>' + (reward ? '' : '<button type="button" class="av-vehicle-select" data-vehicle="' + escape(vehicle.id) + '" data-av-focus="vehicle-' + escape(vehicle.id) + '" aria-pressed="' + selected + '"' + (unlocked && health(profile).ok ? '' : ' disabled') + '>' + ja(selected ? 'この乗り物で旅をしているよ' : unlocked ? 'この乗り物に乗る' : '正解を積み上げよう') + '</button>') + '</div></article>';
+    return '<article class="av-vehicle-card' + (unlocked ? ' is-owned' : ' is-unowned') + (selected ? ' is-selected' : '') + '"><div class="av-vehicle-picture"><img class="' + (unlocked ? '' : 'av-silhouette') + '" src="' + escape(vehicle.asset + '?v=46-final') + '" width="320" height="220" alt="' + escape(vehicle.name) + '"></div><div class="av-vehicle-copy"><p class="av-eyebrow">' + ja(reward ? '新しい乗り物' : unlocked ? '手に入れた乗り物' : 'これからの乗り物') + '</p><h3>' + ruby(vehicle.name, vehicle.reading) + '</h3><p>' + ja(unlocked ? vehicle.description || 'この乗り物で旅をしよう。' : 'あと' + count(vehicle.remainingUnits) + '問正解で手に入る') + '</p>' + (reward ? '' : '<button type="button" class="av-vehicle-select" data-vehicle="' + escape(vehicle.id) + '" data-av-focus="vehicle-' + escape(vehicle.id) + '" aria-pressed="' + selected + '"' + (unlocked && health(profile).ok ? '' : ' disabled') + '>' + ja(selected ? 'この乗り物で旅をしているよ' : unlocked ? 'この乗り物に乗る' : '正解を積み上げよう') + '</button>') + '</div></article>';
   }
   function finaleCard(profile) {
     const definition = catalog().finale;
@@ -309,7 +310,7 @@
     else if (edge) action = '<button type="button" class="av-detail-primary" data-action="choose" data-edge="' + escape(edge.id) + '"' + (status.ok ? '' : ' disabled') + '>' + ja('この道へ進む') + '<span>' + count(edge.cost) + ja(' 正解分') + '</span></button>';
     else action = '<p class="av-connected-note">' + ja('地図でつながる場所から、この道へ進めます。') + '</p>';
     const recommendations = (place.recommendations || []).map(item => '<button type="button" class="av-recommendation" data-recommendation="' + escape(item.id) + '">' + (item.labelReading ? ruby(item.label, item.labelReading) : ja(item.label)) + ' <span aria-hidden="true">↗</span></button>').join('');
-    return '<article class="av-place-detail"><div class="av-detail-picture"><img src="' + escape(art(place)) + '" width="960" height="300" alt="' + escape(place.name + 'を描いたイラスト') + '"><span class="av-discovery-status">' + ja(isVisited ? '訪問済み' : 'この先の景色 · 予告') + '</span></div><div class="av-detail-copy"><p class="av-eyebrow">' + escape(place.french || '') + '</p><h3>' + nodeLabel(place) + '</h3><p class="av-geography">' + ja(place.description || '') + '</p>' + sourceLink(place.source) + action + (person ? '<div class="av-meeting-teaser"><img class="' + (met ? '' : 'av-silhouette') + '" src="' + escape(person.asset + '?v=45-final') + '" alt="" width="70" height="82"><div><small>' + ja(met ? '出会ったキャラ' : 'ここで出会うキャラ') + '</small><strong>' + (met ? escape(person.name) : '？？？') + '</strong><p>' + ja('旅先で出会う、空想の旅キャラ。') + '</p></div></div>' : '') + (recommendations ? '<div class="av-recommendations"><h4>' + ja('旅のおともに、おすすめの教材') + '</h4><p>' + ja('どの教材でも、この旅を進められます。') + '</p>' + recommendations + '</div>' : '') + (isVisited ? learningCard(state.visited[place.id].learning) : '') + '</div></article>';
+    return '<article class="av-place-detail"><div class="av-detail-picture"><img src="' + escape(art(place)) + '" width="960" height="300" alt="' + escape(place.name + 'を描いたイラスト') + '"><span class="av-discovery-status">' + ja(isVisited ? '訪問済み' : 'この先の景色 · 予告') + '</span></div><div class="av-detail-copy"><p class="av-eyebrow">' + escape(place.french || '') + '</p><h3>' + nodeLabel(place) + '</h3><p class="av-geography">' + ja(place.description || '') + '</p>' + sourceLink(place.source) + action + (person ? '<div class="av-meeting-teaser"><img class="' + (met ? '' : 'av-silhouette') + '" src="' + escape(person.asset + '?v=46-final') + '" alt="" width="70" height="82"><div><small>' + ja(met ? '出会ったキャラ' : 'ここで出会うキャラ') + '</small><strong>' + (met ? escape(person.name) : '？？？') + '</strong><p>' + ja('旅先で出会う、空想の旅キャラ。') + '</p></div></div>' : '') + (recommendations ? '<div class="av-recommendations"><h4>' + ja('旅のおともに、おすすめの教材') + '</h4><p>' + ja('どの教材でも、この旅を進められます。') + '</p>' + recommendations + '</div>' : '') + (isVisited ? learningCard(state.visited[place.id].learning) : '') + '</div></article>';
   }
   function renderMap(container, profile, handlers) {
     if (!container) return;
@@ -372,7 +373,7 @@
   }
   function characterCard(person, state, result, wordLabel) {
     const registration = state && state.characters && state.characters[person.id], met = !!registration, place = node(person.placeId);
-    return '<article class="av-character-card' + (met ? ' is-met' : ' is-unmet') + '"><div class="av-character-art"><img class="' + (met ? '' : 'av-silhouette') + '" src="' + escape(person.asset + '?v=45-final') + '" alt="' + escape(met ? person.name + 'のイラスト' : 'まだ出会っていないキャラのシルエット') + '" width="230" height="270"><span class="av-character-seal">' + (met ? 'RENCONTRE' : 'À RENCONTRER') + '</span></div><div class="av-character-copy"><p class="av-eyebrow">' + ja(result ? '新しい出会い' : met ? '旅で出会ったキャラ' : 'これから出会うキャラ') + '</p><h3>' + (met ? escape(person.name) : '？？？') + '</h3><p>' + (met ? ja(person.description || '') : ja('この場所で、どんな出会いがあるだろう。')) + '</p><p class="av-character-place">' + ja('出会う場所：') + nodeLabel(place) + '</p>' + (met && state.visited && state.visited[place.id] ? learningCard(state.visited[place.id].learning, wordLabel) : '') + '<button type="button" class="av-inline-button" data-open-place="' + escape(place.id) + '">' + ja('地図で場所を見る') + ' →</button></div></article>';
+    return '<article class="av-character-card' + (met ? ' is-met' : ' is-unmet') + '"><div class="av-character-art"><img class="' + (met ? '' : 'av-silhouette') + '" src="' + escape(person.asset + '?v=46-final') + '" alt="' + escape(met ? person.name + 'のイラスト' : 'まだ出会っていないキャラのシルエット') + '" width="230" height="270"><span class="av-character-seal">' + (met ? 'RENCONTRE' : 'À RENCONTRER') + '</span></div><div class="av-character-copy"><p class="av-eyebrow">' + ja(result ? '新しい出会い' : met ? '旅で出会ったキャラ' : 'これから出会うキャラ') + '</p><h3>' + (met ? escape(person.name) : '？？？') + '</h3><p>' + (met ? ja(person.description || '') : ja('この場所で、どんな出会いがあるだろう。')) + '</p><p class="av-character-place">' + ja('出会う場所：') + nodeLabel(place) + '</p>' + (met && state.visited && state.visited[place.id] ? learningCard(state.visited[place.id].learning, wordLabel) : '') + '<button type="button" class="av-inline-button" data-open-place="' + escape(place.id) + '">' + ja('地図で場所を見る') + ' →</button></div></article>';
   }
   function renderJournal(container, profile, handlers) {
     if (!container) return;

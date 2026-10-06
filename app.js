@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v45 · A lovable traveling cast";
+const APP_VER = "v46 · A different cheer along the way";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
@@ -101,28 +101,45 @@ function clearCorrectCelebration(){
   const panel = document.getElementById('correct-celebration');
   if(panel){ panel.hidden = true; panel.innerHTML = ''; }
 }
+// Pure selection from this round's correct total. Special milestones do not
+// consume a normal pose, and incorrect answers never reset the rotation.
+function correctCelebrationVariant(correct, treasure=false){
+  if(treasure) return 'treasure';
+  const total = Number.isFinite(correct) ? Math.max(0, Math.floor(correct)) : 0;
+  if(total > 0 && total % 3 === 0) return total / 3 % 2 === 1 ? 'stars' : 'balloons';
+  return ['peek','clap','hop'][Math.max(0, total - 1 - Math.floor(total / 3)) % 3];
+}
 function celebrateCorrect(treasure=false){
   clearCorrectCelebration();
   if(!richEffects()) return;
   const panel = document.getElementById('correct-celebration');
   if(!panel) return;
-  // Count correct answers within this round, not a streak. Mistakes never
-  // reset the milestone, and the final treasure keeps its own celebration.
-  const correct = quiz ? quiz.correct : 0;
-  const special = !treasure && correct > 0 && correct % 3 === 0
-    ? (correct / 3 % 2 === 1 ? 'stars' : 'balloons') : null;
-  const buddy = '<img class="correct-buddy" src="img/adventure/companion-correct.svg?v=45-final" width="128" height="144" alt="" draggable="false">';
+  const variant = correctCelebrationVariant(quiz ? quiz.correct : 0, treasure);
+  const special = variant === 'stars' || variant === 'balloons';
+  const pictures = {
+    peek:['companion-arrival',128,144], clap:['cheer-clap',128,144],
+    hop:['companion-correct',128,144], stars:['cheer-star',180,180],
+    balloons:['cheer-balloon',180,260], treasure:['companion-correct',128,144]
+  };
+  const picture = pictures[variant];
+  const buddy = '<img class="correct-buddy" src="img/adventure/'+picture[0]+'.svg?v=46-final" width="'+picture[1]+'" height="'+picture[2]+'" alt="" draggable="false">';
   if(special){
     const tones = ['#eaa33e','#66b6ab','#db8075','#a597cc','#e8c968'];
-    const art = special === 'stars'
+    const art = variant === 'stars'
       ? Array.from({length:7},(_,i)=>'<i class="correct-comet" style="--slot:'+i+'"></i>').join('')
       : tones.map((tone,i)=>'<i class="correct-balloon" style="--slot:'+i+';--tone:'+tone+'"><b></b><span></span></i>').join('');
-    const label = special === 'stars' ? 'MAGNIFIQUE !' : 'EN AVANT !';
-    const message = special === 'stars' ? 'すごい！' : 'いい'+UIJa.ruby('調子','ちょうし')+'！';
-    panel.innerHTML='<div class="correct-special correct-special-'+special+'"><div class="correct-special-art" aria-hidden="true">'+art+'</div><div class="correct-special-message">'+buddy+'<strong>'+label+'</strong><small>'+message+'</small></div></div>';
-  }else{
+    const label = variant === 'stars' ? 'MAGNIFIQUE !' : 'EN AVANT !';
+    const message = variant === 'stars' ? 'すごい！' : 'いい'+UIJa.ruby('調子','ちょうし')+'！';
+    panel.innerHTML='<div class="correct-cheer correct-special correct-special-'+variant+' correct-cheer-'+variant+'" data-variant="'+variant+'"><div class="correct-special-art" aria-hidden="true">'+art+'</div><div class="correct-cheer-character">'+buddy+'</div><div class="correct-cheer-copy"><strong>'+label+'</strong><small>'+message+'</small></div></div>';
+  }else if(variant === 'treasure'){
     const sparks = Array.from({length:16},(_,i)=>'<i style="--angle:'+(i*22.5)+'deg;--reach:'+(i%2 ? 134 : 104)+'px;--tone:'+(i%3 ? '#ffcc5f' : '#73c9ba')+'">'+(i%2 ? '✦' : '●')+'</i>').join('');
-    panel.innerHTML='<div class="correct-burst"><span class="correct-ring"></span><span class="correct-ring second"></span>'+sparks+'<div class="correct-word">'+buddy+(treasure?'<span class="correct-crown">👑</span>':'')+'<strong>'+(treasure?'TRÉSOR !':'BRAVO !')+'</strong><small>'+(treasure?UIJa.ruby('宝','たから')+'を'+UIJa.ruby('発見','はっけん')+'！':UIJa.ruby('正解','せいかい')+'！')+'</small></div></div>';
+    panel.innerHTML='<div class="correct-burst correct-cheer-treasure" data-variant="treasure"><span class="correct-ring"></span><span class="correct-ring second"></span>'+sparks+'<div class="correct-word">'+buddy+'<span class="correct-crown">👑</span><strong>TRÉSOR !</strong><small>'+UIJa.ruby('宝','たから')+'を'+UIJa.ruby('発見','はっけん')+'！</small></div></div>';
+    confetti();
+  }else{
+    const accent = variant === 'peek' ? '<span class="correct-peek-edge">✦</span>'
+      : variant === 'clap' ? '<span class="correct-clap-lines"></span>'
+      : '<span class="correct-hop-ground"></span><span class="correct-hop-spark first">✦</span><span class="correct-hop-spark second">✦</span>';
+    panel.innerHTML='<div class="correct-cheer correct-cheer-'+variant+'" data-variant="'+variant+'"><div class="correct-cheer-character">'+buddy+accent+'</div><div class="correct-cheer-copy"><strong>BRAVO !</strong><small>'+UIJa.ruby('正解','せいかい')+'！</small></div></div>';
     confetti();
   }
   panel.hidden=false;

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="144" viewBox="0 0 128 144">
+  <title>胸の前で短い羽をぱちぱち合わせて喜ぶ、金色の旅の相棒</title>
+  <defs>
+    <linearGradient id="feather-gold" x1="0" y1="0" x2="0.25" y2="1">
+      <stop stop-color="#FFD17A" />
+      <stop offset=".48" stop-color="#F3B452" />
+      <stop offset="1" stop-color="#E99A43" />
+    </linearGradient>
+    <linearGradient id="face-cream" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#FFFAE9" />
+      <stop offset="1" stop-color="#FFEDC7" />
+    </linearGradient>
+    <linearGradient id="scarf-blue" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#8586DC" />
+      <stop offset="1" stop-color="#5B58AD" />
+    </linearGradient>
+    <linearGradient id="eye-brown" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#49313B" />
+      <stop offset="1" stop-color="#744D46" />
+    </linearGradient>
+  </defs>
+  <g>
+    <ellipse cx="64" cy="137" rx="30" ry="4" fill="#593D45" opacity=".13" />
+    <g stroke="#593D45" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M49 123q-4 9-10 11l13-1m25-10q4 9 10 11l-13-1" fill="#D88749" stroke-width="2.7" />
+      <path d="M88 108q15-9 17-3 1 5-9 9 12 0 9 6-4 5-16 1" fill="#DF9449" stroke-width="2.5" />
+      <path d="M43 79c-12 14-13 37 2 46 11 7 30 7 41-3 12-11 8-29-4-44Z" fill="url(#feather-gold)" stroke-width="2.8" />
+      <path d="M52 94c-12 6-10 24 1 29 13 5 30-4 25-18-3-10-12-14-26-11Z" fill="url(#face-cream)" stroke="none" />
+      <path d="M87 106 99 103l5 20-15 5-6-18Z" fill="#B78055" stroke-width="2" />
+      <path d="m88 107 12-3 2 7-12 4Z" fill="#DFB37D" stroke-width="1.7" />
+      <circle cx="95" cy="112" r="3.5" fill="#FFECC3" stroke-width="1" />
+    </g>
+  </g>
+  <g>
+    <g id="buddy-head">
+      <path d="M48 23c-7-3-9-9-5-13 5-5 14-2 14 4 0 4-4 6-8 3 1 6 12 3 17 3 23-2 40 14 40 34 0 21-18 33-41 33-24 1-44-13-43-34 0-16 10-26 26-30Z" fill="url(#feather-gold)" stroke="#593D45" stroke-width="2.8" stroke-linejoin="round" />
+      <path d="M32 41c6-10 18-12 27-5l5 4 5-4c9-7 22-5 27 6 7 15-2 32-17 37-10 4-21 4-31 0-16-5-25-24-16-38Z" fill="url(#face-cream)" />
+      <path d="M68 26c11-1 20 5 25 12" fill="none" stroke="#FFE5AE" stroke-width="3.5" stroke-linecap="round" opacity=".8" />
+      <ellipse cx="36.5" cy="65" rx="7.2" ry="4.4" fill="#EFA184" opacity=".7" />
+      <ellipse cx="92" cy="65" rx="7.2" ry="4.4" fill="#EFA184" opacity=".7" />
+      <path d="M40 54q7-13 14 0m20 0q7-13 14 0" fill="none" stroke="#593D45" stroke-width="3.6" stroke-linecap="round" />
+      <path d="M37 58h5m44 0h5" fill="none" stroke="#D99070" stroke-width="1.5" stroke-linecap="round" />
+      <path d="M59 62q5-4 10 0c2 2-1 4-4 6h-2c-3-2-6-4-4-6Z" fill="#EE9775" stroke="#A65F4F" stroke-width="1.4" stroke-linejoin="round" />
+      <path d="M62 62q2-1 4 0" fill="none" stroke="#FFD1A9" stroke-width="1.2" stroke-linecap="round" />
+      <path d="M55 70q9 3 18 0c0 10-18 13-18 0Z" fill="#67414A" />
+      <path d="M60 76q5-3 9 0" fill="none" stroke="#F5AD97" stroke-width="2.8" stroke-linecap="round" />
+    </g>
+    <g id="companion-scarf" stroke="#49477F" stroke-width="2" stroke-linejoin="round">
+      <path d="M35 81c15 8 36 10 56 1l-3 12c-15 7-35 6-49-1Z" fill="url(#scarf-blue)" />
+      <path d="M43 87c11 6 29 7 39 3" fill="none" stroke="#BCBEF2" stroke-width="2.2" stroke-linecap="round" />
+      <path d="M43 92c-6 6-13 9-23 9l8 6-1 7c13-2 22-9 28-20Z" fill="url(#scarf-blue)" />
+      <path d="m28 104 5 6" stroke="#CBCDF6" stroke-width="2" />
+      <path d="M42 87c3-3 9-2 12 1l-1 8c-4 3-8 1-11-2Z" fill="#8182D8" />
+      <path d="m47 89 2 4" stroke="#CDCEF7" stroke-width="1.8" stroke-linecap="round" />
+    </g>
+  </g>
+  <g>
+    <g stroke="#593D45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M40 93c-9 5-10 17-2 22 8 4 18-1 27-10l-2-9-12 5 3-8c0-5-6-6-9-1l-4 7Z" fill="url(#feather-gold)" />
+      <path d="M88 93c9 5 10 17 2 22-8 4-18-1-27-10l2-9 12 5-3-8c0-5 6-6 9-1l4 7Z" fill="url(#feather-gold)" />
+      <path d="m47 107 9-3m18 1 7 3" fill="none" stroke="#D28A43" stroke-width="1.8" />
+    </g>
+    <path d="M60 90v-4m10 5 3-4" fill="none" stroke="#DDA642" stroke-width="2" stroke-linecap="round" />
+  </g>
+</svg>
