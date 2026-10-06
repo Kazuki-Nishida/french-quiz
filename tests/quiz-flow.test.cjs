@@ -55,7 +55,7 @@ function legacyProfile(id = 1) {
   return { id, name: `テスト${id}`, avatar: "🦊", daily: {}, words: {}, stock: [], tut: 1 };
 }
 
-function harness(initial) {
+function harness(initial, options = {}) {
   const elements = new Map(), createdElements = [], downloads = [], alerts = [], windowListeners = {};
   const document = {
     body: new Element("body"), listeners: {},
@@ -79,7 +79,8 @@ function harness(initial) {
     }
   };
   const timers = new Map(); let nextTimer = 0;
-  const speech = [];
+  const speech = [], utterances = [];
+  let availableVoices = options.voices || [{ name: "Audrey", lang: "fr-FR", voiceURI: "Audrey", localService: true }];
   const id = ++nextHarness; let round = 0;
   const context = vm.createContext({
     ...curriculum, Adventure, WorldData, ProfileStore, StudyGuide, document, localStorage,
@@ -94,7 +95,7 @@ function harness(initial) {
     setTimeout(callback, delay) { const timer = ++nextTimer; timers.set(timer, { callback, delay }); return timer; },
     clearTimeout(timer) { timers.delete(timer); },
     SpeechSynthesisUtterance: class { constructor(text) { this.text = text; } },
-    speechSynthesis: { getVoices: () => [{ name: "Audrey", lang: "fr-FR", voiceURI: "Audrey", localService: true }], cancel() {}, speak: value => speech.push(value.text) },
+    speechSynthesis: { getVoices: () => availableVoices, cancel() {}, speak(value) { speech.push(value.text); utterances.push(value); } },
     matchMedia: () => ({ matches: false }), scrollTo() {}
   });
   context.window = context;
@@ -124,9 +125,135 @@ function harness(initial) {
     const target = { files: [{ text }], value: 'selected.json' };
     for (const listener of document.getElementById('importfile').listeners.change || []) listener({ target });
   }
+  function setVoices(voices) {
+    availableVoices = voices;
+    context.speechSynthesis.onvoiceschanged();
+  }
   const pendingTimerDelays = () => [...timers.values()].map(timer => timer.delay);
-  return { context, document, storage, speech, run, inspect, state, answer, finish, flushTimers, pendingTimerDelays, dispatchStorage, importText, downloads, createdElements, alerts };
+  return { context, document, storage, speech, utterances, setVoices, run, inspect, state, answer, finish, flushTimers, pendingTimerDelays, dispatchStorage, importText, downloads, createdElements, alerts };
 }
+
+function frenchVoice(name, lang = 'fr-FR', extras = {}) {
+  return { name, lang, voiceURI: name, localService: true, ...extras };
+}
+
+function assertSpokenWith(h, voice, text) {
+  const utterance = h.utterances.at(-1);
+  assert.ok(utterance, 'the real speakText function sends an utterance to speechSynthesis');
+  assert.equal(utterance.text, text);
+  assert.strictEqual(utterance.voice, voice, 'the selected browser voice object reaches the utterance');
+  assert.equal(utterance.lang, voice.lang);
+}
+
+test('automatic speech prefers available Audrey quality and falls back to the best local Amélie', () => {
+  const audrey = frenchVoice('Audrey');
+  const audreyEnhanced = frenchVoice('Audrey (Enhanced)', 'fr-FR', { default: true });
+  const audreyPremium = frenchVoice('Audrey (Premium)');
+  const compact = frenchVoice('Amélie', 'fr-CA', { voiceURI: 'com.apple.voice.compact.fr-CA.Amelie' });
+  const enhanced = frenchVoice('Amélie', 'fr-CA', { voiceURI: 'com.apple.voice.enhanced.fr-CA.Amelie' });
+  const premium = frenchVoice('Amélie', 'fr-CA', { voiceURI: 'com.apple.voice.premium.fr-CA.Amelie' });
+  const alternatives = [frenchVoice('Jacques'), frenchVoice('Thomas')];
+  for (const [voices, expected] of [
+    [[audrey, audreyEnhanced, premium, ...alternatives, audreyPremium], audreyPremium],
+    [[premium, ...alternatives, audreyEnhanced, audrey], audreyEnhanced],
+    [[premium, ...alternatives, audrey], audrey],
+    [[...alternatives, compact], compact],
+    [[compact, ...alternatives, enhanced], enhanced],
+    [[enhanced, premium, ...alternatives, compact], premium]
+  ]) {
+    const h = harness(undefined, { voices });
+    assert.equal(h.inspect('DB.settings.voiceGender'), 'f');
+    assert.strictEqual(h.run('FRVOICE'), expected);
+    h.run("speakText('bonjour')");
+    assertSpokenWith(h, expected, 'bonjour');
+    assert.equal(h.inspect('DB.settings.voiceName'), null, 'automatic selection does not become a saved manual override');
+    assert.equal(h.storage.writes, 0);
+  }
+});
+
+test('automatic fallback favors an available female voice and excludes non-French language tags', () => {
+  const invalid = [frenchVoice('Amélie English', 'en-US'), frenchVoice('Audrey Premium', 'frank'), frenchVoice('Amélie Missing', '')];
+  const french = [frenchVoice('Audrey', 'fr_CA'), frenchVoice('Julie', 'fr'), frenchVoice('Marie', 'fr-FR')];
+  const male = [frenchVoice('Jacques Premium'), frenchVoice('Thomas Enhanced')];
+  for (const expected of french) {
+    const h = harness(undefined, { voices: [...invalid, ...male, expected] });
+    assert.strictEqual(h.run('FRVOICE'), expected);
+    assert.deepEqual(new Set(h.document.getElementById('voicesel').children.map(option => option.value)), new Set(['', ...male.map(voice => voice.name), expected.name]));
+    h.run("speakText('merci')");
+    assertSpokenWith(h, expected, 'merci');
+  }
+});
+
+test('manual male and novelty French voices remain selectable, persist, and are actually spoken', () => {
+  const preferred = frenchVoice('Amélie', 'fr-CA');
+  for (const manual of [frenchVoice('Jacques'), frenchVoice('Eloquence', 'fr_CA')]) {
+    const voices = [manual, preferred];
+    const h = harness(undefined, { voices });
+    const selector = h.document.getElementById('voicesel');
+    assert.ok(selector.children.some(option => option.value === manual.name));
+    selector.value = manual.name;
+    for (const listener of selector.listeners.change) listener({ target: selector });
+    assert.strictEqual(h.run('FRVOICE'), manual);
+    assert.equal(JSON.parse(h.storage.raw).settings.voiceName, manual.name);
+    assertSpokenWith(h, manual, 'bonjour, merci');
+    const fresh = harness(h.storage.raw, { voices });
+    assert.strictEqual(fresh.run('FRVOICE'), manual);
+    assert.equal(fresh.document.getElementById('voicesel').value, manual.name);
+    fresh.run("speakText('au revoir')");
+    assertSpokenWith(fresh, manual, 'au revoir');
+    assert.equal(fresh.storage.writes, 0);
+  }
+});
+
+test('late voiceschanged selects available Audrey Premium and speaks a waiting request only once', () => {
+  const h = harness(undefined, { voices: [] });
+  h.run("speakText('bonjour en retard')");
+  assert.equal(h.run('FRVOICE'), null);
+  assert.equal(h.utterances.length, 0);
+  const preferred = frenchVoice('Audrey Premium');
+  const voices = [frenchVoice('Amélie', 'fr-CA'), frenchVoice('Thomas'), preferred];
+  h.setVoices(voices);
+  assert.strictEqual(h.run('FRVOICE'), preferred);
+  assertSpokenWith(h, preferred, 'bonjour en retard');
+  assert.equal(h.run('pendingSpeak'), null);
+  h.setVoices(voices); h.flushTimers();
+  assert.equal(h.utterances.length, 1, 'subsequent voice notifications and startup retries do not repeat speech');
+  assert.equal(h.storage.writes, 0);
+});
+
+test('a temporarily missing manual voice survives saving and is restored when its voice list arrives', () => {
+  const manual = frenchVoice('Jacques');
+  const fallback = frenchVoice('Amélie', 'fr-CA');
+  const initial = JSON.stringify({ profiles: [legacyProfile()], active: 1, settings: { voiceName: manual.name } });
+  const h = harness(initial, { voices: [fallback] });
+  assert.strictEqual(h.run('FRVOICE'), fallback);
+  assert.equal(h.inspect('DB.settings.voiceName'), manual.name);
+  h.run("speakText('bonjour'); save()");
+  assertSpokenWith(h, fallback, 'bonjour');
+  assert.equal(JSON.parse(h.storage.raw).settings.voiceName, manual.name);
+  const fresh = harness(h.storage.raw, { voices: [fallback] });
+  const saved = fresh.storage.raw;
+  fresh.setVoices([fallback, manual]);
+  assert.strictEqual(fresh.run('FRVOICE'), manual);
+  assert.equal(fresh.document.getElementById('voicesel').value, manual.name);
+  fresh.run("speakText('me revoilà')");
+  assertSpokenWith(fresh, manual, 'me revoilà');
+  assert.equal(fresh.storage.raw, saved);
+  assert.equal(fresh.storage.writes, 0, 'restoring a temporarily unavailable voice does not rewrite learning records');
+});
+
+test('an existing male automatic preference is retained over the female automatic default', () => {
+  const initial = JSON.stringify({ profiles: [legacyProfile()], active: 1, settings: { voiceGender: 'm' } });
+  for (const male of [frenchVoice('Jacques'), frenchVoice('Thomas')]) {
+    const h = harness(initial, { voices: [frenchVoice('Audrey Premium'), frenchVoice('Amélie', 'fr-CA'), male] });
+    assert.strictEqual(h.run('FRVOICE'), male);
+    assert.equal(h.inspect('DB.settings.voiceGender'), 'm');
+    h.run("speakText('bonsoir'); save()");
+    assertSpokenWith(h, male, 'bonsoir');
+    assert.equal(JSON.parse(h.storage.raw).settings.voiceGender, 'm');
+    assert.equal(JSON.parse(h.storage.raw).settings.voiceName, null);
+  }
+});
 
 test("actual quiz starts with three questions, saves intro completion before results, then starts ten", () => {
   const h = harness();

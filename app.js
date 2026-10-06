@@ -1,5 +1,5 @@
 "use strict";
-const APP_VER = "v46 · A different cheer along the way";
+const APP_VER = "v47 · A welcoming French voice";
 /* ================= データほぞん ================= */
 const LS_KEY = "frquiz-v1";
 const AVATARS = ["🦊","🐰","🐻","🐼","🐸","🦁","🐱","🐶","🦄","🐧","🐹","🐨"];
@@ -164,24 +164,29 @@ function frDisplay(w){ // 名詞は冠詞つき、文法問題は完成した文
 /* フランス語の声を確実に選ぶ (声リストは非同期で届くのでキャッシュ+待機) */
 let FRVOICE = null, voicesReady = false, warnedNoFr = false, pendingSpeak = null;
 const VOICE_F = /am[ée]lie|audrey|aur[ée]lie|marie|c[ée]line|chantal|virginie|julie|juliette|hortense|denise|[ée]loise|sylvie|charline|ariane|vivienne|coralie|brigitte|jacqueline|l[ée]a|manon|google fran/;
-const VOICE_M = /thomas|nicolas|henri|alain|claude|antoine|fabrice|guillaume|olivier|bruno|didier|paul|jean|guy/;
+const VOICE_M = /thomas|jacques|nicolas|henri|alain|claude|antoine|fabrice|guillaume|olivier|bruno|didier|paul|jean|guy/;
+function isFrenchVoice(v){ return /^fr(?:-|$)/.test((v.lang || "").toLowerCase().replace(/_/g,"-")); }
 function scoreVoice(v){
   const n = (v.name || "").toLowerCase();
   const q = n + " " + ((v.voiceURI || "") + "").toLowerCase(); // URIにcompact等の品質情報が入っていることが多い
-  const l = (v.lang || "").toLowerCase().replace("_","-");
-  if(!l.startsWith("fr")) return -1; // フランス語以外は使わない
+  const l = (v.lang || "").toLowerCase().replace(/_/g,"-");
+  if(!isFrenchVoice(v)) return -1;
   let s = 0;
-  if(l === "fr-fr") s += 40;                                   // フランスのフランス語を優先
   const want = (DB.settings && DB.settings.voiceGender) || "f";
   const isF = VOICE_F.test(n), isM = VOICE_M.test(n);
-  if(want === "f"){ if(isF) s += 50; else if(isM) s -= 15; }   // えらんだ性別の声を最優先
-  else            { if(isM) s += 50; else if(isF) s -= 15; }
-  if(/siri|premium|enhanced|natural|neural/.test(q)) s += 18;  // 高品質ボイスを強く優先
-  if(/audrey/.test(n)) s += 12;                                // Audreyを標準の声にする
-  if(/premium/.test(q)) s += 2;                                // PremiumはEnhancedより優先
-  if(/compact/.test(q)) s -= 25;                               // どもる低音質のコンパクト版を回避
-  if(v.localService) s += 6;                                   // オフラインでも動く声
-  if(/eloquence|albert|bad news|bells|whisper|zarvox|trinoids|jester|organ|cellos|superstar|grandma|grandpa|rocko|shelley|sandy|flo|eddy|reed/.test(n)) s -= 30; // ジョーク声を回避
+  // Web Speech has no gender field. Recognized voice names take precedence
+  // over locale/quality, so a fr-FR male voice cannot outrank Amélie fr-CA.
+  if(want === "f"){ if(isF) s += 1000; else if(!isM) s += 100; }
+  else            { if(isM) s += 1000; else if(!isF) s += 100; }
+  // Prefer Audrey (Premium > Enhanced > ordinary), then local Amélie.
+  // Never force an absent voice: getVoices() supplies all selectable objects.
+  if(v.localService && /am[ée]lie/.test(n)) s += 200;
+  if(l === "fr-fr") s += 40;
+  if(/siri|premium|enhanced|natural|neural/.test(q)) s += 18;
+  if(/audrey/.test(n)) s += 300;
+  if(/premium/.test(q)) s += 12; // OSのdefault/local加点より品質差を優先
+  if(v.localService) s += 6;
+  if(/eloquence|albert|bad news|bells|whisper|zarvox|trinoids|jester|organ|cellos|superstar|grandma|grandpa|rocko|shelley|sandy|flo|eddy|reed/.test(n)) s -= 2000;
   if(v.default) s += 2;
   return s;
 }
@@ -189,7 +194,8 @@ function refreshVoices(){
   try{
     const all = speechSynthesis.getVoices() || [];
     voicesReady = all.length > 0;
-    const frs = all.filter(v => scoreVoice(v) >= 0).sort((a,b) => scoreVoice(b) - scoreVoice(a));
+    // Auto preference must not hide a French voice that was chosen manually.
+    const frs = all.filter(isFrenchVoice).sort((a,b) => scoreVoice(b) - scoreVoice(a));
     // 手でえらんだ声があれば最優先、なければ自動でいちばん良い声
     const manual = DB.settings.voiceName ? frs.find(v => v.name === DB.settings.voiceName) : null;
     FRVOICE = manual || frs[0] || null;
